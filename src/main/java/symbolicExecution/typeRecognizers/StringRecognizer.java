@@ -42,7 +42,7 @@ public class StringRecognizer extends RecognizerProcessor{
 			}
 			
 			if(rightOp instanceof NewExpr) {
-				// TODO maybe retrieve string in constructor
+				// TODO retrieve string in constructor
 				result.put(leftOp, new ConcreteValue(StringConstant.v("")));
 			}
 

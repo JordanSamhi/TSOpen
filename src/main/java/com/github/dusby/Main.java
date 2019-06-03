@@ -1,11 +1,10 @@
-package main;
+package com.github.dusby;
 
+import com.github.dusby.symbolicExecution.SymbolicExecutioner;
 import soot.SootMethod;
-import soot.Unit;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
-import symbolicExecution.SymbolicExecutioner;
 
 public class Main {
 
@@ -14,8 +13,7 @@ public class Main {
 		ifac.getAnalysisFileConfig().setAndroidPlatformDir("/home/jordan/Android/Sdk/platforms/");
 		// small apk
 		ifac.getAnalysisFileConfig().setTargetAPKFile("/home/jordan/eclipse-workspace/TSOpen/apks/2337a421045aaebe2be6497dab822826.apk");
-		// huge apk
-//		ifac.getAnalysisFileConfig().setTargetAPKFile("/home/jordan/eclipse-workspace/TSOpen/apks/b6d0bb5f7e7a5d1cd151a6a979b9e38d.apk");
+//		ifac.getAnalysisFileConfig().setTargetAPKFile("/home/jordan/eclipse-workspace/TSOpen/apks/holycolbert10.apk");
 		
 		SetupApplication sa = new SetupApplication(ifac);
 		sa.setCallbackFile("/home/jordan/git/FlowDroid/soot-infoflow-android/AndroidCallbacks.txt");
@@ -23,10 +21,8 @@ public class Main {
 		InfoflowCFG icfg = new InfoflowCFG();
 		
 		SootMethod dummyMainMethod = sa.getDummyMainMethod();
-		// Forward analysis so unique starting point
-		Unit entryPoint = icfg.getStartPointsOf(dummyMainMethod).iterator().next();
 		
-		SymbolicExecutioner se = new SymbolicExecutioner(icfg);
-		se.execute(entryPoint);
+		SymbolicExecutioner se = new SymbolicExecutioner(icfg, dummyMainMethod);
+		se.execute();
 	}
 }

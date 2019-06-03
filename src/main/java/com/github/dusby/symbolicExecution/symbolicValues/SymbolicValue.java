@@ -1,11 +1,11 @@
-package symbolicExecution.symbolicValues;
+package com.github.dusby.symbolicExecution.symbolicValues;
 
 import java.util.List;
 
+import com.github.dusby.symbolicExecution.SymbolicExecutioner;
 import soot.SootMethod;
 import soot.Value;
 import soot.jimple.Constant;
-import symbolicExecution.SymbolicExecutioner;
 
 public class SymbolicValue implements SymbolicValueProvider {
 

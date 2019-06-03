@@ -1,13 +1,17 @@
-package symbolicExecution;
+package com.github.dusby.symbolicExecution;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import predicates.ConjunctionPredicate;
-import predicates.Predicate;
+import com.github.dusby.predicates.ConjunctionPredicate;
+import com.github.dusby.predicates.DisjunctionPredicate;
+import com.github.dusby.predicates.Predicate;
+import com.github.dusby.predicates.PredicateProvider;
+import com.github.dusby.symbolicExecution.symbolicValues.SymbolicValueProvider;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
@@ -16,34 +20,60 @@ import soot.jimple.IfStmt;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
-import soot.tagkit.AnnotationTag;
-import symbolicExecution.symbolicValues.SymbolicValueProvider;
 
 public class SymbolicExecutioner {
 	private final InfoflowCFG icfg;
 	private List<Unit> visitedNodes;
-	private Map<Value, SymbolicValueProvider> symbolicExecutionResults;
 	private List<SootMethod> visitedMethods;
-	private Map<SootMethod, ConjunctionPredicate> methodPathPredicate;
+	private Map<Value, SymbolicValueProvider> symbolicExecutionResults;
+	private Map<SootMethod, ConjunctionPredicate> methodToCurrentPathPredicate;
+	private Map<Unit, DisjunctionPredicate> unitToFullPathPredicate;
+	private LinkedList<SootMethod> methodWorkList;
 
-	public SymbolicExecutioner(InfoflowCFG icfg) {
+	public SymbolicExecutioner(InfoflowCFG icfg, SootMethod mainMethod) {
 		this.icfg = icfg;
 		this.visitedNodes = new ArrayList<Unit>();
-		this.symbolicExecutionResults = new HashMap<Value, SymbolicValueProvider>();
 		this.visitedMethods = new ArrayList<SootMethod>();
-		this.methodPathPredicate = new HashMap<SootMethod, ConjunctionPredicate>();
+		this.symbolicExecutionResults = new HashMap<Value, SymbolicValueProvider>();
+		this.methodToCurrentPathPredicate = new HashMap<SootMethod, ConjunctionPredicate>();
+		this.unitToFullPathPredicate = new HashMap<Unit, DisjunctionPredicate>();
+		this.methodWorkList = new LinkedList<SootMethod>();
+		this.methodWorkList.add(mainMethod);
+	}
+	
+	public void execute() {
+		long startOfExecution = System.currentTimeMillis();
+		while(!this.methodWorkList.isEmpty()) {
+			SootMethod methodToAnalyze = this.methodWorkList.removeFirst();
+			if(!this.visitedMethods.contains(methodToAnalyze)) {
+				this.visitedMethods.add(methodToAnalyze);
+				Unit entryPoint = this.icfg.getStartPointsOf(methodToAnalyze).iterator().next();
+				this.processNode(entryPoint);
+			}
+		}
+		long elapsedTime = System.currentTimeMillis() - startOfExecution;
+		org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("toto");
+		logger.debug("tototto");
+		System.out.println("Symbolic execution : " + elapsedTime+ "ms");
+		
 	}
 
-	public void execute(Unit unit) {
+	private void processNode(Unit unit) {
 		if(!this.visitedNodes.contains(unit)) { 
 			this.visitedNodes.add(unit);
 			SootMethod methodBeingAnalyzed = this.icfg.getMethodOf(unit);
-			ConjunctionPredicate currentPathPredicate = this.methodPathPredicate.get(methodBeingAnalyzed);
+			ConjunctionPredicate currentPathPredicate = this.methodToCurrentPathPredicate.get(methodBeingAnalyzed);
 			// TODO change string tag
-			if(currentPathPredicate != null && !currentPathPredicate.isEmpty()) {
-				unit.addTag(new AnnotationTag(currentPathPredicate.toString()));
-			}else if(currentPathPredicate == null) {
-				this.methodPathPredicate.put(methodBeingAnalyzed, new ConjunctionPredicate());
+			if(currentPathPredicate == null) {
+				this.methodToCurrentPathPredicate.put(methodBeingAnalyzed, new ConjunctionPredicate());
+			}else if(!currentPathPredicate.isEmpty()) {
+				DisjunctionPredicate unitFullPathPredicate = this.unitToFullPathPredicate.get(unit);
+				if(unitFullPathPredicate == null) {
+					unitFullPathPredicate = new DisjunctionPredicate((PredicateProvider) new ConjunctionPredicate(currentPathPredicate));
+					this.unitToFullPathPredicate.put(unit, unitFullPathPredicate);
+				}else {
+					unitFullPathPredicate.addPredicate((PredicateProvider) new ConjunctionPredicate(currentPathPredicate));
+				}
 			}
 			if(unit instanceof InvokeStmt) {
 				this.propagateTargetMethod(unit);
@@ -75,7 +105,7 @@ public class SymbolicExecutioner {
 					this.updatePathPredicate(ifStmt, false, currentPathPredicate);
 				}
 			}
-			this.execute(successor);
+			this.processNode(successor);
 		}
 		if(unit instanceof IfStmt) {
 			currentPathPredicate.deleteLastPredicate();
@@ -97,12 +127,8 @@ public class SymbolicExecutioner {
 	private void propagateTargetMethod(Unit invokation) {
 		Collection<SootMethod> pointsTo = this.icfg.getCalleesOfCallAt(invokation);
 		for(SootMethod callee : pointsTo) {
-			Unit startingPoint = this.icfg.getStartPointsOf(callee).iterator().next();
 			if(callee.getDeclaringClass().isApplicationClass()) {
-				if(!this.visitedMethods.contains(callee)) {
-					this.visitedMethods.add(callee);
-					this.execute(startingPoint);
-				}
+				this.methodWorkList.add(callee);
 			}
 		}
 	}
@@ -115,8 +141,9 @@ public class SymbolicExecutioner {
 		return this.icfg;
 	}
 
-	public Map<SootMethod, ConjunctionPredicate> getMethodPathPredicate() {
-		return methodPathPredicate;
+	public Map<Unit, DisjunctionPredicate> getUnitToFullPathPredicate() {
+		return unitToFullPathPredicate;
 	}
+	
 	
 }

@@ -1,5 +1,5 @@
 
-package predicates;
+package com.github.dusby.predicates;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +40,15 @@ public class Predicate implements PredicateProvider{
 			this.setSymbol(this.notOperators.get(condExprSymbol));
 		}
 	}
+	
+	public Predicate(Predicate predicate) {
+		this.setLeftOp(predicate.getLeftOp());
+		this.setRightOp(predicate.getRightOp());
+		this.setSymbol(predicate.getSymbol());
+		this.setConditionExpression(predicate.getConditionExpression());
+		this.setIfStmt(predicate.getIfStmt());
+		this.setBranch(predicate.getBranch());
+	}
 
 	@Override
 	public String toString() {
@@ -75,7 +84,7 @@ public class Predicate implements PredicateProvider{
 		this.symbol = symbol;
 	}
 
-	public boolean isBranch() {
+	public boolean getBranch() {
 		return branch;
 	}
 

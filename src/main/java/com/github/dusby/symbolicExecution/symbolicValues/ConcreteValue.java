@@ -1,4 +1,4 @@
-package symbolicExecution.symbolicValues;
+package com.github.dusby.symbolicExecution.symbolicValues;
 
 import soot.jimple.Constant;
 

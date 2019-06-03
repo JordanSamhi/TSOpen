@@ -1,17 +1,17 @@
-package predicates;
+package com.github.dusby.predicates;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
-public abstract class PredicateAggregate implements PredicateProvider{
+public abstract class PredicateAggregate implements PredicateProvider {
 	
-	protected ArrayList<PredicateProvider> predicates;
+	protected LinkedList<PredicateProvider> predicates;
 	
 	public PredicateAggregate() {
-		this.predicates = new ArrayList<PredicateProvider>();
+		this.predicates = new LinkedList<PredicateProvider>();
 	}
 	
 	public PredicateAggregate(PredicateProvider predicate) {
-		this.predicates = new ArrayList<PredicateProvider>();
+		this.predicates = new LinkedList<PredicateProvider>();
 		this.predicates.add(predicate);
 	}
 	
@@ -23,7 +23,7 @@ public abstract class PredicateAggregate implements PredicateProvider{
 	
 	public void deleteLastPredicate() {
 		if(!this.isEmpty()) {
-			this.predicates.remove(this.predicates.size() - 1);
+			this.predicates.removeLast();
 		}
 	}
 	
@@ -31,7 +31,7 @@ public abstract class PredicateAggregate implements PredicateProvider{
 		if(this.isEmpty()) {
 			return null;
 		}
-		return this.predicates.get(this.predicates.size() - 1);
+		return this.predicates.getLast();
 	}
 	
 	public boolean isEmpty() {
@@ -47,11 +47,15 @@ public abstract class PredicateAggregate implements PredicateProvider{
 		String pString = "";
 		for(PredicateProvider p : this.predicates) {
 			pString += "(" + p + ")";
-			if(p != this.predicates.get(this.predicates.size() - 1)) {
+			if(p != this.predicates.getLast()) {
 				pString += this.getSymbol();
 			}
 		}
 		return pString;
+	}
+	
+	public int getSize() {
+		return this.predicates.size();
 	}
 	
 	public void printPredicate() {

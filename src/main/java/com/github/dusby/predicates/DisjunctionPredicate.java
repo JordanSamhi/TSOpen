@@ -1,6 +1,6 @@
-package predicates;
+package com.github.dusby.predicates;
 
-public class DisjunctionPredicate extends PredicateAggregate{
+public class DisjunctionPredicate extends PredicateAggregate {
 
 	public static final String SYMBOL = " \\/ ";
 	

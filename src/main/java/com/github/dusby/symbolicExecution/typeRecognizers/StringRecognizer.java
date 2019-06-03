@@ -1,9 +1,13 @@
-package symbolicExecution.typeRecognizers;
+package com.github.dusby.symbolicExecution.typeRecognizers;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.github.dusby.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.symbolicExecution.symbolicValues.ConcreteValue;
+import com.github.dusby.symbolicExecution.symbolicValues.SymbolicValue;
+import com.github.dusby.symbolicExecution.symbolicValues.SymbolicValueProvider;
 import soot.Local;
 import soot.SootMethod;
 import soot.Value;
@@ -12,10 +16,6 @@ import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.NewExpr;
 import soot.jimple.StringConstant;
-import symbolicExecution.SymbolicExecutioner;
-import symbolicExecution.symbolicValues.ConcreteValue;
-import symbolicExecution.symbolicValues.SymbolicValueProvider;
-import symbolicExecution.symbolicValues.SymbolicValue;
 
 public class StringRecognizer extends RecognizerProcessor{
 

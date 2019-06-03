@@ -12,7 +12,10 @@ public class Main {
 	public static void main(String[] args) {
 		InfoflowAndroidConfiguration ifac = new InfoflowAndroidConfiguration();
 		ifac.getAnalysisFileConfig().setAndroidPlatformDir("/home/jordan/Android/Sdk/platforms/");
-		ifac.getAnalysisFileConfig().setTargetAPKFile("/home/jordan/eclipse-workspace/TSOpen/apks/b6d0bb5f7e7a5d1cd151a6a979b9e38d.apk");
+		// small apk
+		ifac.getAnalysisFileConfig().setTargetAPKFile("/home/jordan/eclipse-workspace/TSOpen/apks/2337a421045aaebe2be6497dab822826.apk");
+		// huge apk
+//		ifac.getAnalysisFileConfig().setTargetAPKFile("/home/jordan/eclipse-workspace/TSOpen/apks/b6d0bb5f7e7a5d1cd151a6a979b9e38d.apk");
 		
 		SetupApplication sa = new SetupApplication(ifac);
 		sa.setCallbackFile("/home/jordan/git/FlowDroid/soot-infoflow-android/AndroidCallbacks.txt");

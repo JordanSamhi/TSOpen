@@ -8,7 +8,6 @@
 	<name>TSOpen</name>
 	<version>0.1</version>
 	<description>Open implementation of TriggerScope given the information of the 2016 Security and Privacy paper</description>
-
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>

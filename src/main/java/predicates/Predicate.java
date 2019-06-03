@@ -1,3 +1,4 @@
+
 package predicates;
 
 import java.util.HashMap;
@@ -5,12 +6,14 @@ import java.util.Map;
 
 import soot.Value;
 import soot.jimple.ConditionExpr;
+import soot.jimple.IfStmt;
 
 public class Predicate implements PredicateProvider{
 
 	private Value leftOp, rightOp;
 	private String symbol;
 	private ConditionExpr conditionExpression;
+	private IfStmt ifStmt;
 	boolean branch;
 
 	@SuppressWarnings("serial")
@@ -23,8 +26,10 @@ public class Predicate implements PredicateProvider{
 		put(">=", "<");
 	}};
 
-	public Predicate(ConditionExpr conditionExpression, boolean branch) {
+	public Predicate(IfStmt ifStmt, boolean branch) {
+		ConditionExpr conditionExpression = (ConditionExpr) ifStmt.getCondition();
 		this.setConditionExpression(conditionExpression);
+		this.setIfStmt(ifStmt);
 		this.setLeftOp(conditionExpression.getOp1());
 		this.setRightOp(conditionExpression.getOp2());
 		this.setBranch(branch);
@@ -84,5 +89,13 @@ public class Predicate implements PredicateProvider{
 
 	public void setConditionExpression(ConditionExpr conditionExpression) {
 		this.conditionExpression = conditionExpression;
+	}
+
+	public IfStmt getIfStmt() {
+		return ifStmt;
+	}
+
+	public void setIfStmt(IfStmt ifStmt) {
+		this.ifStmt = ifStmt;
 	}
 }

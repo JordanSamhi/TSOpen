@@ -1,12 +1,29 @@
 package predicates;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public abstract class PredicateAggregate implements PredicateProvider{
 	
+	protected ArrayList<PredicateProvider> predicates;
+	
+	public PredicateAggregate() {
+		this.predicates = new ArrayList<PredicateProvider>();
+	}
+	
+	public PredicateAggregate(PredicateProvider predicate) {
+		this.predicates = new ArrayList<PredicateProvider>();
+		this.predicates.add(predicate);
+	}
+	
+	public void addPredicate(PredicateProvider p) {
+		if(p != null) {
+			this.predicates.add(p);
+		}
+	}
+	
 	public void deleteLastPredicate() {
 		if(!this.isEmpty()) {
-			this.getPredicates().remove(this.getPredicates().size() - 1);
+			this.predicates.remove(this.predicates.size() - 1);
 		}
 	}
 	
@@ -14,19 +31,23 @@ public abstract class PredicateAggregate implements PredicateProvider{
 		if(this.isEmpty()) {
 			return null;
 		}
-		return this.getPredicates().get(this.getPredicates().size() - 1);
+		return this.predicates.get(this.predicates.size() - 1);
 	}
 	
 	public boolean isEmpty() {
-		return this.getPredicates().isEmpty();
+		return this.predicates.isEmpty();
+	}
+	
+	public void empty() {
+		this.predicates.clear();
 	}
 	
 	@Override
 	public String toString() {
 		String pString = "";
-		for(PredicateProvider p : this.getPredicates()) {
+		for(PredicateProvider p : this.predicates) {
 			pString += "(" + p + ")";
-			if(p != this.getPredicates().get(this.getPredicates().size() - 1)) {
+			if(p != this.predicates.get(this.predicates.size() - 1)) {
 				pString += this.getSymbol();
 			}
 		}
@@ -36,6 +57,4 @@ public abstract class PredicateAggregate implements PredicateProvider{
 	public void printPredicate() {
 		System.out.println(this);
 	}
-	
-	public abstract List<PredicateProvider> getPredicates();
 }

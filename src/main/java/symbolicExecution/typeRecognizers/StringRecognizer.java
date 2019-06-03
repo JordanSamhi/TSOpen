@@ -40,7 +40,7 @@ public class StringRecognizer extends RecognizerProcessor{
 			if(rightOp instanceof Local) {
 				result.put(leftOp, this.se.getModelContext().get(rightOp));
 			}
-			
+			// TODO retrieve parameter value
 			if(rightOp instanceof NewExpr) {
 				// TODO retrieve string in constructor
 				result.put(leftOp, new ConcreteValue(StringConstant.v("")));

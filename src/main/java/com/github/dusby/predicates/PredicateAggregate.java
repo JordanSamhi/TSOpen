@@ -42,14 +42,19 @@ public abstract class PredicateAggregate implements PredicateProvider {
 	
 	@Override
 	public String toString() {
-		String pString = "";
-		for(PredicateProvider p : this.predicates) {
-			pString += "(" + p + ")";
-			if(p != this.predicates.getLast()) {
-				pString += this.getSymbol();
+		if(!this.isEmpty()) {
+			String pString = "";
+			for(PredicateProvider p : this.predicates) {
+				pString += "(" + p + ")";
+				if(p != this.predicates.getLast()) {
+					pString += this.getSymbol();
+				}
 			}
+			return pString;
 		}
-		return pString;
+		else {
+			return "No predicate";
+		}
 	}
 	
 	public int getSize() {

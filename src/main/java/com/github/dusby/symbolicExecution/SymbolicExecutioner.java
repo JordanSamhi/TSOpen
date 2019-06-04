@@ -27,7 +27,7 @@ public class SymbolicExecutioner {
 	private List<SootMethod> visitedMethods;
 	private Map<Value, SymbolicValueProvider> symbolicExecutionResults;
 	private Map<SootMethod, PathPredicate> methodToCurrentPathPredicate;
-	private Map<Unit, JoinPathPredicate> unitToAllPossiblePathPredicate;
+	private Map<Unit, JoinPathPredicate> nodeToAllPossiblePathPredicate;
 	private LinkedList<SootMethod> methodWorkList;
 
 	public SymbolicExecutioner(InfoflowCFG icfg, SootMethod mainMethod) {
@@ -36,11 +36,11 @@ public class SymbolicExecutioner {
 		this.visitedMethods = new ArrayList<SootMethod>();
 		this.symbolicExecutionResults = new HashMap<Value, SymbolicValueProvider>();
 		this.methodToCurrentPathPredicate = new HashMap<SootMethod, PathPredicate>();
-		this.unitToAllPossiblePathPredicate = new HashMap<Unit, JoinPathPredicate>();
+		this.nodeToAllPossiblePathPredicate = new HashMap<Unit, JoinPathPredicate>();
 		this.methodWorkList = new LinkedList<SootMethod>();
 		this.methodWorkList.add(mainMethod);
 	}
-	
+
 	public void execute() {
 		long startOfExecution = System.currentTimeMillis();
 		while(!this.methodWorkList.isEmpty()) {
@@ -48,70 +48,73 @@ public class SymbolicExecutioner {
 			if(!this.visitedMethods.contains(methodToAnalyze)) {
 				this.visitedMethods.add(methodToAnalyze);
 				Unit entryPoint = this.icfg.getStartPointsOf(methodToAnalyze).iterator().next();
-				this.processNode(entryPoint);
+				this.processNode(entryPoint, methodToAnalyze);
 			}
 		}
 		long elapsedTime = System.currentTimeMillis() - startOfExecution;
 		System.out.println("Symbolic execution : " + elapsedTime+ "ms");
 	}
 
-	private void processNode(Unit unit) {
-		if(!this.visitedNodes.contains(unit)) { 
-			this.visitedNodes.add(unit);
-			SootMethod methodBeingAnalyzed = this.icfg.getMethodOf(unit);
-			PathPredicate currentPathPredicate = this.methodToCurrentPathPredicate.get(methodBeingAnalyzed);
-			if(currentPathPredicate == null) {
-				this.methodToCurrentPathPredicate.put(methodBeingAnalyzed, new PathPredicate());
-			}else if(!currentPathPredicate.isEmpty()) {
-				JoinPathPredicate unitPossiblePaths = this.unitToAllPossiblePathPredicate.get(unit);
-				if(unitPossiblePaths == null) {
-					unitPossiblePaths = new JoinPathPredicate(new PathPredicate(currentPathPredicate));
-					this.unitToAllPossiblePathPredicate.put(unit, unitPossiblePaths);
-				}else {
-					PathPredicate cp = new PathPredicate(currentPathPredicate);
-					if(!unitPossiblePaths.isRedundant(cp)) {
-						unitPossiblePaths.addPredicate(cp);
-					}
-				}
-			}
-			if(unit instanceof InvokeStmt) {
-				this.propagateTargetMethod(unit);
-			}else if(unit instanceof DefinitionStmt) {
-				DefinitionStmt defUnit = (DefinitionStmt) unit;
+	private void processNode(Unit node, SootMethod methodToAnalyze) {
+		this.updateJoinPathPredicate(node, methodToAnalyze);
+		if(!this.visitedNodes.contains(node)) {
+			this.visitedNodes.add(node);
+			if(node instanceof InvokeStmt) {
+				this.propagateTargetMethod(node);
+			}else if(node instanceof DefinitionStmt) {
+				DefinitionStmt defUnit = (DefinitionStmt) node;
 				// Chain of relevant object recognizers
-//				RecognizerProcessor rp = new StringRecognizer(null, this);
-//				Map<Value, SymbolicValueProvider> objectRecognized = rp.recognize(defUnit);
-//				if(objectRecognized != null) {
-//					this.symbolicExecutionResults.putAll(objectRecognized);
-//				}
+				//				RecognizerProcessor rp = new StringRecognizer(null, this);
+				//				Map<Value, SymbolicValueProvider> objectRecognized = rp.recognize(defUnit);
+				//				if(objectRecognized != null) {
+				//					this.symbolicExecutionResults.putAll(objectRecognized);
+				//				}
 
 				if(defUnit.getRightOp() instanceof InvokeExpr) {
 					this.propagateTargetMethod(defUnit);
 				}
 			}
-			
-			this.processSuccessors(unit, this.icfg.getSuccsOf(unit), currentPathPredicate);
+			PathPredicate currentPathPredicate = this.methodToCurrentPathPredicate.get(methodToAnalyze);
+			this.processSuccessors(node, this.icfg.getSuccsOf(node), currentPathPredicate, methodToAnalyze);
 		}
 	}
-	
-	private void processSuccessors(Unit unit, List<Unit> successors, PathPredicate currentPathPredicate) {
+
+	private void updateJoinPathPredicate(Unit node, SootMethod methodToAnalyze) {
+		JoinPathPredicate unitPossiblePaths = this.nodeToAllPossiblePathPredicate.get(node);
+		PathPredicate currentPathPredicate = this.methodToCurrentPathPredicate.get(methodToAnalyze);
+		if(currentPathPredicate == null) {
+			this.methodToCurrentPathPredicate.put(methodToAnalyze, new PathPredicate());
+			currentPathPredicate = this.methodToCurrentPathPredicate.get(methodToAnalyze);
+		}
+		if(unitPossiblePaths == null) {
+			unitPossiblePaths = new JoinPathPredicate(new PathPredicate(currentPathPredicate));
+			this.nodeToAllPossiblePathPredicate.put(node, unitPossiblePaths);
+		}else {
+			PathPredicate cp = new PathPredicate(currentPathPredicate);
+			if(unitPossiblePaths.isEmpty() || !unitPossiblePaths.isRedundant(cp)) {
+				unitPossiblePaths.addPredicate(cp);
+			}
+		}
+	}
+
+	private void processSuccessors(Unit node, List<Unit> successors, PathPredicate currentPathPredicate, SootMethod methodToAnalyze) {
 		for(Unit successor : successors) {
-			if(unit instanceof IfStmt) {
-				IfStmt ifStmt = (IfStmt) unit;
+			if(node instanceof IfStmt) {
+				IfStmt ifStmt = (IfStmt) node;
 				if(successor == ifStmt.getTarget()) {
 					this.updatePathPredicate(ifStmt, true, currentPathPredicate);
 				}else {
 					this.updatePathPredicate(ifStmt, false, currentPathPredicate);
 				}
 			}
-			this.processNode(successor);
+			this.processNode(successor, methodToAnalyze);
 		}
-		if(unit instanceof IfStmt) {
+		if(node instanceof IfStmt) {
 			currentPathPredicate.deleteLastPredicate();
 		}
-		this.visitedNodes.remove(unit);
+		this.visitedNodes.remove(node);
 	}
-	
+
 
 	private void updatePathPredicate(IfStmt ifStmt, boolean branch, PathPredicate currentPathPredicate) {
 		Predicate lastPredicate = (Predicate)currentPathPredicate.getLastPredicate();
@@ -121,7 +124,7 @@ public class SymbolicExecutioner {
 			}
 		}
 		Predicate p = new Predicate(ifStmt, branch);
-		if(!currentPathPredicate.isRedundant(p)) {
+		if(currentPathPredicate.isEmpty() || !currentPathPredicate.isRedundant(p)) {
 			currentPathPredicate.addPredicate(p);
 		}
 	}
@@ -144,8 +147,8 @@ public class SymbolicExecutioner {
 	}
 
 	public Map<Unit, JoinPathPredicate> getUnitToFullPathPredicate() {
-		return unitToAllPossiblePathPredicate;
+		return nodeToAllPossiblePathPredicate;
 	}
-	
-	
+
+
 }

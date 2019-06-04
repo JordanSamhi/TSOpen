@@ -49,15 +49,21 @@ public class Predicate implements PredicateProvider{
 		this.setIfStmt(predicate.getIfStmt());
 		this.setBranch(predicate.getBranch());
 	}
-
+	
+	public boolean isEquivalentTo(PredicateProvider p) {
+		if (this == p) {
+			return true;
+		}
+		if(p == null || this.getClass() != p.getClass()) {
+			return false;
+		}
+		Predicate predicate = (Predicate) p;
+		return this.getIfStmt() == predicate.getIfStmt() && this.getBranch() == predicate.getBranch();
+	}
+	
 	@Override
 	public String toString() {
 		return this.leftOp+" "+this.symbol+" "+this.rightOp;
-	}
-
-	@Override
-	public void printPredicate() {
-		System.out.println(this);
 	}
 
 	public Value getLeftOp() {

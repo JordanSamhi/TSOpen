@@ -15,12 +15,6 @@ public abstract class PredicateAggregate implements PredicateProvider {
 		this.predicates.add(predicate);
 	}
 	
-	public void addPredicate(PredicateProvider p) {
-		if(p != null) {
-			this.predicates.add(p);
-		}
-	}
-	
 	public void deleteLastPredicate() {
 		if(!this.isEmpty()) {
 			this.predicates.removeLast();
@@ -42,6 +36,10 @@ public abstract class PredicateAggregate implements PredicateProvider {
 		this.predicates.clear();
 	}
 	
+	public boolean contains(PredicateProvider predicate) {
+		return this.predicates.contains(predicate);
+	}
+	
 	@Override
 	public String toString() {
 		String pString = "";
@@ -58,7 +56,55 @@ public abstract class PredicateAggregate implements PredicateProvider {
 		return this.predicates.size();
 	}
 	
-	public void printPredicate() {
-		System.out.println(this);
+	protected void checkPredicateClass(PredicateProvider p) {
+		if(p == null) {
+			throw new NullPointerException();
+		}
+		if(p.getClass() != this.getAuthorizedClass()) {
+			throw new IllegalArgumentException(this.getAuthorizedClassMessage() + " => " + p.getClass().getName() + " provided.");
+		}
 	}
+	
+	public boolean isRedundant(PredicateProvider p) {
+		for(PredicateProvider provider : this.predicates) {
+			if(p.isEquivalentTo(provider)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public void addPredicate(PredicateProvider p) {
+		this.checkPredicateClass(p);
+		this.predicates.add(p);
+	}
+	
+	public boolean isEquivalentTo(PredicateProvider p) {
+		if (this == p) {
+			return true;
+		}
+		if(p == null || this.getClass() != p.getClass()) {
+			return false;
+		}
+		PredicateAggregate predicate = (PredicateAggregate) p;
+		if(predicate.getSize() != this.getSize()) {
+			return false;
+		}
+		boolean equiv = false;
+		for(PredicateProvider pThis : this.predicates) {
+			for(PredicateProvider pCP : predicate.predicates) {
+				if(pThis.isEquivalentTo(pCP)) {
+					equiv = true;
+				}
+			}
+			if(!equiv) {
+				return false;
+			}
+			equiv = false;
+		}
+		return true;
+	}
+	
+	protected abstract Class<? extends PredicateProvider> getAuthorizedClass();
+	protected abstract String getAuthorizedClassMessage();
 }

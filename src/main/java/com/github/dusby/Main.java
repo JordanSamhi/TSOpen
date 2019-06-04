@@ -1,6 +1,7 @@
 package com.github.dusby;
 
 import com.github.dusby.symbolicExecution.SymbolicExecutioner;
+
 import soot.SootMethod;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
 import soot.jimple.infoflow.android.SetupApplication;
@@ -13,7 +14,7 @@ public class Main {
 		ifac.getAnalysisFileConfig().setAndroidPlatformDir("/home/jordan/Android/Sdk/platforms/");
 		// small apk
 		ifac.getAnalysisFileConfig().setTargetAPKFile("/home/jordan/eclipse-workspace/TSOpen/apks/2337a421045aaebe2be6497dab822826.apk");
-//		ifac.getAnalysisFileConfig().setTargetAPKFile("/home/jordan/eclipse-workspace/TSOpen/apks/holycolbert10.apk");
+//		ifac.getAnalysisFileConfig().setTargetAPKFile("/home/jordan/eclipse-workspace/TSOpen/apks/0f050fb655e4624925d9d32582805601.apk");
 		
 		SetupApplication sa = new SetupApplication(ifac);
 		sa.setCallbackFile("/home/jordan/git/FlowDroid/soot-infoflow-android/AndroidCallbacks.txt");

@@ -8,6 +8,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.javatuples.Triplet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CommandLineOptions {
 	
@@ -19,6 +21,8 @@ public class CommandLineOptions {
 	private Options options, firstOptions;
 	private CommandLineParser parser;
 	private CommandLine cmdLine, cmdFirstLine;
+	
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	public CommandLineOptions(String[] args) {
 		this.options = new Options();
@@ -38,7 +42,7 @@ public class CommandLineOptions {
 		    }
 			this.cmdLine = this.parser.parse(this.options, args);
 		} catch (ParseException e) {
-			System.err.println("[!] " + e.getMessage());
+			this.logger.error(e.getMessage());
 			System.exit(1);
 		}
 	}

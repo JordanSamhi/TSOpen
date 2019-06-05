@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.profiler.Profiler;
 
 import com.github.dusby.predicates.JoinPathPredicate;
 import com.github.dusby.predicates.PathPredicate;
@@ -29,6 +34,8 @@ public class SymbolicExecutioner {
 	private Map<SootMethod, PathPredicate> methodToCurrentPathPredicate;
 	private Map<Unit, JoinPathPredicate> nodeToAllPossiblePathPredicate;
 	private LinkedList<SootMethod> methodWorkList;
+	
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public SymbolicExecutioner(InfoflowCFG icfg, SootMethod mainMethod) {
 		this.icfg = icfg;
@@ -42,7 +49,8 @@ public class SymbolicExecutioner {
 	}
 
 	public void execute() {
-		long startOfExecution = System.currentTimeMillis();
+		Profiler executeProfiler = new Profiler("[Method] execute");
+		executeProfiler.start("execution");
 		while(!this.methodWorkList.isEmpty()) {
 			SootMethod methodToAnalyze = this.methodWorkList.removeFirst();
 			if(!this.visitedMethods.contains(methodToAnalyze)) {
@@ -51,8 +59,8 @@ public class SymbolicExecutioner {
 				this.processNode(entryPoint, methodToAnalyze);
 			}
 		}
-		long elapsedTime = System.currentTimeMillis() - startOfExecution;
-		System.out.println("Symbolic execution : " + elapsedTime+ "ms");
+		executeProfiler.stop();
+		this.logger.info("Symbolic execution : {} ms", TimeUnit.MILLISECONDS.convert(executeProfiler.elapsedTime(), TimeUnit.NANOSECONDS));
 	}
 
 	private void processNode(Unit node, SootMethod methodToAnalyze) {

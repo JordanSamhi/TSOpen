@@ -16,13 +16,11 @@
 
 	<build>
 		<plugins>
-			<!-- The Maven Javadoc Plugin to generate javadoc -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.1.0</version>
 			</plugin>
-			<!-- The Maven Assembly plugin to build a jar file -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>3.1.1</version>
@@ -78,11 +76,15 @@
 			<version>1.2</version>
 		</dependency>
 		<dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-core</artifactId>
-        <version>5.1.7.RELEASE</version>
-    </dependency>
-
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.26</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-ext</artifactId>
+			<version>1.7.26</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>

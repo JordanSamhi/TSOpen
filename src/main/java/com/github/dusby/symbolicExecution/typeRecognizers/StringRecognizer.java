@@ -57,5 +57,4 @@ public class StringRecognizer extends RecognizerProcessor{
 		}
 		return null;
 	}
-
 }

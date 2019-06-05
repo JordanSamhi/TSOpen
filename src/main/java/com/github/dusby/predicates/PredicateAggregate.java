@@ -22,7 +22,7 @@ public abstract class PredicateAggregate implements PredicateProvider {
 	}
 	
 	public PredicateProvider getLastPredicate() {
-		if(this.isEmpty()) {
+		if(this.predicates.isEmpty()) {
 			return null;
 		}
 		return this.predicates.getLast();
@@ -45,7 +45,7 @@ public abstract class PredicateAggregate implements PredicateProvider {
 		if(!this.isEmpty()) {
 			String pString = "";
 			for(PredicateProvider p : this.predicates) {
-				pString += "(" + p + ")";
+				pString += String.format("({})", p);
 				if(p != this.predicates.getLast()) {
 					pString += this.getSymbol();
 				}
@@ -66,7 +66,7 @@ public abstract class PredicateAggregate implements PredicateProvider {
 			throw new NullPointerException();
 		}
 		if(p.getClass() != this.getAuthorizedClass()) {
-			throw new IllegalArgumentException(this.getAuthorizedClassMessage() + " => " + p.getClass().getName() + " provided.");
+			throw new IllegalArgumentException(String.format("{} => {} provided.", this.getAuthorizedClassMessage(), p.getClass().getName()));
 		}
 	}
 	

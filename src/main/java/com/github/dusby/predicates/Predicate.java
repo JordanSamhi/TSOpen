@@ -28,26 +28,26 @@ public class Predicate implements PredicateProvider{
 
 	public Predicate(IfStmt ifStmt, boolean branch) {
 		ConditionExpr conditionExpression = (ConditionExpr) ifStmt.getCondition();
-		this.setConditionExpression(conditionExpression);
-		this.setIfStmt(ifStmt);
-		this.setLeftOp(conditionExpression.getOp1());
-		this.setRightOp(conditionExpression.getOp2());
-		this.setBranch(branch);
+		this.conditionExpression = conditionExpression;
+		this.ifStmt = ifStmt;
+		this.leftOp = conditionExpression.getOp1();
+		this.rightOp = conditionExpression.getOp2();
+		this.branch = branch;
 		String condExprSymbol = conditionExpression.getSymbol().trim();
 		if(branch) {
-			this.setSymbol(condExprSymbol);
+			this.symbol = condExprSymbol;
 		}else {
-			this.setSymbol(this.notOperators.get(condExprSymbol));
+			this.symbol = this.notOperators.get(condExprSymbol);
 		}
 	}
 	
 	public Predicate(Predicate predicate) {
-		this.setLeftOp(predicate.getLeftOp());
-		this.setRightOp(predicate.getRightOp());
-		this.setSymbol(predicate.getSymbol());
-		this.setConditionExpression(predicate.getConditionExpression());
-		this.setIfStmt(predicate.getIfStmt());
-		this.setBranch(predicate.getBranch());
+		this.leftOp = predicate.leftOp;
+		this.rightOp = predicate.rightOp;
+		this.symbol = predicate.symbol;
+		this.conditionExpression = predicate.conditionExpression;
+		this.ifStmt = predicate.ifStmt;
+		this.branch = predicate.branch;
 	}
 	
 	public boolean isEquivalentTo(PredicateProvider p) {
@@ -58,59 +58,20 @@ public class Predicate implements PredicateProvider{
 			return false;
 		}
 		Predicate predicate = (Predicate) p;
-		return this.getIfStmt() == predicate.getIfStmt() && this.getBranch() == predicate.getBranch();
+		return this.ifStmt == predicate.ifStmt && this.branch == predicate.branch;
 	}
 	
 	@Override
 	public String toString() {
-		return this.leftOp+" "+this.symbol+" "+this.rightOp;
+		return String.format("{} {} {}", this.leftOp, this.symbol, this.rightOp);
 	}
-
-	public Value getLeftOp() {
-		return leftOp;
-	}
-
-	public void setLeftOp(Value leftOp) {
-		this.leftOp = leftOp;
-	}
-
-	public Value getRightOp() {
-		return rightOp;
-	}
-
-	public void setRightOp(Value rightOp) {
-		this.rightOp = rightOp;
-	}
-
-	public String getSymbol() {
-		return symbol;
-	}
-
-	public void setSymbol(String symbol) {
-		this.symbol = symbol;
-	}
-
-	public boolean getBranch() {
-		return branch;
-	}
-
-	public void setBranch(boolean branch) {
-		this.branch = branch;
-	}
-
-	public ConditionExpr getConditionExpression() {
-		return conditionExpression;
-	}
-
-	public void setConditionExpression(ConditionExpr conditionExpression) {
-		this.conditionExpression = conditionExpression;
-	}
-
+	
 	public IfStmt getIfStmt() {
-		return ifStmt;
+		return this.ifStmt;
 	}
 
-	public void setIfStmt(IfStmt ifStmt) {
-		this.ifStmt = ifStmt;
+	@Override
+	public String getSymbol() {
+		return this.symbol;
 	}
 }

@@ -123,7 +123,6 @@ public class SymbolicExecutioner {
 		this.visitedNodes.remove(node);
 	}
 
-
 	private void updatePathPredicate(IfStmt ifStmt, boolean branch, PathPredicate currentPathPredicate) {
 		Predicate lastPredicate = (Predicate)currentPathPredicate.getLastPredicate();
 		if(lastPredicate != null) {
@@ -149,14 +148,4 @@ public class SymbolicExecutioner {
 	public Map<Value, SymbolicValueProvider> getModelContext() {
 		return this.symbolicExecutionResults;
 	}
-
-	public InfoflowCFG getIcfg() {
-		return this.icfg;
-	}
-
-	public Map<Unit, JoinPathPredicate> getUnitToFullPathPredicate() {
-		return nodeToAllPossiblePathPredicate;
-	}
-
-
 }

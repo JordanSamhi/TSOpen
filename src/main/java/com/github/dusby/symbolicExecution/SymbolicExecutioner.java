@@ -8,18 +8,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.Literal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.profiler.Profiler;
 
-import com.github.dusby.predicates.JoinPathPredicate;
-import com.github.dusby.predicates.PathPredicate;
-import com.github.dusby.predicates.Predicate;
 import com.github.dusby.symbolicExecution.symbolicValues.SymbolicValueProvider;
 
+import soot.Scene;
+import soot.SootClass;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
+import soot.jimple.ConditionExpr;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.IfStmt;
 import soot.jimple.InvokeExpr;
@@ -31,40 +34,57 @@ public class SymbolicExecutioner {
 	private List<Unit> visitedNodes;
 	private List<SootMethod> visitedMethods;
 	private Map<Value, SymbolicValueProvider> symbolicExecutionResults;
-	private Map<SootMethod, PathPredicate> methodToCurrentPathPredicate;
-	private Map<Unit, JoinPathPredicate> nodeToAllPossiblePathPredicate;
+	private Map<Unit, Formula> nodeToAllPossiblePathPredicate;
 	private LinkedList<SootMethod> methodWorkList;
-	
+	private Map<Literal, ConditionExpr> literalToCondition;
+
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private Profiler executeProfiler = new Profiler(this.getClass().getName());
 
 	public SymbolicExecutioner(InfoflowCFG icfg, SootMethod mainMethod) {
 		this.icfg = icfg;
 		this.visitedNodes = new ArrayList<Unit>();
 		this.visitedMethods = new ArrayList<SootMethod>();
 		this.symbolicExecutionResults = new HashMap<Value, SymbolicValueProvider>();
-		this.methodToCurrentPathPredicate = new HashMap<SootMethod, PathPredicate>();
-		this.nodeToAllPossiblePathPredicate = new HashMap<Unit, JoinPathPredicate>();
+		this.nodeToAllPossiblePathPredicate = new HashMap<Unit, Formula>();
+		this.literalToCondition = new HashMap<Literal, ConditionExpr>();
 		this.methodWorkList = new LinkedList<SootMethod>();
 		this.methodWorkList.add(mainMethod);
 	}
 
 	public void execute() {
-		Profiler executeProfiler = new Profiler("[Method] execute");
-		executeProfiler.start("execution");
+		executeProfiler.start("execute");
+		FormulaFactory formulaFactory = null;
 		while(!this.methodWorkList.isEmpty()) {
 			SootMethod methodToAnalyze = this.methodWorkList.removeFirst();
+			formulaFactory = new FormulaFactory();
 			if(!this.visitedMethods.contains(methodToAnalyze)) {
 				this.visitedMethods.add(methodToAnalyze);
 				Unit entryPoint = this.icfg.getStartPointsOf(methodToAnalyze).iterator().next();
-				this.processNode(entryPoint, methodToAnalyze);
+				this.processNode(entryPoint, null, formulaFactory);
 			}
 		}
 		executeProfiler.stop();
 		this.logger.info("Symbolic execution : {} ms", TimeUnit.MILLISECONDS.convert(executeProfiler.elapsedTime(), TimeUnit.NANOSECONDS));
+		for(SootClass c : Scene.v().getApplicationClasses()) {
+			System.out.println("**********");
+			System.out.println(c.getName());
+			System.out.println("**********");
+			for(SootMethod m : c.getMethods()) {
+				System.out.println("===========");
+				System.out.println(m.getName());
+				System.out.println("===========");
+				for(Unit u : m.retrieveActiveBody().getUnits()){
+					if(this.nodeToAllPossiblePathPredicate.get(u)!=null) {
+						System.out.println(u);
+						System.out.println(this.nodeToAllPossiblePathPredicate.get(u));
+					}
+				}
+			}
+		}
 	}
 
-	private void processNode(Unit node, SootMethod methodToAnalyze) {
-		this.updateJoinPathPredicate(node, methodToAnalyze);
+	private void processNode(Unit node, Formula currentNodePathPredicate, FormulaFactory formulaFactory) {
 		if(!this.visitedNodes.contains(node)) {
 			this.visitedNodes.add(node);
 			if(node instanceof InvokeStmt) {
@@ -82,58 +102,47 @@ public class SymbolicExecutioner {
 					this.propagateTargetMethod(defUnit);
 				}
 			}
-			PathPredicate currentPathPredicate = this.methodToCurrentPathPredicate.get(methodToAnalyze);
-			this.processSuccessors(node, this.icfg.getSuccsOf(node), currentPathPredicate, methodToAnalyze);
+			this.processSuccessors(node, this.icfg.getSuccsOf(node), currentNodePathPredicate, formulaFactory);
 		}
 	}
 
-	private void updateJoinPathPredicate(Unit node, SootMethod methodToAnalyze) {
-		JoinPathPredicate unitPossiblePaths = this.nodeToAllPossiblePathPredicate.get(node);
-		PathPredicate currentPathPredicate = this.methodToCurrentPathPredicate.get(methodToAnalyze);
-		if(currentPathPredicate == null) {
-			this.methodToCurrentPathPredicate.put(methodToAnalyze, new PathPredicate());
-			currentPathPredicate = this.methodToCurrentPathPredicate.get(methodToAnalyze);
-		}
-		if(unitPossiblePaths == null) {
-			unitPossiblePaths = new JoinPathPredicate(new PathPredicate(currentPathPredicate));
-			this.nodeToAllPossiblePathPredicate.put(node, unitPossiblePaths);
-		}else {
-			PathPredicate cp = new PathPredicate(currentPathPredicate);
-			if(unitPossiblePaths.isEmpty() || !unitPossiblePaths.isRedundant(cp)) {
-				unitPossiblePaths.addPredicate(cp);
-			}
-		}
-	}
-
-	private void processSuccessors(Unit node, List<Unit> successors, PathPredicate currentPathPredicate, SootMethod methodToAnalyze) {
+	private void processSuccessors(Unit node, List<Unit> successors, Formula currentNodePathPredicate, FormulaFactory formulaFactory) {
+		Formula successorPathPredicate = null;
+		Literal l = null;
 		for(Unit successor : successors) {
 			if(node instanceof IfStmt) {
 				IfStmt ifStmt = (IfStmt) node;
+				
+				String condition = String.format("([%s] => %s)", ifStmt.hashCode(), ifStmt.getCondition().toString());
 				if(successor == ifStmt.getTarget()) {
-					this.updatePathPredicate(ifStmt, true, currentPathPredicate);
+					l = formulaFactory.literal(condition, true);
 				}else {
-					this.updatePathPredicate(ifStmt, false, currentPathPredicate);
+					l = formulaFactory.literal(condition, false);
+				}
+				this.literalToCondition.put(l, (ConditionExpr) ifStmt.getCondition());
+				if(currentNodePathPredicate == null) {
+					successorPathPredicate = l;
+					
+				}else {
+					successorPathPredicate = formulaFactory.and(currentNodePathPredicate, l);
+				}
+			}else {
+				successorPathPredicate = currentNodePathPredicate;
+			}
+			if(successorPathPredicate != null) {
+				Formula possiblePathPredicates = this.nodeToAllPossiblePathPredicate.get(successor);
+				if(possiblePathPredicates == null) {
+					possiblePathPredicates = successorPathPredicate;
+				}else {
+					possiblePathPredicates = formulaFactory.or(possiblePathPredicates, successorPathPredicate);
+				}
+				if(!possiblePathPredicates.isConstantFormula()) {
+					this.nodeToAllPossiblePathPredicate.put(successor, possiblePathPredicates);
 				}
 			}
-			this.processNode(successor, methodToAnalyze);
-		}
-		if(node instanceof IfStmt) {
-			currentPathPredicate.deleteLastPredicate();
+			this.processNode(successor, successorPathPredicate, formulaFactory);
 		}
 		this.visitedNodes.remove(node);
-	}
-
-	private void updatePathPredicate(IfStmt ifStmt, boolean branch, PathPredicate currentPathPredicate) {
-		Predicate lastPredicate = (Predicate)currentPathPredicate.getLastPredicate();
-		if(lastPredicate != null) {
-			if(lastPredicate.getIfStmt().equals(ifStmt)) {
-				currentPathPredicate.deleteLastPredicate();
-			}
-		}
-		Predicate p = new Predicate(ifStmt, branch);
-		if(currentPathPredicate.isEmpty() || !currentPathPredicate.isRedundant(p)) {
-			currentPathPredicate.addPredicate(p);
-		}
 	}
 
 	private void propagateTargetMethod(Unit invokation) {

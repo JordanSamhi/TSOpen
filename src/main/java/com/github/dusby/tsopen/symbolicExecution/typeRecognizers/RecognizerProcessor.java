@@ -1,9 +1,10 @@
-package com.github.dusby.symbolicExecution.typeRecognizers;
+package com.github.dusby.tsopen.symbolicExecution.typeRecognizers;
 
 import java.util.Map;
 
-import com.github.dusby.symbolicExecution.SymbolicExecutioner;
-import com.github.dusby.symbolicExecution.symbolicValues.SymbolicValueProvider;
+import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
+
 import soot.Value;
 import soot.jimple.DefinitionStmt;
 

@@ -1,13 +1,14 @@
-package com.github.dusby.symbolicExecution.typeRecognizers;
+package com.github.dusby.tsopen.symbolicExecution.typeRecognizers;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.github.dusby.symbolicExecution.SymbolicExecutioner;
-import com.github.dusby.symbolicExecution.symbolicValues.ConcreteValue;
-import com.github.dusby.symbolicExecution.symbolicValues.SymbolicValue;
-import com.github.dusby.symbolicExecution.symbolicValues.SymbolicValueProvider;
+import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConcreteValue;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
+
 import soot.Local;
 import soot.SootMethod;
 import soot.Value;

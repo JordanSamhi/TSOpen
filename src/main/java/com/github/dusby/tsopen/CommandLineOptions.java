@@ -1,4 +1,4 @@
-package com.github.dusby;
+package com.github.dusby.tsopen;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -33,10 +33,11 @@ public class CommandLineOptions {
 	}
 
 	private void parse(String[] args) {
+		HelpFormatter formatter = null;
 		try {
 			this.cmdFirstLine = this.parser.parse(this.firstOptions, args, true);
 			if (this.cmdFirstLine.hasOption(HELP.getValue0())) {
-		        final HelpFormatter formatter = new HelpFormatter();
+		        formatter = new HelpFormatter();
 		        formatter.printHelp(TSOPEN, options, true);
 		        System.exit(0);
 		    }

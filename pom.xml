@@ -39,7 +39,7 @@
 					<archive>
 						<manifest>
 							<mainClass>
-								com.github.dusby.Main
+								com.github.dusby.tsopen.Main
 							</mainClass>
 						</manifest>
 					</archive>

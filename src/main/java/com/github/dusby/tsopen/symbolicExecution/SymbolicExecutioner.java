@@ -1,4 +1,4 @@
-package com.github.dusby.symbolicExecution;
+package com.github.dusby.tsopen.symbolicExecution;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,10 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.profiler.Profiler;
 
-import com.github.dusby.symbolicExecution.symbolicValues.SymbolicValueProvider;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
 
-import soot.Scene;
-import soot.SootClass;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
@@ -55,42 +53,27 @@ public class SymbolicExecutioner {
 	public void execute() {
 		executeProfiler.start("execute");
 		FormulaFactory formulaFactory = null;
+		SootMethod methodToAnalyze = null;
+		Unit entryPoint = null;
 		while(!this.methodWorkList.isEmpty()) {
-			SootMethod methodToAnalyze = this.methodWorkList.removeFirst();
+			methodToAnalyze = this.methodWorkList.removeFirst();
 			formulaFactory = new FormulaFactory();
-			if(!this.visitedMethods.contains(methodToAnalyze)) {
-				this.visitedMethods.add(methodToAnalyze);
-				Unit entryPoint = this.icfg.getStartPointsOf(methodToAnalyze).iterator().next();
-				this.processNode(entryPoint, null, formulaFactory);
-			}
+			this.visitedMethods.add(methodToAnalyze);
+			entryPoint = this.icfg.getStartPointsOf(methodToAnalyze).iterator().next();
+			this.processNode(entryPoint, null, formulaFactory, this.shouldBePathSensitive(methodToAnalyze));
 		}
 		executeProfiler.stop();
 		this.logger.info("Symbolic execution : {} ms", TimeUnit.MILLISECONDS.convert(executeProfiler.elapsedTime(), TimeUnit.NANOSECONDS));
-		for(SootClass c : Scene.v().getApplicationClasses()) {
-			System.out.println("**********");
-			System.out.println(c.getName());
-			System.out.println("**********");
-			for(SootMethod m : c.getMethods()) {
-				System.out.println("===========");
-				System.out.println(m.getName());
-				System.out.println("===========");
-				for(Unit u : m.retrieveActiveBody().getUnits()){
-					if(this.nodeToAllPossiblePathPredicate.get(u)!=null) {
-						System.out.println(u);
-						System.out.println(this.nodeToAllPossiblePathPredicate.get(u));
-					}
-				}
-			}
-		}
 	}
 
-	private void processNode(Unit node, Formula currentNodePathPredicate, FormulaFactory formulaFactory) {
+	private void processNode(Unit node, Formula currentNodePathPredicate, FormulaFactory formulaFactory, boolean pathSensitive) {
+		DefinitionStmt defUnit = null;
 		if(!this.visitedNodes.contains(node)) {
 			this.visitedNodes.add(node);
 			if(node instanceof InvokeStmt) {
 				this.propagateTargetMethod(node);
 			}else if(node instanceof DefinitionStmt) {
-				DefinitionStmt defUnit = (DefinitionStmt) node;
+				defUnit = (DefinitionStmt) node;
 				// Chain of relevant object recognizers
 				//				RecognizerProcessor rp = new StringRecognizer(null, this);
 				//				Map<Value, SymbolicValueProvider> objectRecognized = rp.recognize(defUnit);
@@ -102,18 +85,21 @@ public class SymbolicExecutioner {
 					this.propagateTargetMethod(defUnit);
 				}
 			}
-			this.processSuccessors(node, this.icfg.getSuccsOf(node), currentNodePathPredicate, formulaFactory);
+			this.processSuccessors(node, this.icfg.getSuccsOf(node), currentNodePathPredicate, formulaFactory, pathSensitive);
 		}
 	}
 
-	private void processSuccessors(Unit node, List<Unit> successors, Formula currentNodePathPredicate, FormulaFactory formulaFactory) {
+	private void processSuccessors(Unit node, List<Unit> successors, Formula currentNodePathPredicate, FormulaFactory formulaFactory, boolean pathSensitive) {
 		Formula successorPathPredicate = null;
 		Literal l = null;
+		IfStmt ifStmt = null;
+		String condition = null;
+		Formula possiblePathPredicates = null;
+
 		for(Unit successor : successors) {
 			if(node instanceof IfStmt) {
-				IfStmt ifStmt = (IfStmt) node;
-				
-				String condition = String.format("([%s] => %s)", ifStmt.hashCode(), ifStmt.getCondition().toString());
+				ifStmt = (IfStmt) node;
+				condition = String.format("([%s] => %s)", ifStmt.hashCode(), ifStmt.getCondition().toString());
 				if(successor == ifStmt.getTarget()) {
 					l = formulaFactory.literal(condition, true);
 				}else {
@@ -122,7 +108,7 @@ public class SymbolicExecutioner {
 				this.literalToCondition.put(l, (ConditionExpr) ifStmt.getCondition());
 				if(currentNodePathPredicate == null) {
 					successorPathPredicate = l;
-					
+
 				}else {
 					successorPathPredicate = formulaFactory.and(currentNodePathPredicate, l);
 				}
@@ -130,7 +116,7 @@ public class SymbolicExecutioner {
 				successorPathPredicate = currentNodePathPredicate;
 			}
 			if(successorPathPredicate != null) {
-				Formula possiblePathPredicates = this.nodeToAllPossiblePathPredicate.get(successor);
+				possiblePathPredicates = this.nodeToAllPossiblePathPredicate.get(successor);
 				if(possiblePathPredicates == null) {
 					possiblePathPredicates = successorPathPredicate;
 				}else {
@@ -138,20 +124,33 @@ public class SymbolicExecutioner {
 				}
 				if(!possiblePathPredicates.isConstantFormula()) {
 					this.nodeToAllPossiblePathPredicate.put(successor, possiblePathPredicates);
+				}else {
+					this.nodeToAllPossiblePathPredicate.remove(successor);
 				}
 			}
-			this.processNode(successor, successorPathPredicate, formulaFactory);
+			// TODO simplifier
+			// TODO check if predicates are corrects
+			this.processNode(successor, successorPathPredicate, formulaFactory, pathSensitive);
 		}
-		this.visitedNodes.remove(node);
+		if(pathSensitive) {
+			this.visitedNodes.remove(node);
+		}
 	}
 
 	private void propagateTargetMethod(Unit invokation) {
 		Collection<SootMethod> pointsTo = this.icfg.getCalleesOfCallAt(invokation);
 		for(SootMethod callee : pointsTo) {
 			if(callee.getDeclaringClass().isApplicationClass()) {
-				this.methodWorkList.add(callee);
+				if(!this.visitedMethods.contains(callee)) {
+					this.visitedMethods.add(callee);
+					this.methodWorkList.add(callee);
+				}
 			}
 		}
+	}
+
+	private boolean shouldBePathSensitive(SootMethod method) {
+		return !method.getName().startsWith("dummyMainMethod");
 	}
 
 	public Map<Value, SymbolicValueProvider> getModelContext() {

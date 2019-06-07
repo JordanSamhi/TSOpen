@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
+import org.logicng.transformations.DistributiveSimplifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.profiler.Profiler;
@@ -95,6 +96,7 @@ public class SymbolicExecutioner {
 		IfStmt ifStmt = null;
 		String condition = null;
 		Formula possiblePathPredicates = null;
+		DistributiveSimplifier simplifier = new DistributiveSimplifier();
 
 		for(Unit successor : successors) {
 			if(node instanceof IfStmt) {
@@ -123,13 +125,11 @@ public class SymbolicExecutioner {
 					possiblePathPredicates = formulaFactory.or(possiblePathPredicates, successorPathPredicate);
 				}
 				if(!possiblePathPredicates.isConstantFormula()) {
-					this.nodeToAllPossiblePathPredicate.put(successor, possiblePathPredicates);
+					this.nodeToAllPossiblePathPredicate.put(successor, simplifier.apply(possiblePathPredicates, true));
 				}else {
 					this.nodeToAllPossiblePathPredicate.remove(successor);
 				}
 			}
-			// TODO simplifier
-			// TODO check if predicates are corrects
 			this.processNode(successor, successorPathPredicate, formulaFactory, pathSensitive);
 		}
 		if(pathSensitive) {

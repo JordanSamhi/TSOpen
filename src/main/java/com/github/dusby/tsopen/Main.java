@@ -34,6 +34,7 @@ public class Main {
 		sa = new SetupApplication(ifac);
 		sa.constructCallgraph();
 		icfg = new InfoflowCFG();
+		
 		mainProfiler.stop();
 		logger.info("CallGraph construction : {} ms", TimeUnit.MILLISECONDS.convert(mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS));
 		logger.info("CallGraph has {} edges", Scene.v().getCallGraph().size());

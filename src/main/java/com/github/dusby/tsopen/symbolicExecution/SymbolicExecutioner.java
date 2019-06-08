@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.logicng.formulas.FormulaFactory;
@@ -31,13 +30,19 @@ import soot.jimple.InvokeStmt;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 import soot.jimple.internal.IdentityRefBox;
 
+/**
+ * 
+ * This is the class implementing two of the first phases of TriggerScope.
+ * Namely the symbolic value modeling and the block predicate extraction.
+ * @author Jordan Samhi
+ *
+ */
 public class SymbolicExecutioner {
 	private final InfoflowCFG icfg;
 	private List<Unit> visitedNodes;
 	private List<SootMethod> visitedMethods;
 	private Map<Value, SymbolicValueProvider> symbolicExecutionResults;
 	private LinkedList<SootMethod> methodWorkList;
-	private Map<Edge, Literal> simpleBlockPredicates;
 	private Map<Literal, ConditionExpr> literalToCondition = null;
 	private Map<Unit, List<Edge>> nodeToEdges;
 	private final FormulaFactory formulaFactory;
@@ -51,13 +56,16 @@ public class SymbolicExecutioner {
 		this.visitedMethods = new ArrayList<SootMethod>();
 		this.symbolicExecutionResults = new HashMap<Value, SymbolicValueProvider>();
 		this.methodWorkList = new LinkedList<SootMethod>();
-		this.simpleBlockPredicates = new HashMap<Edge, Literal>();
 		this.literalToCondition = new HashMap<Literal, ConditionExpr>();
 		this.nodeToEdges = new HashMap<Unit, List<Edge>>();
 		this.formulaFactory = new FormulaFactory();
 		this.methodWorkList.add(mainMethod);
 	}
 
+	/**
+	 * Execute the symbolic execution on each of the application
+	 * methods as long as the method work-list is not empty
+	 */
 	public void execute() {
 		profiler.start("execute");
 		SootMethod methodToAnalyze = null;
@@ -72,6 +80,12 @@ public class SymbolicExecutioner {
 		this.logger.info("Symbolic execution : {} ms", TimeUnit.MILLISECONDS.convert(profiler.elapsedTime(), TimeUnit.NANOSECONDS));
 	}
 
+	/**
+	 * This method actually performs the symbolic execution
+	 * of the node being processed. It also call the method to
+	 * annotate simple block predicates.
+	 * @param node the node to process during analysis
+	 */
 	private void processNode(Unit node) {
 		DefinitionStmt defUnit = null;
 		if(!this.visitedNodes.contains(node)) {
@@ -99,11 +113,16 @@ public class SymbolicExecutioner {
 		}
 	}
 
+	/**
+	 * Annotate simple predicates on condition's edges
+	 * @param node the current node being traversed
+	 * @param successor one of the successor of the current node
+	 */
 	private void predicateAnnotation(Unit node, Unit successor) {
 		IfStmt ifStmt = null;
 		String condition = null;
 		Edge edge = null;
-		Literal predicateToPropagate = null;
+		Literal simplePredicate = null;
 		List<Edge> edgesOfNode = this.nodeToEdges.get(node);
 
 		if(!this.isCaughtException(successor)) {
@@ -117,16 +136,22 @@ public class SymbolicExecutioner {
 				ifStmt = (IfStmt) node;
 				condition = String.format("([%s] => %s)", ifStmt.hashCode(), ifStmt.getCondition().toString());
 				if(successor == ifStmt.getTarget()) {
-					predicateToPropagate = this.formulaFactory.literal(condition, true);
+					simplePredicate = this.formulaFactory.literal(condition, true);
 				}else {
-					predicateToPropagate = this.formulaFactory.literal(condition, false);
+					simplePredicate = this.formulaFactory.literal(condition, false);
 				}
-				this.literalToCondition.put(predicateToPropagate, (ConditionExpr) ifStmt.getCondition());
-				this.simpleBlockPredicates.put(edge, predicateToPropagate);
+				this.literalToCondition.put(simplePredicate, (ConditionExpr) ifStmt.getCondition());
+				edge.setPredicate(simplePredicate);
 			}
 		}
 	}
 
+	/**
+	 * Check whether the unit is catching
+	 * an exception, useful for predicate recovery.
+	 * @param u the unit to check
+	 * @return true if u catches an exception, false otherwise
+	 */
 	private boolean isCaughtException(Unit u) {
 		for(ValueBox useBox : u.getUseBoxes()) {
 			if(useBox instanceof IdentityRefBox) {
@@ -138,8 +163,14 @@ public class SymbolicExecutioner {
 		return false;
 	}
 
-	private void propagateTargetMethod(Unit invokation) {
-		Collection<SootMethod> pointsTo = this.icfg.getCalleesOfCallAt(invokation);
+	/**
+	 * Propagate the analysis on the points-to set
+	 * of the invocation if methods have not yet been visited.
+	 * Note that only methods of application classes are propagated.
+	 * @param invocation
+	 */
+	private void propagateTargetMethod(Unit invocation) {
+		Collection<SootMethod> pointsTo = this.icfg.getCalleesOfCallAt(invocation);
 		for(SootMethod callee : pointsTo) {
 			if(callee.getDeclaringClass().isApplicationClass()) {
 				if(!this.visitedMethods.contains(callee)) {

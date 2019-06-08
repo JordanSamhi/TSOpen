@@ -4,6 +4,12 @@ import org.logicng.formulas.Formula;
 
 import soot.Unit;
 
+/**
+ * This class represents an edge between two unit in a CFG/ICFG.
+ * It can be annotated with a predicate.
+ * @author Jordan Samhi
+ *
+ */
 public class Edge {
 
 	private final Unit source;

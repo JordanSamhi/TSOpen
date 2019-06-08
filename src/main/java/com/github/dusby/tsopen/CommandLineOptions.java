@@ -11,6 +11,11 @@ import org.javatuples.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class sets the different option for the application
+ * @author Jordan Samhi
+ *
+ */
 public class CommandLineOptions {
 	
 	private static final Triplet<String, String, String> FILE = new Triplet<String, String, String>("file", "f", "Apk file");
@@ -32,6 +37,11 @@ public class CommandLineOptions {
 		this.parse(args);
 	}
 
+	/**
+	 * This method does the parsing of the arguments.
+	 * It distinguished, real options and help option.
+	 * @param args the arguments of the application
+	 */
 	private void parse(String[] args) {
 		HelpFormatter formatter = null;
 		try {
@@ -48,6 +58,9 @@ public class CommandLineOptions {
 		}
 	}
 
+	/**
+	 * Initialization of all recognized options
+	 */
 	private void initOptions() {
 		final Option file = Option.builder(FILE.getValue1()) 
 				.longOpt(FILE.getValue0())

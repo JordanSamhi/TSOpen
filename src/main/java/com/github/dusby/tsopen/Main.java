@@ -41,6 +41,6 @@ public class Main {
 		
 		dummyMainMethod = sa.getDummyMainMethod();
 		se = new SymbolicExecutioner(icfg, dummyMainMethod);
-		se.execute();
+		se.traverse();
 	}
 }

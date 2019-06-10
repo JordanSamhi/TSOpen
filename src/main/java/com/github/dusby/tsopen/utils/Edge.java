@@ -38,6 +38,10 @@ public class Edge {
 		this.predicate = predicate;
 	}
 	
+	public boolean correspondsTo(Unit source, Unit target) {
+		return source == this.source && target == this.target;
+	}
+	
 	@Override
 	public String toString() {
 		return String.format("(%s) -> (%s)", this.source, this.target);

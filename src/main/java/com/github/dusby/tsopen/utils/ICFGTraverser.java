@@ -30,8 +30,8 @@ public abstract class ICFGTraverser {
 	private LinkedList<SootMethod> methodWorkList;
 	private List<Unit> visitedNodes;
 	
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	private Profiler profiler = new Profiler(this.getClass().getName());
+	protected Logger logger = LoggerFactory.getLogger(this.getClass());
+	protected Profiler profiler = new Profiler(this.getClass().getName());
 
 	public ICFGTraverser(InfoflowCFG icfg, String nameOfAnalysis, SootMethod mainMethod) {
 		this.nameOfAnalysis = nameOfAnalysis;
@@ -55,7 +55,7 @@ public abstract class ICFGTraverser {
 			this.visitedMethods.add(methodToAnalyze);
 			extremities = this.getExtremities(methodToAnalyze);
 			for(Unit extremity : extremities) {
-				this.processNode(extremity);
+				this.traverseNode(extremity);
 			}
 		}
 		profiler.stop();
@@ -67,7 +67,7 @@ public abstract class ICFGTraverser {
 	 * discovered unvisited methods.
 	 * @param node the basic block to process during analysis
 	 */
-	private void processNode(Unit node) {
+	private void traverseNode(Unit node) {
 		DefinitionStmt defUnit = null;
 		if(!this.visitedNodes.contains(node)) {
 			this.visitedNodes.add(node);
@@ -81,7 +81,7 @@ public abstract class ICFGTraverser {
 			}
 			for(Unit neighbour : this.getNeighbors(node)) {
 				this.processNeighbor(node, neighbour);
-				this.processNode(neighbour);
+				this.traverseNode(neighbour);
 			}
 		}
 	}

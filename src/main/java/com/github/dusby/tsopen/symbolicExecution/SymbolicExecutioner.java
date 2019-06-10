@@ -30,14 +30,14 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 public class SymbolicExecutioner extends ICFGForwardTraverser {
 	private Map<Value, SymbolicValueProvider> symbolicExecutionResults;
 	private Map<Literal, ConditionExpr> literalToCondition = null;
-	private Map<Unit, List<Edge>> nodeToEdges;
+	private List<Edge> annotatedEdges;
 	private final FormulaFactory formulaFactory;
 
 	public SymbolicExecutioner(InfoflowCFG icfg, SootMethod mainMethod) {
-		super(icfg, "Symbolic execution", mainMethod);
+		super(icfg, "Symbolic Execution", mainMethod);
 		this.symbolicExecutionResults = new HashMap<Value, SymbolicValueProvider>();
 		this.literalToCondition = new HashMap<Literal, ConditionExpr>();
-		this.nodeToEdges = new HashMap<Unit, List<Edge>>();
+		this.annotatedEdges = new ArrayList<Edge>();
 		this.formulaFactory = new FormulaFactory();
 	}
 
@@ -51,16 +51,11 @@ public class SymbolicExecutioner extends ICFGForwardTraverser {
 		String condition = null;
 		Edge edge = null;
 		Literal simplePredicate = null;
-		List<Edge> edgesOfNode = this.nodeToEdges.get(node);
 
 		if(!Utils.isCaughtException(successor)) {
 			if(node instanceof IfStmt) {
-				if(edgesOfNode == null) {
-					edgesOfNode = new ArrayList<Edge>();
-				}
 				edge = new Edge(node, successor);
-				edgesOfNode.add(edge);
-				this.nodeToEdges.put(node, edgesOfNode);
+				this.annotatedEdges.add(edge);
 				ifStmt = (IfStmt) node;
 				condition = String.format("([%s] => %s)", ifStmt.hashCode(), ifStmt.getCondition().toString());
 				if(successor == ifStmt.getTarget()) {
@@ -82,8 +77,14 @@ public class SymbolicExecutioner extends ICFGForwardTraverser {
 	protected void processNeighbor(Unit node, Unit neighbour) {
 		this.predicateAnnotation(node, neighbour);
 	}
-
-	public Map<Unit, List<Edge>> getNodeToEdges() {
-		return nodeToEdges;
+	
+	public Edge getAnnotatedEdge(Unit source, Unit target) {
+		for(Edge edge : this.annotatedEdges) {
+			if(edge.correspondsTo(source, target)) {
+				return edge;
+			}
+		}
+		return null;
 	}
+
 }

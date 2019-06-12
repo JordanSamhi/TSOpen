@@ -79,10 +79,12 @@ public abstract class ICFGTraverser {
 					this.propagateTargetMethod(defUnit);
 				}
 			}
+			this.processNodeBeforeNeighbors(node);
 			for(Unit neighbour : this.getNeighbors(node)) {
-				this.processNeighbor(node, neighbour);
 				this.traverseNode(neighbour);
+				this.processNeighbor(node, neighbour);
 			}
+			this.processNodeAfterNeighbors(node);
 		}
 	}
 	
@@ -104,6 +106,16 @@ public abstract class ICFGTraverser {
 		}
 	}
 	
+	/**
+	 * Implementation depending on the kind of analysis
+	 * @param node the current node being analyzed
+	 */
+	protected abstract void processNodeAfterNeighbors(Unit node);
+	/**
+	 * Implementation depending on the kind of analysis
+	 * @param node the current node being analyzed
+	 */
+	protected abstract void processNodeBeforeNeighbors(Unit node);
 	/**
 	 * Implementation depending on the kind of analysis.
 	 * @param node the current node being analyzed

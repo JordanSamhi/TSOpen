@@ -46,7 +46,7 @@ public class SymbolicExecutioner extends ICFGForwardTraverser {
 	 * @param node the current node being traversed
 	 * @param successor one of the successor of the current node
 	 */
-	private void predicateAnnotation(Unit node, Unit successor) {
+	private void annotateEdgeWithSimplePredicate(Unit node, Unit successor) {
 		IfStmt ifStmt = null;
 		String condition = null;
 		Edge edge = null;
@@ -75,7 +75,7 @@ public class SymbolicExecutioner extends ICFGForwardTraverser {
 
 	@Override
 	protected void processNeighbor(Unit node, Unit neighbour) {
-		this.predicateAnnotation(node, neighbour);
+		this.annotateEdgeWithSimplePredicate(node, neighbour);
 	}
 	
 	public Edge getAnnotatedEdge(Unit source, Unit target) {
@@ -87,4 +87,11 @@ public class SymbolicExecutioner extends ICFGForwardTraverser {
 		return null;
 	}
 
+	@Override
+	protected void processNodeAfterNeighbors(Unit node) {}
+
+	@Override
+	protected void processNodeBeforeNeighbors(Unit node) {
+		// TODO modeling values
+	}
 }

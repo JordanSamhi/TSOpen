@@ -20,7 +20,10 @@ public class CommandLineOptions {
 	
 	private static final Triplet<String, String, String> FILE = new Triplet<String, String, String>("file", "f", "Apk file");
 	private static final Triplet<String, String, String> HELP = new Triplet<String, String, String>("help", "h", "Print this message");
-	private static final Triplet<String, String, String> PLATFORMS = new Triplet<String, String, String>("platforms", "p", "Android platforms folder");
+	private static final Triplet<String, String, String> PLATFORMS =
+									new Triplet<String, String, String>("platforms", "p", "Android platforms folder");
+	private static final Triplet<String, String, String> EXCEPTIONS =
+									new Triplet<String, String, String>("exceptions", "e", "Take exceptions into account during full path predicate recovery");
 	private static final String TSOPEN = "TSOpen";
 	
 	private Options options, firstOptions;
@@ -84,10 +87,17 @@ public class CommandLineOptions {
 			    .argName(HELP.getValue0())
 			    .build();
 		
+		final Option exceptions = Option.builder(EXCEPTIONS.getValue1())
+			    .longOpt(EXCEPTIONS.getValue0())
+			    .desc(EXCEPTIONS.getValue2())
+			    .argName(EXCEPTIONS.getValue0())
+			    .build();
+
 		this.firstOptions.addOption(help);
 		
 		this.options.addOption(file);
 		this.options.addOption(platforms);
+		this.options.addOption(exceptions);
 		for(Option o : this.firstOptions.getOptions()) {
 			this.options.addOption(o);
 		}
@@ -99,6 +109,10 @@ public class CommandLineOptions {
 	
 	public String getPlatforms() {
 		return this.cmdLine.getOptionValue(PLATFORMS.getValue0());
+	}
+
+	public boolean hasExceptions() {
+		return this.cmdLine.hasOption(EXCEPTIONS.getValue1());
 	}
 
 }

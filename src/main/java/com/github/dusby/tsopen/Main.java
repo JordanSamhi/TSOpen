@@ -45,7 +45,7 @@ public class Main {
 		se = new SymbolicExecutioner(icfg, dummyMainMethod);
 		se.traverse();
 
-		ppr = new PathPredicateRecoverer(icfg, se, dummyMainMethod);
+		ppr = new PathPredicateRecoverer(icfg, se, dummyMainMethod, options.hasExceptions());
 		ppr.traverse();
 	}
 }

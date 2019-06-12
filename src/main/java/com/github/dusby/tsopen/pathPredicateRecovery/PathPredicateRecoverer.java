@@ -25,19 +25,25 @@ public class PathPredicateRecoverer extends ICFGBackwardTraverser {
 	private Map<Unit, Formula> nodeToFullPathPredicate;
 	private final FormulaFactory formulaFactory;
 	private final DistributiveSimplifier simplifier;
+	private final boolean handleExceptions;
 	
-	public PathPredicateRecoverer(InfoflowCFG icfg, SymbolicExecutioner se, SootMethod mainMethod) {
+	public PathPredicateRecoverer(InfoflowCFG icfg, SymbolicExecutioner se, SootMethod mainMethod, boolean handleExceptions) {
 		super(icfg, "Path Predicate Recovery", mainMethod);
 		this.se = se;
 		this.nodeToPathPredicates = new HashMap<Unit, List<Formula>>();
 		this.nodeToFullPathPredicate = new HashMap<Unit, Formula>();
 		this.formulaFactory = new FormulaFactory();
 		this.simplifier = new DistributiveSimplifier();
+		this.handleExceptions = handleExceptions;
 	}
 
 	@Override
 	protected void processNeighbor(Unit node, Unit neighbour) {
-		this.annotateNodeWithPathPredicate(node, neighbour);
+		if(this.handleExceptions) {
+			this.annotateNodeWithPathPredicate(node, neighbour);
+		}else if(!Utils.isCaughtException(node)) {
+			this.annotateNodeWithPathPredicate(node, neighbour);
+		}
 	}
 
 	private void annotateNodeWithPathPredicate(Unit node, Unit neighbour) {
@@ -45,23 +51,21 @@ public class PathPredicateRecoverer extends ICFGBackwardTraverser {
 		Formula currentPathPredicate = null,
 				neighborPathPredicate = this.nodeToFullPathPredicate.get(neighbour);
 		List<Formula> nodePredicates = this.nodeToPathPredicates.get(node);
-		if(!Utils.isCaughtException(node)) {
-			if(edge != null) {
-				if(neighborPathPredicate != null) {
-					currentPathPredicate = this.formulaFactory.and(edge.getPredicate(), neighborPathPredicate);
-				}else {
-					currentPathPredicate = edge.getPredicate();
-				}
+		if(edge != null) {
+			if(neighborPathPredicate != null) {
+				currentPathPredicate = this.formulaFactory.and(edge.getPredicate(), neighborPathPredicate);
 			}else {
-				currentPathPredicate = neighborPathPredicate;
+				currentPathPredicate = edge.getPredicate();
 			}
-			if(currentPathPredicate != null) {
-				if(nodePredicates == null) {
-					nodePredicates = new ArrayList<Formula>();
-					this.nodeToPathPredicates.put(node, nodePredicates);
-				}
-				nodePredicates.add(currentPathPredicate);
+		}else {
+			currentPathPredicate = neighborPathPredicate;
+		}
+		if(currentPathPredicate != null) {
+			if(nodePredicates == null) {
+				nodePredicates = new ArrayList<Formula>();
+				this.nodeToPathPredicates.put(node, nodePredicates);
 			}
+			nodePredicates.add(currentPathPredicate);
 		}
 	}
 

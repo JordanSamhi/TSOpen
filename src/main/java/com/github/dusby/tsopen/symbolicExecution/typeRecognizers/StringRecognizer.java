@@ -9,7 +9,9 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValuePro
 
 import soot.Local;
 import soot.SootMethod;
+import soot.Unit;
 import soot.Value;
+import soot.jimple.DefinitionStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.NewExpr;
@@ -23,7 +25,9 @@ public class StringRecognizer extends RecognizerProcessor{
 	}
 
 	@Override
-	public SymbolicValueProvider processRecognition(Value leftOp, Value rightOp) {
+	public SymbolicValueProvider processRecognition(DefinitionStmt defUnit, Unit node) {
+		Value leftOp = defUnit.getLeftOp(),
+			  rightOp = defUnit.getRightOp();
 		String leftOpType = leftOp.getType().toQuotedString(); 
 		if(leftOpType.equals("java.lang.String")
 				|| leftOpType.equals("java.lang.StringBuilder")
@@ -32,9 +36,10 @@ public class StringRecognizer extends RecognizerProcessor{
 			if(rightOp instanceof StringConstant) {
 				return new ConcreteValue((StringConstant)rightOp);
 			}else if(rightOp instanceof ParameterRef) {
+
 			}
 			else if(rightOp instanceof Local) {
-				return this.se.getModelContext().get(rightOp).getValue1();
+				return this.se.getContext().get(leftOp).getLastValue();
 			}else if(rightOp instanceof NewExpr) {
 				// TODO retrieve string in constructor
 				return new ConcreteValue(StringConstant.v(""));
@@ -43,7 +48,7 @@ public class StringRecognizer extends RecognizerProcessor{
 				SootMethod m = rightOpInvokeExpr.getMethod();
 				List<Value> args = rightOpInvokeExpr.getArgs();
 				Value base = rightOpInvokeExpr instanceof InstanceInvokeExpr ? ((InstanceInvokeExpr) rightOpInvokeExpr).getBase() : null;
-				return new SymbolicValue(base, args, m, this.se);
+				return new SymbolicValue(base, args, m, this.se, node);
 			}
 		}
 		return null;

@@ -3,7 +3,8 @@ package com.github.dusby.tsopen.symbolicExecution.typeRecognizers;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
 
-import soot.Value;
+import soot.Unit;
+import soot.jimple.DefinitionStmt;
 
 public abstract class RecognizerProcessor implements RecognizerProvider {
 	
@@ -16,15 +17,15 @@ public abstract class RecognizerProcessor implements RecognizerProvider {
 	}
 
 	@Override
-	public SymbolicValueProvider recognize(Value leftOp, Value rightOp) {
+	public SymbolicValueProvider recognize(DefinitionStmt defUnit, Unit node) {
 		
-		SymbolicValueProvider result = this.processRecognition(leftOp, rightOp);
+		SymbolicValueProvider result = this.processRecognition(defUnit, node);
 		
 		if(result != null) {
 			return result;
 		}
 		if(this.next != null) {
-			return this.next.processRecognition(leftOp, rightOp);
+			return this.next.processRecognition(defUnit, node);
 		}
 		else {
 			return null;

@@ -4,9 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.javatuples.Pair;
-import org.logicng.formulas.Formula;
 
-import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecoverer;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.RecognizerProcessor;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.StringRecognizer;
@@ -25,16 +23,16 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
  *
  */
 public class SymbolicExecutioner extends ICFGForwardTraverser {
-	private Map<Value, Pair<Formula, SymbolicValueProvider>> symbolicExecutionResults;
-	private PathPredicateRecoverer ppr;
+	private Map<Value, ContextualValues> symbolicExecutionResults;
+	private RecognizerProcessor rp;
 
-	public SymbolicExecutioner(InfoflowCFG icfg, SootMethod mainMethod, PathPredicateRecoverer ppr) {
+	public SymbolicExecutioner(InfoflowCFG icfg, SootMethod mainMethod) {
 		super(icfg, "Symbolic Execution", mainMethod);
-		this.symbolicExecutionResults = new HashMap<Value, Pair<Formula, SymbolicValueProvider>>();
-		this.ppr = ppr;
+		this.symbolicExecutionResults = new HashMap<Value, ContextualValues>();
+		this.rp = new StringRecognizer(null, this);
 	}
 
-	public Map<Value, Pair<Formula, SymbolicValueProvider>> getModelContext() {
+	public Map<Value, ContextualValues> getContext() {
 		return this.symbolicExecutionResults;
 	}
 
@@ -43,20 +41,21 @@ public class SymbolicExecutioner extends ICFGForwardTraverser {
 	 */
 	@Override
 	protected void processNodeBeforeNeighbors(Unit node) {
-		RecognizerProcessor rp = null;
-		SymbolicValueProvider results = null;
+		SymbolicValueProvider symbolicValue = null;
 		DefinitionStmt defUnit = null;
-		Value leftOp = null,
-			  rightOp = null;
-		Formula nodeToFullPath = this.ppr.getNodeFullPath(node);
+		ContextualValues contextualValues = null;
+		Value leftOp = null;
 		if(node instanceof DefinitionStmt) {
 			defUnit = (DefinitionStmt) node;
 			leftOp = defUnit.getLeftOp();
-			rightOp = defUnit.getRightOp();
-			rp = new StringRecognizer(null, this);
-			results = rp.recognize(leftOp, rightOp);
-			if(results != null) {
-				this.symbolicExecutionResults.put(leftOp, new Pair<Formula, SymbolicValueProvider>(nodeToFullPath, results));
+			symbolicValue = this.rp.recognize(defUnit, node);
+			if(symbolicValue != null) {
+				contextualValues = this.symbolicExecutionResults.get(leftOp);
+				if(contextualValues == null) {
+					contextualValues = new ContextualValues();
+				}
+				contextualValues.addValue(new Pair<Unit, SymbolicValueProvider>(node, symbolicValue));
+				this.symbolicExecutionResults.put(leftOp, contextualValues);
 			}
 		}
 	}

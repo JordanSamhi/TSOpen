@@ -3,16 +3,14 @@ package com.github.dusby.tsopen;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import org.javatuples.Pair;
-import org.logicng.formulas.Formula;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.profiler.Profiler;
 
 import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecoverer;
 import com.github.dusby.tsopen.pathPredicateRecovery.SimpleBlockPredicateExtractioner;
+import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
-import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
 
 import soot.Scene;
 import soot.SootMethod;
@@ -56,10 +54,10 @@ public class Main {
 		ppr = new PathPredicateRecoverer(icfg, sbpe, dummyMainMethod, options.hasExceptions());
 		ppr.traverse();
 		
-		se = new SymbolicExecutioner(icfg, dummyMainMethod, ppr);
+		se = new SymbolicExecutioner(icfg, dummyMainMethod);
 		se.traverse();
 
-		for(Entry<Value, Pair<Formula, SymbolicValueProvider>> e : se.getModelContext().entrySet()) {
+		for(Entry<Value, ContextualValues> e : se.getContext().entrySet()) {
 			logger.debug("{}", e.getKey());
 			logger.debug("{}", e.getValue());
 			logger.debug("==========");

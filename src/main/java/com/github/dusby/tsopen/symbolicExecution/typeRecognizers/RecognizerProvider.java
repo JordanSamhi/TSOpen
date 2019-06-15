@@ -2,10 +2,11 @@ package com.github.dusby.tsopen.symbolicExecution.typeRecognizers;
 
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
 
-import soot.Value;
+import soot.Unit;
+import soot.jimple.DefinitionStmt;
 
 public interface RecognizerProvider {
-	public SymbolicValueProvider recognize(Value leftOp, Value rightOp);
-	public SymbolicValueProvider processRecognition(Value leftOp, Value rightOp);
+	public SymbolicValueProvider recognize(DefinitionStmt defUnit, Unit node);
+	public SymbolicValueProvider processRecognition(DefinitionStmt defUnit, Unit node);
 
 }

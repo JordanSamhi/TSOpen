@@ -7,7 +7,6 @@ import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
 
 import soot.SootMethod;
-import soot.Unit;
 import soot.Value;
 import soot.jimple.Constant;
 
@@ -18,14 +17,12 @@ public class SymbolicValue implements SymbolicValueProvider {
 	private SootMethod method;
 	private SymbolicExecutioner se;
 	private String contextValue;
-	private Unit node;
 
-	public SymbolicValue(Value b, List<Value> a, SootMethod m, SymbolicExecutioner se, Unit node) {
+	public SymbolicValue(Value b, List<Value> a, SootMethod m, SymbolicExecutioner se) {
 		this.base = b;
 		this.args = a;
 		this.method = m;
 		this.se = se;
-		this.node = node;
 		this.contextValue = this.computeValue();
 	}
 
@@ -50,7 +47,7 @@ public class SymbolicValue implements SymbolicValueProvider {
 	private String getValueFromModelContext(Value v) {
 		Map<Value, ContextualValues> context = this.se.getContext();
 		if(context.containsKey(v)) {
-			return context.get(v).getValueByNode(this.node).getContextValue();
+			return context.get(v).getLastValue().getContextValue();
 		}else if(v instanceof Constant){
 			return ((Constant)v).toString();
 		}

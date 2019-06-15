@@ -17,11 +17,12 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.NewExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.StringConstant;
+import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public class StringRecognizer extends RecognizerProcessor{
 
-	public StringRecognizer(RecognizerProcessor next, SymbolicExecutioner se) {
-		super(next, se);
+	public StringRecognizer(RecognizerProcessor next, SymbolicExecutioner se, InfoflowCFG icfg) {
+		super(next, se, icfg);
 	}
 
 	@Override
@@ -36,10 +37,10 @@ public class StringRecognizer extends RecognizerProcessor{
 			if(rightOp instanceof StringConstant) {
 				return new ConcreteValue((StringConstant)rightOp);
 			}else if(rightOp instanceof ParameterRef) {
-
-			}
-			else if(rightOp instanceof Local) {
-				return this.se.getContext().get(leftOp).getLastValue();
+//				this.icfg.getcall
+				return new ConcreteValue(StringConstant.v(String.format("%s_p%d", this.icfg.getMethodOf(defUnit).getName(), ((ParameterRef)rightOp).getIndex())));
+			}else if(rightOp instanceof Local) {
+				return this.se.getContext().get(rightOp).getLastValue();
 			}else if(rightOp instanceof NewExpr) {
 				// TODO retrieve string in constructor
 				return new ConcreteValue(StringConstant.v(""));
@@ -48,7 +49,7 @@ public class StringRecognizer extends RecognizerProcessor{
 				SootMethod m = rightOpInvokeExpr.getMethod();
 				List<Value> args = rightOpInvokeExpr.getArgs();
 				Value base = rightOpInvokeExpr instanceof InstanceInvokeExpr ? ((InstanceInvokeExpr) rightOpInvokeExpr).getBase() : null;
-				return new SymbolicValue(base, args, m, this.se, node);
+				return new SymbolicValue(base, args, m, this.se);
 			}
 		}
 		return null;

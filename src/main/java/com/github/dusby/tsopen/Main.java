@@ -59,7 +59,7 @@ public class Main {
 
 		for(Entry<Value, ContextualValues> e : se.getContext().entrySet()) {
 			logger.debug("{}", e.getKey());
-			logger.debug("{}", e.getValue());
+			logger.debug("{}", e.getValue().getLastValue().getContextValue());
 			logger.debug("==========");
 		}
 	}

@@ -1,8 +1,9 @@
 package com.github.dusby.tsopen.symbolicExecution;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
-
-import org.javatuples.Pair;
+import java.util.List;
+import java.util.Map.Entry;
 
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
 
@@ -10,27 +11,30 @@ import soot.Unit;
 
 public class ContextualValues {
 	
-	LinkedList<Pair<Unit, SymbolicValueProvider>> values;
+	LinkedHashMap<Unit, LinkedList<SymbolicValueProvider>> values;
 	
 	public ContextualValues() {
-		this.values = new LinkedList<Pair<Unit,SymbolicValueProvider>>();
+		this.values = new LinkedHashMap<Unit, LinkedList<SymbolicValueProvider>>();
 	}
 
-	public void addValue(Pair<Unit, SymbolicValueProvider> pair) {
-		this.values.add(pair);
+	public void addValue(Unit node, SymbolicValueProvider svp) {
+		LinkedList<SymbolicValueProvider> valuesOfNode = this.values.get(node);
+		if(valuesOfNode == null) {
+			valuesOfNode = new LinkedList<SymbolicValueProvider>();
+			this.values.put(node, valuesOfNode);
+		}
+		valuesOfNode.add(svp);
 	}
 	
 	public SymbolicValueProvider getLastValue(){
-		return this.values.getLast().getValue1();
+		LinkedList<SymbolicValueProvider> last = null;
+		for(Entry<Unit, LinkedList<SymbolicValueProvider>> e : this.values.entrySet()) {
+			last = e.getValue();
+		}
+		return last.getLast();
 	}
 	
-	public SymbolicValueProvider getValueByNode(Unit node) {
-		for(Pair<Unit, SymbolicValueProvider> value : this.values) {
-			if(value.getValue0() == node) {
-				return value.getValue1();
-			}
-		}
-		return null;
+	public List<SymbolicValueProvider> getValuesByNode(Unit node) {
+		return this.values.get(node);
 	}
-
 }

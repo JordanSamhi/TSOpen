@@ -3,8 +3,6 @@ package com.github.dusby.tsopen.symbolicExecution;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.javatuples.Pair;
-
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.RecognizerProcessor;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.StringRecognizer;
@@ -29,7 +27,7 @@ public class SymbolicExecutioner extends ICFGForwardTraverser {
 	public SymbolicExecutioner(InfoflowCFG icfg, SootMethod mainMethod) {
 		super(icfg, "Symbolic Execution", mainMethod);
 		this.symbolicExecutionResults = new HashMap<Value, ContextualValues>();
-		this.rp = new StringRecognizer(null, this);
+		this.rp = new StringRecognizer(null, this, this.icfg);
 	}
 
 	public Map<Value, ContextualValues> getContext() {
@@ -54,7 +52,7 @@ public class SymbolicExecutioner extends ICFGForwardTraverser {
 				if(contextualValues == null) {
 					contextualValues = new ContextualValues();
 				}
-				contextualValues.addValue(new Pair<Unit, SymbolicValueProvider>(node, symbolicValue));
+				contextualValues.addValue(node, symbolicValue);
 				this.symbolicExecutionResults.put(leftOp, contextualValues);
 			}
 		}

@@ -5,15 +5,18 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValuePro
 
 import soot.Unit;
 import soot.jimple.DefinitionStmt;
+import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public abstract class RecognizerProcessor implements RecognizerProvider {
 	
 	private RecognizerProcessor next;
 	protected SymbolicExecutioner se;
+	protected InfoflowCFG icfg;
 
-	public RecognizerProcessor(RecognizerProcessor next, SymbolicExecutioner se) {
+	public RecognizerProcessor(RecognizerProcessor next, SymbolicExecutioner se, InfoflowCFG icfg) {
 		this.next = next;
 		this.se = se;
+		this.icfg = icfg;
 	}
 
 	@Override

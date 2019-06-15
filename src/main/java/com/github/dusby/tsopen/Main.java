@@ -3,6 +3,8 @@ package com.github.dusby.tsopen;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import org.javatuples.Pair;
+import org.logicng.formulas.Formula;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.profiler.Profiler;
@@ -54,12 +56,12 @@ public class Main {
 		ppr = new PathPredicateRecoverer(icfg, sbpe, dummyMainMethod, options.hasExceptions());
 		ppr.traverse();
 		
-		se = new SymbolicExecutioner(icfg, dummyMainMethod);
+		se = new SymbolicExecutioner(icfg, dummyMainMethod, ppr);
 		se.traverse();
 
-		for(Entry<Value, SymbolicValueProvider> e : se.getModelContext().entrySet()) {
+		for(Entry<Value, Pair<Formula, SymbolicValueProvider>> e : se.getModelContext().entrySet()) {
 			logger.debug("{}", e.getKey());
-			logger.debug("{}", e.getValue().getContextValue());
+			logger.debug("{}", e.getValue());
 			logger.debug("==========");
 		}
 	}

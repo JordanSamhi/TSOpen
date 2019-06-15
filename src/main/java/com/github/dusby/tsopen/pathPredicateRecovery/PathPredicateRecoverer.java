@@ -36,15 +36,6 @@ public class PathPredicateRecoverer extends ICFGBackwardTraverser {
 		this.handleExceptions = handleExceptions;
 	}
 
-	@Override
-	protected void processNeighbor(Unit node, Unit neighbour) {
-		if(this.handleExceptions) {
-			this.annotateNodeWithPathPredicate(node, neighbour);
-		}else if(!Utils.isCaughtException(node)) {
-			this.annotateNodeWithPathPredicate(node, neighbour);
-		}
-	}
-
 	private void annotateNodeWithPathPredicate(Unit node, Unit neighbour) {
 		Edge edge = sbpe.getAnnotatedEdge(neighbour, node);
 		Formula currentPathPredicate = null,
@@ -68,8 +59,24 @@ public class PathPredicateRecoverer extends ICFGBackwardTraverser {
 		}
 	}
 
+	public Formula getNodeFullPath(Unit node) {
+		if(this.nodeToFullPathPredicate.containsKey(node)) {
+			return this.nodeToFullPathPredicate.get(node);
+		}
+		return null;
+	}
+
 	public Map<Unit, Formula> getNodeToFullPathPredicate() {
-		return nodeToFullPathPredicate;
+		return this.nodeToFullPathPredicate;
+	}
+
+	@Override
+	protected void processNeighbor(Unit node, Unit neighbour) {
+		if(this.handleExceptions) {
+			this.annotateNodeWithPathPredicate(node, neighbour);
+		}else if(!Utils.isCaughtException(node)) {
+			this.annotateNodeWithPathPredicate(node, neighbour);
+		}
 	}
 
 	@Override

@@ -3,6 +3,9 @@ package com.github.dusby.tsopen.symbolicExecution.symbolicValues;
 import java.util.List;
 import java.util.Map;
 
+import org.javatuples.Pair;
+import org.logicng.formulas.Formula;
+
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
 
 import soot.SootMethod;
@@ -44,9 +47,9 @@ public class SymbolicValue implements SymbolicValueProvider {
 	}
 
 	private String getValueFromModelContext(Value v) {
-		Map<Value, SymbolicValueProvider> context = this.se.getModelContext();
+		Map<Value, Pair<Formula, SymbolicValueProvider>> context = this.se.getModelContext();
 		if(context.containsKey(v)) {
-			return context.get(v).getContextValue();
+			return context.get(v).getValue1().getContextValue();
 		}else if(v instanceof Constant){
 			return ((Constant)v).toString();
 		}

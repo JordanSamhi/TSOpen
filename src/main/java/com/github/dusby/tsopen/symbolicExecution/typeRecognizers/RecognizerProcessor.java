@@ -1,12 +1,9 @@
 package com.github.dusby.tsopen.symbolicExecution.typeRecognizers;
 
-import org.javatuples.Pair;
-
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
 
 import soot.Value;
-import soot.jimple.DefinitionStmt;
 
 public abstract class RecognizerProcessor implements RecognizerProvider {
 	
@@ -19,15 +16,15 @@ public abstract class RecognizerProcessor implements RecognizerProvider {
 	}
 
 	@Override
-	public Pair<Value, SymbolicValueProvider> recognize(DefinitionStmt def) {
+	public SymbolicValueProvider recognize(Value leftOp, Value rightOp) {
 		
-		Pair<Value, SymbolicValueProvider> result = this.processRecognition(def);
+		SymbolicValueProvider result = this.processRecognition(leftOp, rightOp);
 		
 		if(result != null) {
 			return result;
 		}
 		if(this.next != null) {
-			return this.next.processRecognition(def);
+			return this.next.processRecognition(leftOp, rightOp);
 		}
 		else {
 			return null;

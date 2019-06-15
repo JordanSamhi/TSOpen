@@ -3,6 +3,8 @@ package com.github.dusby.tsopen.symbolicExecution;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.javatuples.Pair;
+
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.RecognizerProcessor;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.StringRecognizer;
@@ -11,7 +13,6 @@ import com.github.dusby.tsopen.utils.ICFGForwardTraverser;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
-import soot.jimple.DefinitionStmt;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 /**
@@ -39,22 +40,20 @@ public class SymbolicExecutioner extends ICFGForwardTraverser {
 	 */
 	@Override
 	protected void processNodeBeforeNeighbors(Unit node) {
-		SymbolicValueProvider symbolicValue = null;
-		DefinitionStmt defUnit = null;
+		Pair<Value, SymbolicValueProvider> valueToSymbolicValue = null;
 		ContextualValues contextualValues = null;
-		Value leftOp = null;
-		if(node instanceof DefinitionStmt) {
-			defUnit = (DefinitionStmt) node;
-			leftOp = defUnit.getLeftOp();
-			symbolicValue = this.rp.recognize(defUnit, node);
-			if(symbolicValue != null) {
-				contextualValues = this.symbolicExecutionResults.get(leftOp);
-				if(contextualValues == null) {
-					contextualValues = new ContextualValues();
-				}
-				contextualValues.addValue(node, symbolicValue);
-				this.symbolicExecutionResults.put(leftOp, contextualValues);
+		valueToSymbolicValue = this.rp.recognize(node);
+		Value value = null;
+		SymbolicValueProvider symbolicValue = null;
+		if(valueToSymbolicValue != null) {
+			value = valueToSymbolicValue.getValue0();
+			symbolicValue = valueToSymbolicValue.getValue1();
+			contextualValues = this.symbolicExecutionResults.get(value);
+			if(contextualValues == null) {
+				contextualValues = new ContextualValues();
 			}
+			contextualValues.addValue(node, symbolicValue);
+			this.symbolicExecutionResults.put(value, contextualValues);
 		}
 	}
 

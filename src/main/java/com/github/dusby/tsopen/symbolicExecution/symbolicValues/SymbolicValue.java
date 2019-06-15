@@ -1,6 +1,7 @@
 package com.github.dusby.tsopen.symbolicExecution.symbolicValues;
 
 import java.util.List;
+import java.util.Map;
 
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
 
@@ -28,11 +29,11 @@ public class SymbolicValue implements SymbolicValueProvider {
 		String value = "(";
 		if(this.base != null) {
 			value += getValueFromModelContext(this.base);
-			value+="->";
+			value += "->";
 		}
 		value += this.method.getName();
 		value += "(";
-		for(Value arg : args) {
+		for(Value arg : this.args) {
 			value += getValueFromModelContext(arg);
 			if(arg != this.args.get(this.args.size() - 1)) {
 				value += ", ";
@@ -43,8 +44,9 @@ public class SymbolicValue implements SymbolicValueProvider {
 	}
 
 	private String getValueFromModelContext(Value v) {
-		if(this.se.getModelContext().containsKey(v)) {
-			return this.se.getModelContext().get(v).getContextValue();
+		Map<Value, SymbolicValueProvider> context = this.se.getModelContext();
+		if(context.containsKey(v)) {
+			return context.get(v).getContextValue();
 		}else if(v instanceof Constant){
 			return ((Constant)v).toString();
 		}

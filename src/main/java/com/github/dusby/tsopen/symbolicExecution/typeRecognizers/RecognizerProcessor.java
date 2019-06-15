@@ -1,6 +1,6 @@
 package com.github.dusby.tsopen.symbolicExecution.typeRecognizers;
 
-import java.util.Map;
+import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
@@ -19,9 +19,9 @@ public abstract class RecognizerProcessor implements RecognizerProvider {
 	}
 
 	@Override
-	public Map<Value, SymbolicValueProvider> recognize(DefinitionStmt def) {
+	public Pair<Value, SymbolicValueProvider> recognize(DefinitionStmt def) {
 		
-		Map<Value, SymbolicValueProvider> result = this.processRecognition(def);
+		Pair<Value, SymbolicValueProvider> result = this.processRecognition(def);
 		
 		if(result != null) {
 			return result;

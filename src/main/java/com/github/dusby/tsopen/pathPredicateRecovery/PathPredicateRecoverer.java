@@ -9,7 +9,6 @@ import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.transformations.DistributiveSimplifier;
 
-import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
 import com.github.dusby.tsopen.utils.Edge;
 import com.github.dusby.tsopen.utils.ICFGBackwardTraverser;
 import com.github.dusby.tsopen.utils.Utils;
@@ -20,16 +19,16 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public class PathPredicateRecoverer extends ICFGBackwardTraverser {
 
-	private final SymbolicExecutioner se;
+	private final SimpleBlockPredicateExtractioner sbpe;
 	private Map<Unit, List<Formula>> nodeToPathPredicates;
 	private Map<Unit, Formula> nodeToFullPathPredicate;
 	private final FormulaFactory formulaFactory;
 	private final DistributiveSimplifier simplifier;
 	private final boolean handleExceptions;
 	
-	public PathPredicateRecoverer(InfoflowCFG icfg, SymbolicExecutioner se, SootMethod mainMethod, boolean handleExceptions) {
+	public PathPredicateRecoverer(InfoflowCFG icfg, SimpleBlockPredicateExtractioner sbpe, SootMethod mainMethod, boolean handleExceptions) {
 		super(icfg, "Path Predicate Recovery", mainMethod);
-		this.se = se;
+		this.sbpe = sbpe;
 		this.nodeToPathPredicates = new HashMap<Unit, List<Formula>>();
 		this.nodeToFullPathPredicate = new HashMap<Unit, Formula>();
 		this.formulaFactory = new FormulaFactory();
@@ -47,7 +46,7 @@ public class PathPredicateRecoverer extends ICFGBackwardTraverser {
 	}
 
 	private void annotateNodeWithPathPredicate(Unit node, Unit neighbour) {
-		Edge edge = se.getAnnotatedEdge(neighbour, node);
+		Edge edge = sbpe.getAnnotatedEdge(neighbour, node);
 		Formula currentPathPredicate = null,
 				neighborPathPredicate = this.nodeToFullPathPredicate.get(neighbour);
 		List<Formula> nodePredicates = this.nodeToPathPredicates.get(node);

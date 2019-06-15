@@ -1,5 +1,6 @@
 package com.github.dusby.tsopen;
 
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -7,10 +8,13 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.profiler.Profiler;
 
 import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecoverer;
+import com.github.dusby.tsopen.pathPredicateRecovery.SimpleBlockPredicateExtractioner;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
 
 import soot.Scene;
 import soot.SootMethod;
+import soot.Value;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
@@ -26,8 +30,9 @@ public class Main {
 		SetupApplication sa = null;
 		InfoflowCFG icfg = null;
 		SootMethod dummyMainMethod = null;
-		SymbolicExecutioner se = null;
+		SimpleBlockPredicateExtractioner sbpe = null;
 		PathPredicateRecoverer ppr = null;
+		SymbolicExecutioner se = null;
 
 		mainProfiler.start("CallGraph");
 		ifac.getAnalysisFileConfig().setAndroidPlatformDir(options.getPlatforms());
@@ -42,10 +47,20 @@ public class Main {
 		logger.info("CallGraph has {} edges", Scene.v().getCallGraph().size());
 		
 		dummyMainMethod = sa.getDummyMainMethod();
+		
+		sbpe = new SimpleBlockPredicateExtractioner(icfg, dummyMainMethod);
+		sbpe.traverse();
+		
+		ppr = new PathPredicateRecoverer(icfg, sbpe, dummyMainMethod, options.hasExceptions());
+		ppr.traverse();
+		
 		se = new SymbolicExecutioner(icfg, dummyMainMethod);
 		se.traverse();
 
-		ppr = new PathPredicateRecoverer(icfg, se, dummyMainMethod, options.hasExceptions());
-		ppr.traverse();
+		for(Entry<Value, SymbolicValueProvider> e : se.getModelContext().entrySet()) {
+			logger.debug("{}", e.getKey());
+			logger.debug("{}", e.getValue().getContextValue());
+			logger.debug("==========");
+		}
 	}
 }

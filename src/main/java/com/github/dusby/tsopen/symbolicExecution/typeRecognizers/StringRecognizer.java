@@ -1,8 +1,8 @@
 package com.github.dusby.tsopen.symbolicExecution.typeRecognizers;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConcreteValue;
@@ -25,26 +25,24 @@ public class StringRecognizer extends RecognizerProcessor{
 	}
 
 	@Override
-	public Map<Value, SymbolicValueProvider> processRecognition(DefinitionStmt def) {
+	public Pair<Value, SymbolicValueProvider> processRecognition(DefinitionStmt def) {
 		Value leftOp = def.getLeftOp();
 		String leftOpType = leftOp.getType().toQuotedString(); 
 		if(leftOpType.equals("java.lang.String")
 				|| leftOpType.equals("java.lang.StringBuilder")
 				|| leftOpType.equals("java.lang.StringBuffer")) {
-			HashMap<Value, SymbolicValueProvider> result = new HashMap<Value, SymbolicValueProvider>();
+			Pair<Value, SymbolicValueProvider> result = null;
 			Value rightOp = def.getRightOp();
 
 			if(rightOp instanceof StringConstant) {
-				result.put(leftOp, new ConcreteValue((StringConstant)rightOp));
-			}
-			
-			if(rightOp instanceof Local) {
-				result.put(leftOp, this.se.getModelContext().get(rightOp));
+				result = new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue((StringConstant)rightOp));
+			}else if(rightOp instanceof Local) {
+				result = new Pair<Value, SymbolicValueProvider>(leftOp, this.se.getModelContext().get(rightOp));
 			}
 			// TODO retrieve parameter value
 			if(rightOp instanceof NewExpr) {
 				// TODO retrieve string in constructor
-				result.put(leftOp, new ConcreteValue(StringConstant.v("")));
+				result = new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v("")));
 			}
 
 			if(rightOp instanceof InvokeExpr) {
@@ -52,7 +50,7 @@ public class StringRecognizer extends RecognizerProcessor{
 				SootMethod m = rightOpInvokeExpr.getMethod();
 				List<Value> args = rightOpInvokeExpr.getArgs();
 				Value base = rightOpInvokeExpr instanceof InstanceInvokeExpr ? ((InstanceInvokeExpr) rightOpInvokeExpr).getBase() : null;
-				result.put(leftOp, new SymbolicValue(base, args, m, this.se));
+				result = new Pair<Value, SymbolicValueProvider>(leftOp, new SymbolicValue(base, args, m, this.se));
 			}
 			return result;
 		}

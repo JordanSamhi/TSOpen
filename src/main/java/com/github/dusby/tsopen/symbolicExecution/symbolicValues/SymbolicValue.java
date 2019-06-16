@@ -45,9 +45,18 @@ public class SymbolicValue implements SymbolicValueProvider {
 	}
 
 	private String getValueFromModelContext(Value v) {
+		String valuesString = "";
 		Map<Value, ContextualValues> context = this.se.getContext();
+		List<SymbolicValueProvider> values = null;
 		if(context.containsKey(v)) {
-			return context.get(v).getLastValue().getContextValue();
+			values = context.get(v).getLastValues();
+			for(SymbolicValueProvider svp : values) {
+				valuesString += String.format("%s", svp.getContextValue());
+				if(svp != values.get(values.size() - 1)) {
+					valuesString += "|";
+				}
+			}
+			return valuesString;
 		}else if(v instanceof Constant){
 			return ((Constant)v).toString();
 		}

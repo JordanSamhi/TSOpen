@@ -58,9 +58,9 @@ public class Main {
 		se.traverse();
 
 		for(Entry<Value, ContextualValues> e : se.getContext().entrySet()) {
-			logger.debug("{}", e.getKey());
-			logger.debug("{}", e.getValue().getLastValue().getContextValue());
-			logger.debug("==========");
+//			logger.debug("{}", e.getKey());
+//			logger.debug("{}", e.getValue().getLastValue().getContextValue());
+//			logger.debug("==========");
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package com.github.dusby.tsopen.symbolicExecution.typeRecognizers;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.javatuples.Pair;
@@ -16,8 +17,9 @@ import soot.Value;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
-import soot.jimple.NewExpr;
+import soot.jimple.InvokeStmt;
 import soot.jimple.ParameterRef;
+import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StringConstant;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
@@ -25,10 +27,13 @@ public class StringRecognizer extends RecognizerProcessor{
 
 	public StringRecognizer(RecognizerProcessor next, SymbolicExecutioner se, InfoflowCFG icfg) {
 		super(next, se, icfg);
+		this.authorizedTypes.add("java.lang.String");
+		this.authorizedTypes.add("java.lang.StringBuilder");
+		this.authorizedTypes.add("java.lang.StringBuffer");
 	}
 
 	@Override
-	public Pair<Value, SymbolicValueProvider> processRecognition(Unit node) {
+	public List<Pair<Value, SymbolicValueProvider>> processRecognition(Unit node) {
 		Value leftOp = null,
 				rightOp = null;
 		String leftOpType = null;
@@ -37,33 +42,72 @@ public class StringRecognizer extends RecognizerProcessor{
 		SootMethod m = null;
 		List<Value> args = null;
 		Value base = null;
+		Value arg = null;
+		List<Pair<Value, SymbolicValueProvider>> results = new LinkedList<Pair<Value,SymbolicValueProvider>>();
+		List<SymbolicValueProvider> values = null;
+
+		//TODO propagate values on each node
 
 		if(node instanceof DefinitionStmt) {
 			defUnit = (DefinitionStmt) node;
 			leftOp = defUnit.getLeftOp();
 			rightOp = defUnit.getRightOp();
 			leftOpType = leftOp.getType().toQuotedString();
-			if(leftOpType.equals("java.lang.String")
-					|| leftOpType.equals("java.lang.StringBuilder")
-					|| leftOpType.equals("java.lang.StringBuffer")) {
+			if(this.isAuthorizedType(leftOpType)) {
 				if(rightOp instanceof StringConstant) {
-					return new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue((StringConstant)rightOp));
+					results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue((StringConstant)rightOp)));
 				}else if(rightOp instanceof ParameterRef) {
-					return new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(String.format("%s_p%d", this.icfg.getMethodOf(defUnit).getName(), ((ParameterRef)rightOp).getIndex()))));
+					results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(String.format("%s_p%d", this.icfg.getMethodOf(defUnit).getName(), ((ParameterRef)rightOp).getIndex())))));
 				}else if(rightOp instanceof Local) {
-					return new Pair<Value, SymbolicValueProvider>(leftOp, this.se.getContext().get(rightOp).getLastValue());
-				}else if(rightOp instanceof NewExpr) {
-					// TODO retrieve string in constructor
-					return new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v("")));
+					//TODO NULL POINTER HERE WITH AIR JEUX DE FILLE APK
+					values = this.se.getContext().get(rightOp).getLastValues();
+					for(SymbolicValueProvider svp : values) {
+						results.add(new Pair<Value, SymbolicValueProvider>(leftOp, svp));
+					}
 				}else if(rightOp instanceof InvokeExpr) {
 					rightOpInvokeExpr = (InvokeExpr) rightOp;
 					m = rightOpInvokeExpr.getMethod();
 					args = rightOpInvokeExpr.getArgs();
 					base = rightOpInvokeExpr instanceof InstanceInvokeExpr ? ((InstanceInvokeExpr) rightOpInvokeExpr).getBase() : null;
-					return new Pair<Value, SymbolicValueProvider>(leftOp, new SymbolicValue(base, args, m, this.se));
+					results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new SymbolicValue(base, args, m, this.se)));
+				}
+			}
+		}else if(node instanceof InvokeStmt) {
+			InvokeExpr invExprUnit = ((InvokeStmt) node).getInvokeExpr();
+			if(invExprUnit instanceof SpecialInvokeExpr) {
+				m = invExprUnit.getMethod();
+				if(m.isConstructor()) {
+					base = ((SpecialInvokeExpr) invExprUnit).getBase();
+					if(this.isAuthorizedType(base.getType().toQuotedString())) {
+						args = invExprUnit.getArgs();
+						if(args.size() == 0) {
+							results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(""))));
+						}else {
+							arg = args.get(0);
+							if(arg instanceof Local) {
+								values = this.se.getContext().get(rightOp).getLastValues();
+								for(SymbolicValueProvider svp : values) {
+									results.add(new Pair<Value, SymbolicValueProvider>(leftOp, svp));
+								}
+							}else if(arg instanceof StringConstant) {
+								results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue((StringConstant)arg)));
+							}else {
+								results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(""))));
+							}
+						}
+					}
 				}
 			}
 		}
-		return null;
+		if(results.isEmpty()) {
+			return null;
+		}else {
+			return results;
+		}
+	}
+
+	@Override
+	protected boolean isAuthorizedType(String leftOpType) {
+		return this.authorizedTypes.contains(leftOpType);
 	}
 }

@@ -26,12 +26,12 @@ public class ContextualValues {
 		valuesOfNode.add(svp);
 	}
 	
-	public SymbolicValueProvider getLastValue(){
+	public List<SymbolicValueProvider> getLastValues(){
 		LinkedList<SymbolicValueProvider> last = null;
 		for(Entry<Unit, LinkedList<SymbolicValueProvider>> e : this.values.entrySet()) {
 			last = e.getValue();
 		}
-		return last.getLast();
+		return last;
 	}
 	
 	public List<SymbolicValueProvider> getValuesByNode(Unit node) {

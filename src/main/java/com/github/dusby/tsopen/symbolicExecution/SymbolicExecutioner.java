@@ -1,6 +1,7 @@
 package com.github.dusby.tsopen.symbolicExecution;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.javatuples.Pair;
@@ -40,20 +41,22 @@ public class SymbolicExecutioner extends ICFGForwardTraverser {
 	 */
 	@Override
 	protected void processNodeBeforeNeighbors(Unit node) {
-		Pair<Value, SymbolicValueProvider> valueToSymbolicValue = null;
 		ContextualValues contextualValues = null;
-		valueToSymbolicValue = this.rp.recognize(node);
+		List<Pair<Value, SymbolicValueProvider>> results = this.rp.recognize(node);
 		Value value = null;
 		SymbolicValueProvider symbolicValue = null;
-		if(valueToSymbolicValue != null) {
-			value = valueToSymbolicValue.getValue0();
-			symbolicValue = valueToSymbolicValue.getValue1();
-			contextualValues = this.symbolicExecutionResults.get(value);
-			if(contextualValues == null) {
-				contextualValues = new ContextualValues();
+
+		if(results != null) {
+			for(Pair<Value, SymbolicValueProvider> p : results) {
+				value = p.getValue0();
+				symbolicValue = p.getValue1();
+				contextualValues = this.symbolicExecutionResults.get(value);
+				if(contextualValues == null) {
+					contextualValues = new ContextualValues();
+					this.symbolicExecutionResults.put(value, contextualValues);
+				}
+				contextualValues.addValue(node, symbolicValue);
 			}
-			contextualValues.addValue(node, symbolicValue);
-			this.symbolicExecutionResults.put(value, contextualValues);
 		}
 	}
 

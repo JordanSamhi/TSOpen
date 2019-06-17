@@ -1,5 +1,6 @@
 package com.github.dusby.tsopen;
 
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
@@ -11,6 +12,7 @@ import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecoverer;
 import com.github.dusby.tsopen.pathPredicateRecovery.SimpleBlockPredicateExtractioner;
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
 
 import soot.Scene;
 import soot.SootMethod;
@@ -58,9 +60,12 @@ public class Main {
 		se.traverse();
 
 		for(Entry<Value, ContextualValues> e : se.getContext().entrySet()) {
-//			logger.debug("{}", e.getKey());
-//			logger.debug("{}", e.getValue().getLastValue().getContextValue());
-//			logger.debug("==========");
+			logger.debug("{}", e.getKey());
+			List<SymbolicValueProvider> svps = e.getValue().getLastValues();
+			for(SymbolicValueProvider svp : svps) {
+				logger.debug("{}", svp.getContextValue());
+			}
+			logger.debug("==========");
 		}
 	}
 }

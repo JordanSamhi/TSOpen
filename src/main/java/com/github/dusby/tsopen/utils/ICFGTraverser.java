@@ -29,6 +29,7 @@ public abstract class ICFGTraverser {
 	private List<SootMethod> visitedMethods;
 	private LinkedList<SootMethod> methodWorkList;
 	private List<Unit> visitedNodes;
+	private LinkedList<Unit> currentPath;
 	
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	protected Profiler profiler = new Profiler(this.getClass().getName());
@@ -39,6 +40,7 @@ public abstract class ICFGTraverser {
 		this.visitedMethods = new LinkedList<SootMethod>();
 		this.methodWorkList = new LinkedList<SootMethod>();
 		this.visitedNodes = new LinkedList<Unit>();
+		this.currentPath = new LinkedList<Unit>();
 		this.methodWorkList.add(mainMethod);
 	}
 	
@@ -71,6 +73,7 @@ public abstract class ICFGTraverser {
 		DefinitionStmt defUnit = null;
 		if(!this.visitedNodes.contains(node)) {
 			this.visitedNodes.add(node);
+			this.currentPath.add(node);
 			if(node instanceof InvokeStmt) {
 				this.propagateTargetMethod(node);
 			}else if(node instanceof DefinitionStmt) {
@@ -84,6 +87,7 @@ public abstract class ICFGTraverser {
 				this.traverseNode(neighbour);
 				this.processNeighbor(node, neighbour);
 			}
+			this.currentPath.removeLast();
 			this.processNodeAfterNeighbors(node);
 		}
 	}

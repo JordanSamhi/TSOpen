@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.javatuples.Pair;
 
+import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConcreteValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
@@ -14,6 +15,7 @@ import soot.Local;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
+import soot.jimple.CastExpr;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
@@ -24,6 +26,8 @@ import soot.jimple.StringConstant;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public class StringRecognizer extends RecognizerProcessor{
+
+	private static final String UNKNOWN_STRING = "UNKNOWN_STRING";
 
 	public StringRecognizer(RecognizerProcessor next, SymbolicExecutioner se, InfoflowCFG icfg) {
 		super(next, se, icfg);
@@ -45,6 +49,8 @@ public class StringRecognizer extends RecognizerProcessor{
 		Value arg = null;
 		List<Pair<Value, SymbolicValueProvider>> results = new LinkedList<Pair<Value,SymbolicValueProvider>>();
 		List<SymbolicValueProvider> values = null;
+		CastExpr rightOpExpr = null;
+		ContextualValues contextualValues = null;
 
 		//TODO propagate values on each node
 
@@ -59,12 +65,23 @@ public class StringRecognizer extends RecognizerProcessor{
 				}else if(rightOp instanceof ParameterRef) {
 					results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(String.format("%s_p%d", this.icfg.getMethodOf(defUnit).getName(), ((ParameterRef)rightOp).getIndex())))));
 				}else if(rightOp instanceof Local) {
-					//TODO NULL POINTER HERE WITH AIR JEUX DE FILLE APK
 					values = this.se.getContext().get(rightOp).getLastValues();
 					for(SymbolicValueProvider svp : values) {
 						results.add(new Pair<Value, SymbolicValueProvider>(leftOp, svp));
 					}
-				}else if(rightOp instanceof InvokeExpr) {
+				}else if (rightOp instanceof CastExpr) {
+					rightOpExpr = (CastExpr) rightOp;
+					contextualValues = this.se.getContext().get(rightOpExpr.getOp());
+					if(contextualValues == null) {
+						results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(UNKNOWN_STRING))));
+					}else {
+						values = contextualValues.getLastValues();
+						for(SymbolicValueProvider svp : values) {
+							results.add(new Pair<Value, SymbolicValueProvider>(leftOp, svp));
+						}
+					}
+				}
+				else if(rightOp instanceof InvokeExpr) {
 					rightOpInvokeExpr = (InvokeExpr) rightOp;
 					m = rightOpInvokeExpr.getMethod();
 					args = rightOpInvokeExpr.getArgs();
@@ -85,6 +102,7 @@ public class StringRecognizer extends RecognizerProcessor{
 						}else {
 							arg = args.get(0);
 							if(arg instanceof Local) {
+								// FIXME NULL POINTER HERE ideas waqf
 								values = this.se.getContext().get(rightOp).getLastValues();
 								for(SymbolicValueProvider svp : values) {
 									results.add(new Pair<Value, SymbolicValueProvider>(leftOp, svp));

@@ -60,12 +60,12 @@ public class Main {
 		se.traverse();
 
 		for(Entry<Value, ContextualValues> e : se.getContext().entrySet()) {
-			logger.debug("{}", e.getKey());
-			List<SymbolicValueProvider> svps = e.getValue().getLastValues();
-			for(SymbolicValueProvider svp : svps) {
-				logger.debug("{}", svp.getContextValue());
-			}
-			logger.debug("==========");
+//			logger.debug("{}", e.getKey());
+//			List<SymbolicValueProvider> svps = e.getValue().getLastValues();
+//			for(SymbolicValueProvider svp : svps) {
+//				logger.debug("{}", svp.getContextValue());
+//			}
+//			logger.debug("==========");
 		}
 	}
 }

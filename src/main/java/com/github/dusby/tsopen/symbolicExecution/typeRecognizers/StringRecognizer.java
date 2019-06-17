@@ -54,7 +54,6 @@ public class StringRecognizer extends RecognizerProcessor{
 		SootMethod m = null;
 		List<Value> args = null;
 		List<Pair<Value, SymbolicValueProvider>> results = new LinkedList<Pair<Value,SymbolicValueProvider>>();
-		List<SymbolicValueProvider> values = null;
 		CastExpr rightOpExpr = null;
 		ContextualValues contextualValues = null;
 		Collection<Unit> callers = null;
@@ -85,33 +84,17 @@ public class StringRecognizer extends RecognizerProcessor{
 							}
 						}
 						contextualValues = this.se.getContext().get(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()));
-						if(contextualValues == null) {
-							results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(UNKNOWN_STRING))));
-						}else {
-							values = contextualValues.getLastValues();
-							for(SymbolicValueProvider svp : values) {
-								results.add(new Pair<Value, SymbolicValueProvider>(leftOp, svp));
-							}
-						}
+						this.checkAndProcessContextValues(contextualValues, results, leftOp);
 					}
 				}else if(rightOp instanceof Local) {
-					values = this.se.getContext().get(rightOp).getLastValues();
-					for(SymbolicValueProvider svp : values) {
-						results.add(new Pair<Value, SymbolicValueProvider>(leftOp, svp));
-					}
+					contextualValues = this.se.getContext().get(rightOp);
+					this.checkAndProcessContextValues(contextualValues, results, leftOp);
 				}else if (rightOp instanceof CastExpr) {
 					rightOpExpr = (CastExpr) rightOp;
 					contextualValues = this.se.getContext().get(rightOpExpr.getOp());
-					if(contextualValues == null) {
-						results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(UNKNOWN_STRING))));
-					}else {
-						values = contextualValues.getLastValues();
-						for(SymbolicValueProvider svp : values) {
-							results.add(new Pair<Value, SymbolicValueProvider>(leftOp, svp));
-						}
-					}
-				}
-				else if(rightOp instanceof InvokeExpr) {
+					this.checkAndProcessContextValues(contextualValues, results, leftOp);
+				}else if(rightOp instanceof InvokeExpr) {
+					//TODO Model methods
 					rightOpInvokeExpr = (InvokeExpr) rightOp;
 					m = rightOpInvokeExpr.getMethod();
 					args = rightOpInvokeExpr.getArgs();
@@ -132,10 +115,8 @@ public class StringRecognizer extends RecognizerProcessor{
 						}else {
 							arg = args.get(0);
 							if(arg instanceof Local) {
-								values = this.se.getContext().get(arg).getLastValues();
-								for(SymbolicValueProvider svp : values) {
-									results.add(new Pair<Value, SymbolicValueProvider>(leftOp, svp));
-								}
+								contextualValues = this.se.getContext().get(arg);
+								this.checkAndProcessContextValues(contextualValues, results, leftOp);
 							}else if(arg instanceof StringConstant) {
 								results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue((StringConstant)arg)));
 							}else {
@@ -150,6 +131,18 @@ public class StringRecognizer extends RecognizerProcessor{
 			return null;
 		}else {
 			return results;
+		}
+	}
+
+	private void checkAndProcessContextValues(ContextualValues contextualValues, List<Pair<Value, SymbolicValueProvider>> results, Value leftOp) {
+		List<SymbolicValueProvider> values = null;
+		if(contextualValues == null) {
+			results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(UNKNOWN_STRING))));
+		}else {
+			values = contextualValues.getLastValues();
+			for(SymbolicValueProvider svp : values) {
+				results.add(new Pair<Value, SymbolicValueProvider>(leftOp, svp));
+			}
 		}
 	}
 

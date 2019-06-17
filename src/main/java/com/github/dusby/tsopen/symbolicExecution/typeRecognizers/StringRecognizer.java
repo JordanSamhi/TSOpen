@@ -1,5 +1,6 @@
 package com.github.dusby.tsopen.symbolicExecution.typeRecognizers;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import soot.Local;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
+import soot.jimple.AssignStmt;
 import soot.jimple.CastExpr;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.InstanceInvokeExpr;
@@ -51,6 +53,11 @@ public class StringRecognizer extends RecognizerProcessor{
 		List<SymbolicValueProvider> values = null;
 		CastExpr rightOpExpr = null;
 		ContextualValues contextualValues = null;
+		Collection<Unit> callers = null;
+		InvokeExpr invExprCaller = null;
+		InvokeStmt invStmtCaller = null;
+		AssignStmt assignCaller = null;
+		Value callerRightOp = null;
 
 		//TODO propagate values on each node
 
@@ -63,7 +70,30 @@ public class StringRecognizer extends RecognizerProcessor{
 				if(rightOp instanceof StringConstant) {
 					results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue((StringConstant)rightOp)));
 				}else if(rightOp instanceof ParameterRef) {
-					results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(String.format("%s_p%d", this.icfg.getMethodOf(defUnit).getName(), ((ParameterRef)rightOp).getIndex())))));
+					callers = this.icfg.getCallersOf(this.icfg.getMethodOf(node));
+					for(Unit caller : callers) {
+						if(caller instanceof InvokeStmt) {
+							invStmtCaller = (InvokeStmt) caller;
+							invExprCaller = invStmtCaller.getInvokeExpr();
+						}else if(caller instanceof AssignStmt) {
+							assignCaller = (AssignStmt) caller;
+							callerRightOp = assignCaller.getRightOp();
+							if(callerRightOp instanceof InvokeExpr) {
+								invExprCaller = (InvokeExpr)callerRightOp;
+							}else if(callerRightOp instanceof InvokeStmt) {
+								invExprCaller = ((InvokeStmt)callerRightOp).getInvokeExpr();
+							}
+						}
+						contextualValues = this.se.getContext().get(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()));
+						if(contextualValues == null) {
+							results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(UNKNOWN_STRING))));
+						}else {
+							values = contextualValues.getLastValues();
+							for(SymbolicValueProvider svp : values) {
+								results.add(new Pair<Value, SymbolicValueProvider>(leftOp, svp));
+							}
+						}
+					}
 				}else if(rightOp instanceof Local) {
 					values = this.se.getContext().get(rightOp).getLastValues();
 					for(SymbolicValueProvider svp : values) {

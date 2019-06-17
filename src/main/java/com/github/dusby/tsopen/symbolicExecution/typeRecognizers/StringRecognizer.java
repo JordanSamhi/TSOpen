@@ -30,6 +30,7 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 public class StringRecognizer extends RecognizerProcessor{
 
 	private static final String UNKNOWN_STRING = "UNKNOWN_STRING";
+	private static final String EMPTY_STRING = "";
 
 	public StringRecognizer(RecognizerProcessor next, SymbolicExecutioner se, InfoflowCFG icfg) {
 		super(next, se, icfg);
@@ -41,25 +42,24 @@ public class StringRecognizer extends RecognizerProcessor{
 	@Override
 	public List<Pair<Value, SymbolicValueProvider>> processRecognition(Unit node) {
 		Value leftOp = null,
-				rightOp = null;
+			  rightOp = null,
+			  callerRightOp = null,
+			  base = null,
+			  arg = null;
+		InvokeExpr rightOpInvokeExpr = null,
+				   invExprCaller = null,
+				   invExprUnit = null;
 		String leftOpType = null;
 		DefinitionStmt defUnit = null;
-		InvokeExpr rightOpInvokeExpr = null;
 		SootMethod m = null;
 		List<Value> args = null;
-		Value base = null;
-		Value arg = null;
 		List<Pair<Value, SymbolicValueProvider>> results = new LinkedList<Pair<Value,SymbolicValueProvider>>();
 		List<SymbolicValueProvider> values = null;
 		CastExpr rightOpExpr = null;
 		ContextualValues contextualValues = null;
 		Collection<Unit> callers = null;
-		InvokeExpr invExprCaller = null;
 		InvokeStmt invStmtCaller = null;
 		AssignStmt assignCaller = null;
-		Value callerRightOp = null;
-
-		//TODO propagate values on each node
 
 		if(node instanceof DefinitionStmt) {
 			defUnit = (DefinitionStmt) node;
@@ -120,7 +120,7 @@ public class StringRecognizer extends RecognizerProcessor{
 				}
 			}
 		}else if(node instanceof InvokeStmt) {
-			InvokeExpr invExprUnit = ((InvokeStmt) node).getInvokeExpr();
+			invExprUnit = ((InvokeStmt) node).getInvokeExpr();
 			if(invExprUnit instanceof SpecialInvokeExpr) {
 				m = invExprUnit.getMethod();
 				if(m.isConstructor()) {
@@ -128,19 +128,18 @@ public class StringRecognizer extends RecognizerProcessor{
 					if(this.isAuthorizedType(base.getType().toQuotedString())) {
 						args = invExprUnit.getArgs();
 						if(args.size() == 0) {
-							results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(""))));
+							results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(EMPTY_STRING))));
 						}else {
 							arg = args.get(0);
 							if(arg instanceof Local) {
-								// FIXME NULL POINTER HERE ideas waqf
-								values = this.se.getContext().get(rightOp).getLastValues();
+								values = this.se.getContext().get(arg).getLastValues();
 								for(SymbolicValueProvider svp : values) {
 									results.add(new Pair<Value, SymbolicValueProvider>(leftOp, svp));
 								}
 							}else if(arg instanceof StringConstant) {
 								results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue((StringConstant)arg)));
 							}else {
-								results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(""))));
+								results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(EMPTY_STRING))));
 							}
 						}
 					}

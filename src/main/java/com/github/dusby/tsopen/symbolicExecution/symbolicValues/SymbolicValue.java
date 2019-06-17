@@ -60,6 +60,7 @@ public class SymbolicValue implements SymbolicValueProvider {
 		}else if(v instanceof Constant){
 			return ((Constant)v).toString();
 		}
+		// FIXME Check why some stringBuilder endup here
 		return v.getType().toString();
 	}
 

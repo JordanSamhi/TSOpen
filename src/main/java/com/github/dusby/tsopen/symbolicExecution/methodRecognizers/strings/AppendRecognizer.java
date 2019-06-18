@@ -48,25 +48,25 @@ public class AppendRecognizer extends StringMethodsRecognizerProcessor {
 
 	private List<String> computeValue(String baseStr, List<Value> args) {
 		List<String> results = new ArrayList<String>();
-		Value effectifArg = args.get(0);
+		Value effectiveArg = args.get(0);
 		ContextualValues contextualValuesOfBase = null;
 		List<SymbolicValueProvider> values = null;
-		if(effectifArg instanceof Constant) {
-			if(effectifArg instanceof StringConstant) {
-				results.add(String.format("%s%s", baseStr, ((StringConstant)effectifArg).value));
-			}else if(effectifArg instanceof IntConstant) {
-				results.add(String.format("%s%s", baseStr, ((IntConstant)effectifArg).value));
-			}else if(effectifArg instanceof LongConstant) {
-				results.add(String.format("%s%s", baseStr, ((LongConstant)effectifArg).value));
-			}else if(effectifArg instanceof DoubleConstant) {
-				results.add(String.format("%s%s", baseStr, ((DoubleConstant)effectifArg).value));
-			}else if(effectifArg instanceof FloatConstant) {
-				results.add(String.format("%s%s", baseStr, ((FloatConstant)effectifArg).value));
-			}else if(effectifArg instanceof NullConstant) {
+		if(effectiveArg instanceof Constant) {
+			if(effectiveArg instanceof StringConstant) {
+				results.add(String.format("%s%s", baseStr, ((StringConstant)effectiveArg).value));
+			}else if(effectiveArg instanceof IntConstant) {
+				results.add(String.format("%s%s", baseStr, ((IntConstant)effectiveArg).value));
+			}else if(effectiveArg instanceof LongConstant) {
+				results.add(String.format("%s%s", baseStr, ((LongConstant)effectiveArg).value));
+			}else if(effectiveArg instanceof DoubleConstant) {
+				results.add(String.format("%s%s", baseStr, ((DoubleConstant)effectiveArg).value));
+			}else if(effectiveArg instanceof FloatConstant) {
+				results.add(String.format("%s%s", baseStr, ((FloatConstant)effectiveArg).value));
+			}else if(effectiveArg instanceof NullConstant) {
 				results.add(String.format("%s%s", baseStr, NULL));
 			}
 		}else {
-			contextualValuesOfBase = this.se.getContext().get(effectifArg);
+			contextualValuesOfBase = this.se.getContext().get(effectiveArg);
 			if(contextualValuesOfBase == null) {
 				results.add(String.format("%s%s", baseStr, UNKNOWN_STRING));
 			}else {

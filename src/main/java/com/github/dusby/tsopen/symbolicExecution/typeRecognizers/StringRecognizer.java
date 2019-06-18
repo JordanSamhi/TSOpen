@@ -109,6 +109,7 @@ public class StringRecognizer extends RecognizerProcessor{
 					methodRecognized = this.smrp.recognize(m, base, args);
 					if(methodRecognized != null) {
 						for(String s : methodRecognized) {
+							System.out.println(s);
 							results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(s))));
 						}
 					}else {

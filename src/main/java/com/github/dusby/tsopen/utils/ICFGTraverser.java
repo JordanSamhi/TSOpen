@@ -115,6 +115,10 @@ public abstract class ICFGTraverser implements Runnable{
 		}
 	}
 
+	public LinkedList<Unit> getCurrentPath() {
+		return this.currentPath;
+	}
+
 	/**
 	 * Implementation depending on the kind of analysis
 	 * @param node the current node being analyzed

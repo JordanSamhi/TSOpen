@@ -14,6 +14,7 @@ public abstract class StringMethodsRecognizerProcessor implements StringMethodsR
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	protected static final String APPEND = "append";
+	protected static final String VALUEOF = "valueOf";
 	protected static final String UNKNOWN_STRING = "UNKNOWN_STRING";
 	protected static final String NULL = "null";
 

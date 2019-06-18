@@ -17,7 +17,7 @@ import soot.Value;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 /**
- * 
+ *
  * This is the class implementing the symbolic execution
  * @author Jordan Samhi
  *
@@ -52,7 +52,7 @@ public class SymbolicExecutioner extends ICFGForwardTraverser {
 				symbolicValue = p.getValue1();
 				contextualValues = this.symbolicExecutionResults.get(value);
 				if(contextualValues == null) {
-					contextualValues = new ContextualValues();
+					contextualValues = new ContextualValues(this);
 					this.symbolicExecutionResults.put(value, contextualValues);
 				}
 				contextualValues.addValue(node, symbolicValue);

@@ -49,7 +49,7 @@ public class SymbolicValue implements SymbolicValueProvider {
 		Map<Value, ContextualValues> context = this.se.getContext();
 		List<SymbolicValueProvider> values = null;
 		if(context.containsKey(v)) {
-			values = context.get(v).getLastValues();
+			values = context.get(v).getLastCoherentValues();
 			for(SymbolicValueProvider svp : values) {
 				valuesString += String.format("%s", svp.getContextValue());
 				if(svp != values.get(values.size() - 1)) {

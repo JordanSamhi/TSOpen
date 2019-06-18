@@ -8,8 +8,9 @@ import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
-import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.AppendRecognizor;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.AppendRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.StringMethodsRecognizerProcessor;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ValueOfRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConcreteValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
@@ -38,7 +39,8 @@ public class StringRecognizer extends RecognizerProcessor{
 
 	public StringRecognizer(RecognizerProcessor next, SymbolicExecutioner se, InfoflowCFG icfg) {
 		super(next, se, icfg);
-		this.smrp = new AppendRecognizor(null, se);
+		this.smrp = new AppendRecognizer(null, se);
+		this.smrp = new ValueOfRecognizer(this.smrp, se);
 		this.authorizedTypes.add("java.lang.String");
 		this.authorizedTypes.add("java.lang.StringBuilder");
 		this.authorizedTypes.add("java.lang.StringBuffer");
@@ -151,7 +153,7 @@ public class StringRecognizer extends RecognizerProcessor{
 		if(contextualValues == null) {
 			results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(UNKNOWN_STRING))));
 		}else {
-			values = contextualValues.getLastValues();
+			values = contextualValues.getLastCoherentValues();
 			for(SymbolicValueProvider svp : values) {
 				results.add(new Pair<Value, SymbolicValueProvider>(leftOp, svp));
 			}

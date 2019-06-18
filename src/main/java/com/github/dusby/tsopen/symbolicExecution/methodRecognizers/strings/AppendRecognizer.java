@@ -17,9 +17,9 @@ import soot.jimple.LongConstant;
 import soot.jimple.NullConstant;
 import soot.jimple.StringConstant;
 
-public class AppendRecognizor extends StringMethodsRecognizerProcessor {
+public class AppendRecognizer extends StringMethodsRecognizerProcessor {
 
-	public AppendRecognizor(StringMethodsRecognizerProcessor next, SymbolicExecutioner se) {
+	public AppendRecognizer(StringMethodsRecognizerProcessor next, SymbolicExecutioner se) {
 		super(next, se);
 	}
 
@@ -35,7 +35,7 @@ public class AppendRecognizor extends StringMethodsRecognizerProcessor {
 				baseStr = UNKNOWN_STRING;
 				results.addAll(this.computeValue(baseStr, args));
 			}else {
-				values = contextualValuesOfBase.getLastValues();
+				values = contextualValuesOfBase.getLastCoherentValues();
 				for(SymbolicValueProvider svp : values) {
 					baseStr = svp.getContextValue();
 					results.addAll(this.computeValue(baseStr, args));
@@ -68,9 +68,9 @@ public class AppendRecognizor extends StringMethodsRecognizerProcessor {
 		}else {
 			contextualValuesOfBase = this.se.getContext().get(effectifArg);
 			if(contextualValuesOfBase == null) {
-				results.add(String.format("%s_%s", baseStr, UNKNOWN_STRING));
+				results.add(String.format("%s%s", baseStr, UNKNOWN_STRING));
 			}else {
-				values = contextualValuesOfBase.getLastValues();
+				values = contextualValuesOfBase.getLastCoherentValues();
 				for(SymbolicValueProvider svp : values) {
 					results.add(String.format("%s%s", baseStr, svp.getContextValue()));
 				}

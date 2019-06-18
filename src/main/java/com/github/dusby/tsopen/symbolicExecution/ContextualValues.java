@@ -10,9 +10,9 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValuePro
 import soot.Unit;
 
 public class ContextualValues {
-	
+
 	LinkedHashMap<Unit, LinkedList<SymbolicValueProvider>> values;
-	
+
 	public ContextualValues() {
 		this.values = new LinkedHashMap<Unit, LinkedList<SymbolicValueProvider>>();
 	}
@@ -25,7 +25,8 @@ public class ContextualValues {
 		}
 		valuesOfNode.add(svp);
 	}
-	
+
+	// FIXME find better solution
 	public List<SymbolicValueProvider> getLastValues(){
 		LinkedList<SymbolicValueProvider> last = null;
 		for(Entry<Unit, LinkedList<SymbolicValueProvider>> e : this.values.entrySet()) {
@@ -33,7 +34,7 @@ public class ContextualValues {
 		}
 		return last;
 	}
-	
+
 	public List<SymbolicValueProvider> getValuesByNode(Unit node) {
 		return this.values.get(node);
 	}

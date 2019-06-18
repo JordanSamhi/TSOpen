@@ -14,6 +14,8 @@ public abstract class StringMethodsRecognizerProcessor implements StringMethodsR
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	protected static final String APPEND = "append";
+	protected static final String UNKNOWN_STRING = "UNKNOWN_STRING";
+	protected static final String NULL = "null";
 
 	private StringMethodsRecognizerProcessor next;
 	protected SymbolicExecutioner se;
@@ -24,8 +26,8 @@ public abstract class StringMethodsRecognizerProcessor implements StringMethodsR
 	}
 
 	@Override
-	public String recognize(SootMethod method, Value base, List<Value> args) {
-		String result = this.processRecognition(method, base, args);
+	public List<String> recognize(SootMethod method, Value base, List<Value> args) {
+		List<String> result = this.processRecognition(method, base, args);
 
 		if(result != null) {
 			return result;
@@ -37,4 +39,7 @@ public abstract class StringMethodsRecognizerProcessor implements StringMethodsR
 			return null;
 		}
 	}
+
+	@Override
+	public abstract List<String> processRecognition(SootMethod method, Value base, List<Value> args);
 }

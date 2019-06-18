@@ -64,7 +64,7 @@ public class StringRecognizer extends RecognizerProcessor{
 		Collection<Unit> callers = null;
 		InvokeStmt invStmtCaller = null;
 		AssignStmt assignCaller = null;
-		String methodRecognized = null;
+		List<String> methodRecognized = null;
 
 		if(node instanceof DefinitionStmt) {
 			defUnit = (DefinitionStmt) node;
@@ -106,7 +106,9 @@ public class StringRecognizer extends RecognizerProcessor{
 					base = rightOpInvokeExpr instanceof InstanceInvokeExpr ? ((InstanceInvokeExpr) rightOpInvokeExpr).getBase() : null;
 					methodRecognized = this.smrp.recognize(m, base, args);
 					if(methodRecognized != null) {
-						// TODO
+						for(String s : methodRecognized) {
+							results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(s))));
+						}
 					}else {
 						results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new SymbolicValue(base, args, m, this.se)));
 					}
@@ -121,16 +123,16 @@ public class StringRecognizer extends RecognizerProcessor{
 					if(this.isAuthorizedType(base.getType().toQuotedString())) {
 						args = invExprUnit.getArgs();
 						if(args.size() == 0) {
-							results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(EMPTY_STRING))));
+							results.add(new Pair<Value, SymbolicValueProvider>(base, new ConcreteValue(StringConstant.v(EMPTY_STRING))));
 						}else {
 							arg = args.get(0);
 							if(arg instanceof Local) {
 								contextualValues = this.se.getContext().get(arg);
-								this.checkAndProcessContextValues(contextualValues, results, leftOp);
+								this.checkAndProcessContextValues(contextualValues, results, base);
 							}else if(arg instanceof StringConstant) {
-								results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue((StringConstant)arg)));
+								results.add(new Pair<Value, SymbolicValueProvider>(base, new ConcreteValue((StringConstant)arg)));
 							}else {
-								results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(EMPTY_STRING))));
+								results.add(new Pair<Value, SymbolicValueProvider>(base, new ConcreteValue(StringConstant.v(EMPTY_STRING))));
 							}
 						}
 					}

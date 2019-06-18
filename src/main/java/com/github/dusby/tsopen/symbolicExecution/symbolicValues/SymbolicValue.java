@@ -29,13 +29,13 @@ public class SymbolicValue implements SymbolicValueProvider {
 	private String computeValue() {
 		String value = "(";
 		if(this.base != null) {
-			value += getValueFromModelContext(this.base);
+			value += this.getValueFromModelContext(this.base);
 			value += "->";
 		}
 		value += this.method.getName();
 		value += "(";
 		for(Value arg : this.args) {
-			value += getValueFromModelContext(arg);
+			value += this.getValueFromModelContext(arg);
 			if(arg != this.args.get(this.args.size() - 1)) {
 				value += ", ";
 			}
@@ -76,7 +76,8 @@ public class SymbolicValue implements SymbolicValueProvider {
 		return this.method;
 	}
 
+	@Override
 	public String getContextValue() {
-		return contextValue;
+		return this.contextValue;
 	}
 }

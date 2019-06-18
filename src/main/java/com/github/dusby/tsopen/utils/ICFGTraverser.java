@@ -22,7 +22,7 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
  * @author Jordan Samhi
  *
  */
-public abstract class ICFGTraverser {
+public abstract class ICFGTraverser implements Runnable{
 	
 	protected final String nameOfAnalysis;
 	protected final InfoflowCFG icfg;
@@ -43,7 +43,12 @@ public abstract class ICFGTraverser {
 		this.currentPath = new LinkedList<Unit>();
 		this.methodWorkList.add(mainMethod);
 	}
-	
+
+	@Override
+	public void run() {
+		this.traverse();
+	}
+
 	/**
 	 * Begin the traversal of the ICFG as long as
 	 * the method work-list is not empty.

@@ -8,6 +8,8 @@ import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.AppendRecognizor;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.StringMethodsRecognizerProcessor;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConcreteValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
@@ -32,8 +34,11 @@ public class StringRecognizer extends RecognizerProcessor{
 	private static final String UNKNOWN_STRING = "UNKNOWN_STRING";
 	private static final String EMPTY_STRING = "";
 
+	private StringMethodsRecognizerProcessor smrp;
+
 	public StringRecognizer(RecognizerProcessor next, SymbolicExecutioner se, InfoflowCFG icfg) {
 		super(next, se, icfg);
+		this.smrp = new AppendRecognizor(null, se);
 		this.authorizedTypes.add("java.lang.String");
 		this.authorizedTypes.add("java.lang.StringBuilder");
 		this.authorizedTypes.add("java.lang.StringBuffer");
@@ -42,13 +47,13 @@ public class StringRecognizer extends RecognizerProcessor{
 	@Override
 	public List<Pair<Value, SymbolicValueProvider>> processRecognition(Unit node) {
 		Value leftOp = null,
-			  rightOp = null,
-			  callerRightOp = null,
-			  base = null,
-			  arg = null;
+				rightOp = null,
+				callerRightOp = null,
+				base = null,
+				arg = null;
 		InvokeExpr rightOpInvokeExpr = null,
-				   invExprCaller = null,
-				   invExprUnit = null;
+				invExprCaller = null,
+				invExprUnit = null;
 		String leftOpType = null;
 		DefinitionStmt defUnit = null;
 		SootMethod m = null;
@@ -59,6 +64,7 @@ public class StringRecognizer extends RecognizerProcessor{
 		Collection<Unit> callers = null;
 		InvokeStmt invStmtCaller = null;
 		AssignStmt assignCaller = null;
+		String methodRecognized = null;
 
 		if(node instanceof DefinitionStmt) {
 			defUnit = (DefinitionStmt) node;
@@ -94,12 +100,16 @@ public class StringRecognizer extends RecognizerProcessor{
 					contextualValues = this.se.getContext().get(rightOpExpr.getOp());
 					this.checkAndProcessContextValues(contextualValues, results, leftOp);
 				}else if(rightOp instanceof InvokeExpr) {
-					//TODO Model methods
 					rightOpInvokeExpr = (InvokeExpr) rightOp;
 					m = rightOpInvokeExpr.getMethod();
 					args = rightOpInvokeExpr.getArgs();
 					base = rightOpInvokeExpr instanceof InstanceInvokeExpr ? ((InstanceInvokeExpr) rightOpInvokeExpr).getBase() : null;
-					results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new SymbolicValue(base, args, m, this.se)));
+					methodRecognized = this.smrp.recognize(m, base, args);
+					if(methodRecognized != null) {
+						// TODO
+					}else {
+						results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new SymbolicValue(base, args, m, this.se)));
+					}
 				}
 			}
 		}else if(node instanceof InvokeStmt) {

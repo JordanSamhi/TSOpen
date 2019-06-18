@@ -12,5 +12,4 @@ import soot.Value;
 public interface RecognizerProvider {
 	public List<Pair<Value, SymbolicValueProvider>> recognize(Unit node);
 	public List<Pair<Value, SymbolicValueProvider>> processRecognition(Unit node);
-
 }

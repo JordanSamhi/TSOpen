@@ -23,14 +23,14 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
  *
  */
 public abstract class ICFGTraverser implements Runnable{
-	
+
 	protected final String nameOfAnalysis;
 	protected final InfoflowCFG icfg;
 	private List<SootMethod> visitedMethods;
 	private LinkedList<SootMethod> methodWorkList;
 	private List<Unit> visitedNodes;
 	private LinkedList<Unit> currentPath;
-	
+
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	protected Profiler profiler = new Profiler(this.getClass().getName());
 
@@ -54,7 +54,7 @@ public abstract class ICFGTraverser implements Runnable{
 	 * the method work-list is not empty.
 	 */
 	public void traverse() {
-		profiler.start("traverse");
+		this.profiler.start("traverse");
 		SootMethod methodToAnalyze = null;
 		Collection<Unit> extremities = null;
 		while(!this.methodWorkList.isEmpty()) {
@@ -65,10 +65,10 @@ public abstract class ICFGTraverser implements Runnable{
 				this.traverseNode(extremity);
 			}
 		}
-		profiler.stop();
-		this.logger.info("{} : {} ms", this.nameOfAnalysis, TimeUnit.MILLISECONDS.convert(profiler.elapsedTime(), TimeUnit.NANOSECONDS));
+		this.profiler.stop();
+		this.logger.info("{} : {} ms", this.nameOfAnalysis, TimeUnit.MILLISECONDS.convert(this.profiler.elapsedTime(), TimeUnit.NANOSECONDS));
 	}
-	
+
 	/**
 	 * Propagate analysis on neighbors node and propagate
 	 * discovered unvisited methods.
@@ -96,7 +96,7 @@ public abstract class ICFGTraverser implements Runnable{
 			this.processNodeAfterNeighbors(node);
 		}
 	}
-	
+
 	/**
 	 * Propagate the analysis on the points-to set
 	 * of the invocation if methods have not yet been visited.
@@ -114,7 +114,7 @@ public abstract class ICFGTraverser implements Runnable{
 			}
 		}
 	}
-	
+
 	/**
 	 * Implementation depending on the kind of analysis
 	 * @param node the current node being analyzed
@@ -145,5 +145,5 @@ public abstract class ICFGTraverser implements Runnable{
 	 * @return a list of nodes
 	 */
 	protected abstract Collection<Unit> getExtremities(SootMethod m);
-	
+
 }

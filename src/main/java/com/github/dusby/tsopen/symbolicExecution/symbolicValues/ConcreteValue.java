@@ -12,7 +12,27 @@ public class ConcreteValue implements SymbolicValueProvider {
 
 	//FIXME find better solution
 	@Override
-	public String getContextValue() {
+	public String getValue() {
 		return this.constant.toString().replace("\"", "").replace("\\", "");
+	}
+
+	@Override
+	public String toString() {
+		return this.getValue();
+	}
+
+	@Override
+	public boolean isSymbolic() {
+		return false;
+	}
+
+	@Override
+	public boolean isConcrete() {
+		return true;
+	}
+
+	@Override
+	public boolean isMethodRepresentation() {
+		return false;
 	}
 }

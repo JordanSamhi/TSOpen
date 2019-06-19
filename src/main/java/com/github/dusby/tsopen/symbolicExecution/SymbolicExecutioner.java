@@ -7,7 +7,7 @@ import java.util.Map;
 import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
-import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.RecognizerProcessor;
+import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.TypeRecognizerProcessor;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.StringRecognizer;
 import com.github.dusby.tsopen.utils.ICFGForwardTraverser;
 
@@ -24,7 +24,7 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
  */
 public class SymbolicExecutioner extends ICFGForwardTraverser {
 	private Map<Value, ContextualValues> symbolicExecutionResults;
-	private RecognizerProcessor rp;
+	private TypeRecognizerProcessor rp;
 
 	public SymbolicExecutioner(InfoflowCFG icfg, SootMethod mainMethod) {
 		super(icfg, "Symbolic Execution", mainMethod);

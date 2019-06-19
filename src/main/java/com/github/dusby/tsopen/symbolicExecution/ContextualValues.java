@@ -37,7 +37,7 @@ public class ContextualValues {
 	public List<SymbolicValueProvider> getLastCoherentValues(){
 		Iterator<Unit> it = this.se.getCurrentPath().descendingIterator();
 		Unit node = null;
-		LinkedList<SymbolicValueProvider> last = null;
+		LinkedList<SymbolicValueProvider> lasts = null;
 		LinkedList<SymbolicValueProvider> values = null;
 		while(it.hasNext()) {
 			node = it.next();
@@ -47,12 +47,8 @@ public class ContextualValues {
 			}
 		}
 		for(Entry<Unit, LinkedList<SymbolicValueProvider>> e : this.values.entrySet()) {
-			last = e.getValue();
+			lasts = e.getValue();
 		}
-		return last;
-	}
-
-	public List<SymbolicValueProvider> getValuesByNode(Unit node) {
-		return this.values.get(node);
+		return lasts;
 	}
 }

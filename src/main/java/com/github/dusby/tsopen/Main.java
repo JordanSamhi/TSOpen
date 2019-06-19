@@ -17,7 +17,7 @@ import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public class Main {
-	
+
 	private static Logger logger = LoggerFactory.getLogger(Main.class);
 	private static Profiler mainProfiler = new Profiler(Main.class.getName());
 
@@ -41,20 +41,20 @@ public class Main {
 		sa = new SetupApplication(ifac);
 		sa.constructCallgraph();
 		icfg = new InfoflowCFG();
-		
+
 		mainProfiler.stop();
 		logger.info("CallGraph construction : {} ms", TimeUnit.MILLISECONDS.convert(mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS));
 		logger.info("CallGraph has {} edges", Scene.v().getCallGraph().size());
-		
+
 		dummyMainMethod = sa.getDummyMainMethod();
-		
+
 		sbpe = new SimpleBlockPredicateExtractioner(icfg, dummyMainMethod);
 		ppr = new PathPredicateRecoverer(icfg, sbpe, dummyMainMethod, options.hasExceptions());
 		se = new SymbolicExecutioner(icfg, dummyMainMethod);
 
-		sbpeThread = new Thread(sbpe);
-		pprThread = new Thread(ppr);
-		seThread = new Thread(se);
+		sbpeThread = new Thread(sbpe, "Symbolic Block Predictae Extraction");
+		pprThread = new Thread(ppr, "Path Predicate Recovery");
+		seThread = new Thread(se, "Symbolic Execution");
 
 		sbpeThread.start();
 		seThread.start();

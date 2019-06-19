@@ -14,16 +14,16 @@ import soot.Unit;
 import soot.Value;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
-public abstract class RecognizerProcessor implements RecognizerProvider {
+public abstract class TypeRecognizerProcessor implements TypeRecognizerProvider {
 
-	private RecognizerProcessor next;
+	private TypeRecognizerProcessor next;
 	protected SymbolicExecutioner se;
 	protected InfoflowCFG icfg;
 	protected List<String> authorizedTypes;
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public RecognizerProcessor(RecognizerProcessor next, SymbolicExecutioner se, InfoflowCFG icfg) {
+	public TypeRecognizerProcessor(TypeRecognizerProcessor next, SymbolicExecutioner se, InfoflowCFG icfg) {
 		this.next = next;
 		this.se = se;
 		this.icfg = icfg;
@@ -46,5 +46,7 @@ public abstract class RecognizerProcessor implements RecognizerProvider {
 		}
 	}
 
-	protected abstract boolean isAuthorizedType(String leftOpType);
+	protected boolean isAuthorizedType(String type) {
+		return this.authorizedTypes.contains(type);
+	}
 }

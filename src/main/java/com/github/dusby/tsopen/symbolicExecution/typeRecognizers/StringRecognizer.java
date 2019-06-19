@@ -14,7 +14,7 @@ import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.SubSt
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ToStringRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ValueOfRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConcreteValue;
-import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
 
 import soot.Local;
@@ -32,14 +32,14 @@ import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StringConstant;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
-public class StringRecognizer extends RecognizerProcessor{
+public class StringRecognizer extends TypeRecognizerProcessor{
 
 	private static final String UNKNOWN_STRING = "UNKNOWN_STRING";
 	private static final String EMPTY_STRING = "";
 
 	private StringMethodsRecognizerProcessor smrp;
 
-	public StringRecognizer(RecognizerProcessor next, SymbolicExecutioner se, InfoflowCFG icfg) {
+	public StringRecognizer(TypeRecognizerProcessor next, SymbolicExecutioner se, InfoflowCFG icfg) {
 		super(next, se, icfg);
 		this.smrp = new AppendRecognizer(null, se);
 		this.smrp = new ValueOfRecognizer(this.smrp, se);
@@ -70,13 +70,13 @@ public class StringRecognizer extends RecognizerProcessor{
 		Collection<Unit> callers = null;
 		InvokeStmt invStmtCaller = null;
 		AssignStmt assignCaller = null;
-		List<String> methodRecognized = null;
+		List<SymbolicValueProvider> recognizedValues = null;
 
 		if(node instanceof DefinitionStmt) {
 			defUnit = (DefinitionStmt) node;
 			leftOp = defUnit.getLeftOp();
 			rightOp = defUnit.getRightOp();
-			leftOpType = leftOp.getType().toQuotedString();
+			leftOpType = leftOp.getType().toString();
 			if(this.isAuthorizedType(leftOpType)) {
 				if(rightOp instanceof StringConstant) {
 					results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue((StringConstant)rightOp)));
@@ -110,14 +110,13 @@ public class StringRecognizer extends RecognizerProcessor{
 					m = rightOpInvokeExpr.getMethod();
 					args = rightOpInvokeExpr.getArgs();
 					base = rightOpInvokeExpr instanceof InstanceInvokeExpr ? ((InstanceInvokeExpr) rightOpInvokeExpr).getBase() : null;
-					methodRecognized = this.smrp.recognize(m, base, args);
-					if(methodRecognized != null) {
-						for(String s : methodRecognized) {
-							System.out.println(s);
-							results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(s))));
+					recognizedValues = this.smrp.recognize(m, base, args);
+					if(recognizedValues != null) {
+						for(SymbolicValueProvider s : recognizedValues) {
+							results.add(new Pair<Value, SymbolicValueProvider>(leftOp, s));
 						}
 					}else {
-						results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new SymbolicValue(base, args, m, this.se)));
+						results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new MethodRepresentationValue(base, args, m, this.se)));
 					}
 				}
 			}
@@ -127,7 +126,7 @@ public class StringRecognizer extends RecognizerProcessor{
 				m = invExprUnit.getMethod();
 				if(m.isConstructor()) {
 					base = ((SpecialInvokeExpr) invExprUnit).getBase();
-					if(this.isAuthorizedType(base.getType().toQuotedString())) {
+					if(this.isAuthorizedType(base.getType().toString())) {
 						args = invExprUnit.getArgs();
 						if(args.size() == 0) {
 							results.add(new Pair<Value, SymbolicValueProvider>(base, new ConcreteValue(StringConstant.v(EMPTY_STRING))));
@@ -163,10 +162,5 @@ public class StringRecognizer extends RecognizerProcessor{
 				results.add(new Pair<Value, SymbolicValueProvider>(leftOp, svp));
 			}
 		}
-	}
-
-	@Override
-	protected boolean isAuthorizedType(String leftOpType) {
-		return this.authorizedTypes.contains(leftOpType);
 	}
 }

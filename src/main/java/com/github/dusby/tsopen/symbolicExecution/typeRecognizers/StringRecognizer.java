@@ -10,6 +10,7 @@ import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.AppendRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.StringMethodsRecognizerProcessor;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ToStringRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ValueOfRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConcreteValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
@@ -41,6 +42,7 @@ public class StringRecognizer extends RecognizerProcessor{
 		super(next, se, icfg);
 		this.smrp = new AppendRecognizer(null, se);
 		this.smrp = new ValueOfRecognizer(this.smrp, se);
+		this.smrp = new ToStringRecognizer(this.smrp, se);
 		this.authorizedTypes.add("java.lang.String");
 		this.authorizedTypes.add("java.lang.StringBuilder");
 		this.authorizedTypes.add("java.lang.StringBuffer");

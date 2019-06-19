@@ -15,7 +15,7 @@ import soot.Value;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public abstract class RecognizerProcessor implements RecognizerProvider {
-	
+
 	private RecognizerProcessor next;
 	protected SymbolicExecutioner se;
 	protected InfoflowCFG icfg;
@@ -32,14 +32,14 @@ public abstract class RecognizerProcessor implements RecognizerProvider {
 
 	@Override
 	public List<Pair<Value, SymbolicValueProvider>> recognize(Unit node) {
-		
+
 		List<Pair<Value, SymbolicValueProvider>> result = this.processRecognition(node);
-		
+
 		if(result != null) {
 			return result;
 		}
 		if(this.next != null) {
-			return this.next.processRecognition(node);
+			return this.next.recognize(node);
 		}
 		else {
 			return null;

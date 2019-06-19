@@ -15,6 +15,8 @@ public abstract class StringMethodsRecognizerProcessor implements StringMethodsR
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	protected static final String APPEND = "append";
 	protected static final String VALUEOF = "valueOf";
+	protected static final String SUBSTRING = "substring";
+	protected static final String TOSTRING = "toString";
 	protected static final String UNKNOWN_STRING = "UNKNOWN_STRING";
 	protected static final String NULL = "null";
 
@@ -34,13 +36,10 @@ public abstract class StringMethodsRecognizerProcessor implements StringMethodsR
 			return result;
 		}
 		if(this.next != null) {
-			return this.next.processRecognition(method, base, args);
+			return this.next.recognize(method, base, args);
 		}
 		else {
 			return null;
 		}
 	}
-
-	@Override
-	public abstract List<String> processRecognition(SootMethod method, Value base, List<Value> args);
 }

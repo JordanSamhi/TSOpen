@@ -21,14 +21,13 @@ public class ValueOfRecognizer extends StringMethodsRecognizerProcessor {
 
 	public ValueOfRecognizer(StringMethodsRecognizerProcessor next, SymbolicExecutioner se) {
 		super(next, se);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public List<String> processRecognition(SootMethod method, Value base, List<Value> args) {
 		List<SymbolicValueProvider> values = null;
 		List<String> results = new ArrayList<String>();
-		ContextualValues contextualValuesOfBase = null;
+		ContextualValues contextualValues = null;
 		Value effectiveArg = null;
 		if(method.getName().equals(VALUEOF)) {
 			effectiveArg = args.get(0);
@@ -47,12 +46,12 @@ public class ValueOfRecognizer extends StringMethodsRecognizerProcessor {
 					results.add(NULL);
 				}
 			}else {
-				//TODO Factorize this
-				contextualValuesOfBase = this.se.getContext().get(effectiveArg);
-				if(contextualValuesOfBase == null) {
+				//TODO Factorize this in other recognizers
+				contextualValues = this.se.getContext().get(effectiveArg);
+				if(contextualValues == null) {
 					results.add(UNKNOWN_STRING);
 				}else {
-					values = contextualValuesOfBase.getLastCoherentValues();
+					values = contextualValues.getLastCoherentValues();
 					for(SymbolicValueProvider svp : values) {
 						results.add(svp.getContextValue());
 					}

@@ -51,17 +51,14 @@ public class StringRecognizer extends TypeRecognizerProcessor{
 	}
 
 	@Override
-	public List<Pair<Value, SymbolicValueProvider>> processRecognition(Unit node) {
+	public List<Pair<Value, SymbolicValueProvider>> processRecognitionOfDefStmt(DefinitionStmt defUnit) {
 		Value leftOp = null,
 				rightOp = null,
 				callerRightOp = null,
-				base = null,
-				arg = null;
+				base = null;
 		InvokeExpr rightOpInvokeExpr = null,
-				invExprCaller = null,
-				invExprUnit = null;
+				invExprCaller = null;
 		String leftOpType = null;
-		DefinitionStmt defUnit = null;
 		SootMethod m = null;
 		List<Value> args = null;
 		List<Pair<Value, SymbolicValueProvider>> results = new LinkedList<Pair<Value,SymbolicValueProvider>>();
@@ -72,84 +69,89 @@ public class StringRecognizer extends TypeRecognizerProcessor{
 		AssignStmt assignCaller = null;
 		List<SymbolicValueProvider> recognizedValues = null;
 
-		if(node instanceof DefinitionStmt) {
-			defUnit = (DefinitionStmt) node;
-			leftOp = defUnit.getLeftOp();
-			rightOp = defUnit.getRightOp();
-			leftOpType = leftOp.getType().toString();
-			if(this.isAuthorizedType(leftOpType)) {
-				if(rightOp instanceof StringConstant) {
-					results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue((StringConstant)rightOp)));
-				}else if(rightOp instanceof ParameterRef) {
-					callers = this.icfg.getCallersOf(this.icfg.getMethodOf(node));
-					for(Unit caller : callers) {
-						if(caller instanceof InvokeStmt) {
-							invStmtCaller = (InvokeStmt) caller;
-							invExprCaller = invStmtCaller.getInvokeExpr();
-						}else if(caller instanceof AssignStmt) {
-							assignCaller = (AssignStmt) caller;
-							callerRightOp = assignCaller.getRightOp();
-							if(callerRightOp instanceof InvokeExpr) {
-								invExprCaller = (InvokeExpr)callerRightOp;
-							}else if(callerRightOp instanceof InvokeStmt) {
-								invExprCaller = ((InvokeStmt)callerRightOp).getInvokeExpr();
-							}
+		leftOp = defUnit.getLeftOp();
+		rightOp = defUnit.getRightOp();
+		leftOpType = leftOp.getType().toString();
+		if(this.isAuthorizedType(leftOpType)) {
+			if(rightOp instanceof StringConstant) {
+				results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue((StringConstant)rightOp)));
+			}else if(rightOp instanceof ParameterRef) {
+				callers = this.icfg.getCallersOf(this.icfg.getMethodOf(defUnit));
+				for(Unit caller : callers) {
+					if(caller instanceof InvokeStmt) {
+						invStmtCaller = (InvokeStmt) caller;
+						invExprCaller = invStmtCaller.getInvokeExpr();
+					}else if(caller instanceof AssignStmt) {
+						assignCaller = (AssignStmt) caller;
+						callerRightOp = assignCaller.getRightOp();
+						if(callerRightOp instanceof InvokeExpr) {
+							invExprCaller = (InvokeExpr)callerRightOp;
+						}else if(callerRightOp instanceof InvokeStmt) {
+							invExprCaller = ((InvokeStmt)callerRightOp).getInvokeExpr();
 						}
-						contextualValues = this.se.getContext().get(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()));
-						this.checkAndProcessContextValues(contextualValues, results, leftOp);
 					}
-				}else if(rightOp instanceof Local) {
-					contextualValues = this.se.getContext().get(rightOp);
+					contextualValues = this.se.getContext().get(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()));
 					this.checkAndProcessContextValues(contextualValues, results, leftOp);
-				}else if (rightOp instanceof CastExpr) {
-					rightOpExpr = (CastExpr) rightOp;
-					contextualValues = this.se.getContext().get(rightOpExpr.getOp());
-					this.checkAndProcessContextValues(contextualValues, results, leftOp);
-				}else if(rightOp instanceof InvokeExpr) {
-					rightOpInvokeExpr = (InvokeExpr) rightOp;
-					m = rightOpInvokeExpr.getMethod();
-					args = rightOpInvokeExpr.getArgs();
-					base = rightOpInvokeExpr instanceof InstanceInvokeExpr ? ((InstanceInvokeExpr) rightOpInvokeExpr).getBase() : null;
-					recognizedValues = this.smrp.recognize(m, base, args);
-					if(recognizedValues != null) {
-						for(SymbolicValueProvider s : recognizedValues) {
-							results.add(new Pair<Value, SymbolicValueProvider>(leftOp, s));
-						}
+				}
+			}else if(rightOp instanceof Local) {
+				contextualValues = this.se.getContext().get(rightOp);
+				this.checkAndProcessContextValues(contextualValues, results, leftOp);
+			}else if (rightOp instanceof CastExpr) {
+				rightOpExpr = (CastExpr) rightOp;
+				contextualValues = this.se.getContext().get(rightOpExpr.getOp());
+				this.checkAndProcessContextValues(contextualValues, results, leftOp);
+			}else if(rightOp instanceof InvokeExpr) {
+				rightOpInvokeExpr = (InvokeExpr) rightOp;
+				m = rightOpInvokeExpr.getMethod();
+				args = rightOpInvokeExpr.getArgs();
+				base = rightOpInvokeExpr instanceof InstanceInvokeExpr ? ((InstanceInvokeExpr) rightOpInvokeExpr).getBase() : null;
+				recognizedValues = this.smrp.recognize(m, base, args);
+				if(recognizedValues != null) {
+					for(SymbolicValueProvider s : recognizedValues) {
+						results.add(new Pair<Value, SymbolicValueProvider>(leftOp, s));
+					}
+				}else {
+					results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new MethodRepresentationValue(base, args, m, this.se)));
+				}
+			}
+		}
+		return results;
+	}
+
+	@Override
+	public List<Pair<Value, SymbolicValueProvider>> processRecognitionOfInvokeStmt(InvokeStmt invUnit) {
+		Value base = null,
+				arg = null;
+		InvokeExpr invExprUnit = null;
+		SootMethod m = null;
+		List<Value> args = null;
+		List<Pair<Value, SymbolicValueProvider>> results = new LinkedList<Pair<Value,SymbolicValueProvider>>();
+		ContextualValues contextualValues = null;
+
+		invExprUnit = invUnit.getInvokeExpr();
+		if(invExprUnit instanceof SpecialInvokeExpr) {
+			m = invExprUnit.getMethod();
+			if(m.isConstructor()) {
+				base = ((SpecialInvokeExpr) invExprUnit).getBase();
+				if(this.isAuthorizedType(base.getType().toString())) {
+					args = invExprUnit.getArgs();
+					if(args.size() == 0) {
+						results.add(new Pair<Value, SymbolicValueProvider>(base, new ConcreteValue(StringConstant.v(EMPTY_STRING))));
 					}else {
-						results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new MethodRepresentationValue(base, args, m, this.se)));
-					}
-				}
-			}
-		}else if(node instanceof InvokeStmt) {
-			invExprUnit = ((InvokeStmt) node).getInvokeExpr();
-			if(invExprUnit instanceof SpecialInvokeExpr) {
-				m = invExprUnit.getMethod();
-				if(m.isConstructor()) {
-					base = ((SpecialInvokeExpr) invExprUnit).getBase();
-					if(this.isAuthorizedType(base.getType().toString())) {
-						args = invExprUnit.getArgs();
-						if(args.size() == 0) {
-							results.add(new Pair<Value, SymbolicValueProvider>(base, new ConcreteValue(StringConstant.v(EMPTY_STRING))));
+						arg = args.get(0);
+						if(arg instanceof Local) {
+							contextualValues = this.se.getContext().get(arg);
+							this.checkAndProcessContextValues(contextualValues, results, base);
+						}else if(arg instanceof StringConstant) {
+							results.add(new Pair<Value, SymbolicValueProvider>(base, new ConcreteValue((StringConstant)arg)));
 						}else {
-							arg = args.get(0);
-							if(arg instanceof Local) {
-								contextualValues = this.se.getContext().get(arg);
-								this.checkAndProcessContextValues(contextualValues, results, base);
-							}else if(arg instanceof StringConstant) {
-								results.add(new Pair<Value, SymbolicValueProvider>(base, new ConcreteValue((StringConstant)arg)));
-							}else {
-								results.add(new Pair<Value, SymbolicValueProvider>(base, new ConcreteValue(StringConstant.v(EMPTY_STRING))));
-							}
+							results.add(new Pair<Value, SymbolicValueProvider>(base, new ConcreteValue(StringConstant.v(EMPTY_STRING))));
 						}
 					}
 				}
 			}
 		}
-		if(results.isEmpty()) {
-			return null;
-		}else {
-			return results;
-		}
+		return results;
 	}
 
 	private void checkAndProcessContextValues(ContextualValues contextualValues, List<Pair<Value, SymbolicValueProvider>> results, Value leftOp) {

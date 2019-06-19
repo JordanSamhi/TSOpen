@@ -12,6 +12,8 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValuePro
 
 import soot.Unit;
 import soot.Value;
+import soot.jimple.DefinitionStmt;
+import soot.jimple.InvokeStmt;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public abstract class TypeRecognizerProcessor implements TypeRecognizerProvider {
@@ -33,9 +35,15 @@ public abstract class TypeRecognizerProcessor implements TypeRecognizerProvider 
 	@Override
 	public List<Pair<Value, SymbolicValueProvider>> recognize(Unit node) {
 
-		List<Pair<Value, SymbolicValueProvider>> result = this.processRecognition(node);
+		List<Pair<Value, SymbolicValueProvider>> result = null;
 
-		if(result != null) {
+		if(node instanceof DefinitionStmt) {
+			result = this.processRecognitionOfDefStmt((DefinitionStmt) node);
+		}else if (node instanceof InvokeStmt) {
+			result = this.processRecognitionOfInvokeStmt((InvokeStmt) node);
+		}
+
+		if(result != null && !result.isEmpty()) {
 			return result;
 		}
 		if(this.next != null) {

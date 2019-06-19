@@ -5,7 +5,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
 
 import soot.SootMethod;
 import soot.Value;
@@ -29,8 +32,8 @@ public abstract class StringMethodsRecognizerProcessor implements StringMethodsR
 	}
 
 	@Override
-	public List<String> recognize(SootMethod method, Value base, List<Value> args) {
-		List<String> result = this.processRecognition(method, base, args);
+	public List<SymbolicValueProvider> recognize(SootMethod method, Value base, List<Value> args) {
+		List<SymbolicValueProvider> result = this.processRecognition(method, base, args);
 
 		if(result != null && !result.isEmpty()) {
 			return result;
@@ -40,6 +43,19 @@ public abstract class StringMethodsRecognizerProcessor implements StringMethodsR
 		}
 		else {
 			return null;
+		}
+	}
+
+	protected void addSimpleResult(Value effectiveArg, List<SymbolicValueProvider> results) {
+		ContextualValues contextualValues = this.se.getContext().get(effectiveArg);
+		List<SymbolicValueProvider> values = null;
+		if(contextualValues == null) {
+			results.add(new SymbolicValue());
+		}else {
+			values = contextualValues.getLastCoherentValues();
+			for(SymbolicValueProvider svp : values) {
+				results.add(svp);
+			}
 		}
 	}
 }

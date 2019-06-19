@@ -32,7 +32,7 @@ public abstract class StringMethodsRecognizerProcessor implements StringMethodsR
 	public List<String> recognize(SootMethod method, Value base, List<Value> args) {
 		List<String> result = this.processRecognition(method, base, args);
 
-		if(result != null) {
+		if(result != null && !result.isEmpty()) {
 			return result;
 		}
 		if(this.next != null) {

@@ -3,7 +3,7 @@ package com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
@@ -13,9 +13,9 @@ import soot.Value;
 import soot.jimple.IntConstant;
 import soot.jimple.StringConstant;
 
-public class SubStringRecognizer extends StringMethodsRecognizerProcessor {
+public class SubStringRecognizer extends StringMethodsRecognizerHandler {
 
-	public SubStringRecognizer(StringMethodsRecognizerProcessor next, SymbolicExecutioner se) {
+	public SubStringRecognizer(StringMethodsRecognizerHandler next, SymbolicExecution se) {
 		super(next, se);
 	}
 

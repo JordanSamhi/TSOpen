@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
-import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 
 import soot.Value;
 import soot.tagkit.StringConstantValueTag;
@@ -13,9 +13,9 @@ import soot.tagkit.StringConstantValueTag;
 public abstract class AbstractSymbolicValue implements SymbolicValue {
 
 	protected List<StringConstantValueTag> tags;
-	protected SymbolicExecutioner se;
+	protected SymbolicExecution se;
 
-	public AbstractSymbolicValue(SymbolicExecutioner se) {
+	public AbstractSymbolicValue(SymbolicExecution se) {
 		this.tags = new ArrayList<StringConstantValueTag>();
 		this.se = se;
 	}

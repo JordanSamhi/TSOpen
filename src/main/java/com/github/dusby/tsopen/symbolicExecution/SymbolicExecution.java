@@ -9,8 +9,8 @@ import org.javatuples.Pair;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.DateRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.StringRecognizer;
-import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.TypeRecognizerProcessor;
-import com.github.dusby.tsopen.utils.ICFGForwardTraverser;
+import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.TypeRecognizerHandler;
+import com.github.dusby.tsopen.utils.ICFGForwardTraversal;
 
 import soot.SootMethod;
 import soot.Unit;
@@ -23,15 +23,15 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
  * @author Jordan Samhi
  *
  */
-public class SymbolicExecutioner extends ICFGForwardTraverser {
+public class SymbolicExecution extends ICFGForwardTraversal {
 	private Map<Value, ContextualValues> symbolicExecutionResults;
-	private TypeRecognizerProcessor trp;
+	private TypeRecognizerHandler trh;
 
-	public SymbolicExecutioner(InfoflowCFG icfg, SootMethod mainMethod) {
+	public SymbolicExecution(InfoflowCFG icfg, SootMethod mainMethod) {
 		super(icfg, "Symbolic Execution", mainMethod);
 		this.symbolicExecutionResults = new HashMap<Value, ContextualValues>();
-		this.trp = new StringRecognizer(null, this, this.icfg);
-		this.trp = new DateRecognizer(this.trp, this, this.icfg);
+		this.trh = new StringRecognizer(null, this, this.icfg);
+		this.trh = new DateRecognizer(this.trh, this, this.icfg);
 	}
 
 	public Map<Value, ContextualValues> getContext() {
@@ -44,7 +44,7 @@ public class SymbolicExecutioner extends ICFGForwardTraverser {
 	@Override
 	protected void processNodeBeforeNeighbors(Unit node) {
 		ContextualValues contextualValues = null;
-		List<Pair<Value, SymbolicValue>> results = this.trp.recognize(node);
+		List<Pair<Value, SymbolicValue>> results = this.trh.recognize(node);
 		Value value = null;
 		SymbolicValue symbolicValue = null;
 

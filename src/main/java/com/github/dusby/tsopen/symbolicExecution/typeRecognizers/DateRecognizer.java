@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.javatuples.Pair;
 
-import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
@@ -18,11 +18,11 @@ import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 import soot.tagkit.StringConstantValueTag;
 
-public class DateRecognizer extends TypeRecognizerProcessor {
+public class DateRecognizer extends TypeRecognizerHandler {
 
 	private static final String NOW = "#now";
 
-	public DateRecognizer(TypeRecognizerProcessor next, SymbolicExecutioner se, InfoflowCFG icfg) {
+	public DateRecognizer(TypeRecognizerHandler next, SymbolicExecution se, InfoflowCFG icfg) {
 		super(next, se, icfg);
 		this.authorizedTypes.add("java.util.Date");
 	}

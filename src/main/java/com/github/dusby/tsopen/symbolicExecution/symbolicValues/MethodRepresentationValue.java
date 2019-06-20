@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 
 import soot.SootMethod;
 import soot.Value;
@@ -17,7 +17,7 @@ public class MethodRepresentationValue extends AbstractSymbolicValue {
 	private List<Value> args;
 	private SootMethod method;
 
-	public MethodRepresentationValue(Value b, List<Value> a, SootMethod m, SymbolicExecutioner se) {
+	public MethodRepresentationValue(Value b, List<Value> a, SootMethod m, SymbolicExecution se) {
 		super(se);
 		this.values = new HashMap<Value, List<SymbolicValue>>();
 		this.method = m;

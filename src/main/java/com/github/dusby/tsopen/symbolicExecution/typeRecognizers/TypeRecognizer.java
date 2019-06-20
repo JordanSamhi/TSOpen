@@ -11,7 +11,7 @@ import soot.Value;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.InvokeStmt;
 
-public interface TypeRecognizerProvider {
+public interface TypeRecognizer {
 	public List<Pair<Value, SymbolicValue>> recognize(Unit node);
 	public List<Pair<Value, SymbolicValue>> processRecognitionOfDefStmt(DefinitionStmt defUnit);
 	public List<Pair<Value, SymbolicValue>> processRecognitionOfInvokeStmt(InvokeStmt invUnit);

@@ -1,6 +1,6 @@
 package com.github.dusby.tsopen.symbolicExecution.symbolicValues;
 
-import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 
 public abstract class ConcreteValue extends AbstractSymbolicValue {
 
@@ -8,7 +8,7 @@ public abstract class ConcreteValue extends AbstractSymbolicValue {
 		super();
 	}
 
-	public ConcreteValue(SymbolicExecutioner se) {
+	public ConcreteValue(SymbolicExecution se) {
 		super(se);
 	}
 

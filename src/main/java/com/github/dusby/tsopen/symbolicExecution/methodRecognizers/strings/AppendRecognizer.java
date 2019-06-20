@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
-import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
@@ -15,9 +15,9 @@ import soot.Value;
 import soot.jimple.Constant;
 import soot.jimple.StringConstant;
 
-public class AppendRecognizer extends StringMethodsRecognizerProcessor {
+public class AppendRecognizer extends StringMethodsRecognizerHandler {
 
-	public AppendRecognizer(StringMethodsRecognizerProcessor next, SymbolicExecutioner se) {
+	public AppendRecognizer(StringMethodsRecognizerHandler next, SymbolicExecution se) {
 		super(next, se);
 	}
 

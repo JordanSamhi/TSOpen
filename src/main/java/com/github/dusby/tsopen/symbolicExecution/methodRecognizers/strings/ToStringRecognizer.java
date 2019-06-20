@@ -3,15 +3,15 @@ package com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
 import soot.SootMethod;
 import soot.Value;
 
-public class ToStringRecognizer extends StringMethodsRecognizerProcessor {
+public class ToStringRecognizer extends StringMethodsRecognizerHandler {
 
-	public ToStringRecognizer(StringMethodsRecognizerProcessor next, SymbolicExecutioner se) {
+	public ToStringRecognizer(StringMethodsRecognizerHandler next, SymbolicExecution se) {
 		super(next, se);
 	}
 

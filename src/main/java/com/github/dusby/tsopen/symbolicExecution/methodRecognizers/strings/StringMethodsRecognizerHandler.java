@@ -6,14 +6,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
-import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.UnknownValue;
 
 import soot.SootMethod;
 import soot.Value;
 
-public abstract class StringMethodsRecognizerProcessor implements StringMethodsRecognizerProvider {
+public abstract class StringMethodsRecognizerHandler implements StringMethodsRecognizer {
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	protected static final String APPEND = "append";
@@ -23,10 +23,10 @@ public abstract class StringMethodsRecognizerProcessor implements StringMethodsR
 	protected static final String UNKNOWN_STRING = "UNKNOWN_STRING";
 	protected static final String NULL = "null";
 
-	private StringMethodsRecognizerProcessor next;
-	protected SymbolicExecutioner se;
+	private StringMethodsRecognizerHandler next;
+	protected SymbolicExecution se;
 
-	public StringMethodsRecognizerProcessor(StringMethodsRecognizerProcessor next, SymbolicExecutioner se) {
+	public StringMethodsRecognizerHandler(StringMethodsRecognizerHandler next, SymbolicExecution se) {
 		this.next = next;
 		this.se = se;
 	}

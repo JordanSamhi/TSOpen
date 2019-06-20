@@ -10,23 +10,23 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.transformations.DistributiveSimplifier;
 
 import com.github.dusby.tsopen.utils.Edge;
-import com.github.dusby.tsopen.utils.ICFGBackwardTraverser;
+import com.github.dusby.tsopen.utils.ICFGBackwardTraversal;
 import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
-public class PathPredicateRecoverer extends ICFGBackwardTraverser {
+public class PathPredicateRecovery extends ICFGBackwardTraversal {
 
-	private final SimpleBlockPredicateExtractioner sbpe;
+	private final SimpleBlockPredicateExtraction sbpe;
 	private Map<Unit, List<Formula>> nodeToPathPredicates;
 	private Map<Unit, Formula> nodeToFullPathPredicate;
 	private final FormulaFactory formulaFactory;
 	private final DistributiveSimplifier simplifier;
 	private final boolean handleExceptions;
 	
-	public PathPredicateRecoverer(InfoflowCFG icfg, SimpleBlockPredicateExtractioner sbpe, SootMethod mainMethod, boolean handleExceptions) {
+	public PathPredicateRecovery(InfoflowCFG icfg, SimpleBlockPredicateExtraction sbpe, SootMethod mainMethod, boolean handleExceptions) {
 		super(icfg, "Path Predicate Recovery", mainMethod);
 		this.sbpe = sbpe;
 		this.nodeToPathPredicates = new HashMap<Unit, List<Formula>>();

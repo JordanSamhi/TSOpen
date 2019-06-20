@@ -22,7 +22,7 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
  * @author Jordan Samhi
  *
  */
-public abstract class ICFGTraverser implements Runnable{
+public abstract class ICFGTraversal implements Runnable{
 
 	protected final String nameOfAnalysis;
 	protected final InfoflowCFG icfg;
@@ -34,7 +34,7 @@ public abstract class ICFGTraverser implements Runnable{
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	protected Profiler profiler = new Profiler(this.getClass().getName());
 
-	public ICFGTraverser(InfoflowCFG icfg, String nameOfAnalysis, SootMethod mainMethod) {
+	public ICFGTraversal(InfoflowCFG icfg, String nameOfAnalysis, SootMethod mainMethod) {
 		this.nameOfAnalysis = nameOfAnalysis;
 		this.icfg = icfg;
 		this.visitedMethods = new LinkedList<SootMethod>();

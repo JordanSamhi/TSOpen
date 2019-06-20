@@ -2,7 +2,7 @@ package com.github.dusby.tsopen.symbolicExecution.symbolicValues;
 
 import java.util.List;
 
-import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 
 import soot.Type;
 import soot.Value;
@@ -13,7 +13,7 @@ public class ObjectValue extends ConcreteValue {
 	private Type type;
 	private List<Value> args;
 
-	public ObjectValue(Type t, List<Value> args, SymbolicExecutioner se) {
+	public ObjectValue(Type t, List<Value> args, SymbolicExecution se) {
 		super(se);
 		this.type = t;
 		this.args = args;

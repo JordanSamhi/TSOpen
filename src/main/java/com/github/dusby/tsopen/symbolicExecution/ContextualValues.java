@@ -13,9 +13,9 @@ import soot.Unit;
 public class ContextualValues {
 
 	private LinkedHashMap<Unit, LinkedList<SymbolicValue>> values;
-	private SymbolicExecutioner se;
+	private SymbolicExecution se;
 
-	public ContextualValues(SymbolicExecutioner se) {
+	public ContextualValues(SymbolicExecution se) {
 		this.values = new LinkedHashMap<Unit, LinkedList<SymbolicValue>>();
 		this.se = se;
 	}

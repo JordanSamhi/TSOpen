@@ -7,9 +7,9 @@ import java.util.List;
 import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
-import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
+import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.AppendRecognizer;
-import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.StringMethodsRecognizerProcessor;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.StringMethodsRecognizerHandler;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.SubStringRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ToStringRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ValueOfRecognizer;
@@ -32,19 +32,19 @@ import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StringConstant;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
-public class StringRecognizer extends TypeRecognizerProcessor{
+public class StringRecognizer extends TypeRecognizerHandler{
 
 	private static final String UNKNOWN_STRING = "UNKNOWN_STRING";
 	private static final String EMPTY_STRING = "";
 
-	private StringMethodsRecognizerProcessor smrp;
+	private StringMethodsRecognizerHandler smrh;
 
-	public StringRecognizer(TypeRecognizerProcessor next, SymbolicExecutioner se, InfoflowCFG icfg) {
+	public StringRecognizer(TypeRecognizerHandler next, SymbolicExecution se, InfoflowCFG icfg) {
 		super(next, se, icfg);
-		this.smrp = new AppendRecognizer(null, se);
-		this.smrp = new ValueOfRecognizer(this.smrp, se);
-		this.smrp = new ToStringRecognizer(this.smrp, se);
-		this.smrp = new SubStringRecognizer(this.smrp, se);
+		this.smrh = new AppendRecognizer(null, se);
+		this.smrh = new ValueOfRecognizer(this.smrh, se);
+		this.smrh = new ToStringRecognizer(this.smrh, se);
+		this.smrh = new SubStringRecognizer(this.smrh, se);
 		this.authorizedTypes.add("java.lang.String");
 		this.authorizedTypes.add("java.lang.StringBuilder");
 		this.authorizedTypes.add("java.lang.StringBuffer");
@@ -105,7 +105,7 @@ public class StringRecognizer extends TypeRecognizerProcessor{
 				m = rightOpInvokeExpr.getMethod();
 				args = rightOpInvokeExpr.getArgs();
 				base = rightOpInvokeExpr instanceof InstanceInvokeExpr ? ((InstanceInvokeExpr) rightOpInvokeExpr).getBase() : null;
-				recognizedValues = this.smrp.recognize(m, base, args);
+				recognizedValues = this.smrh.recognize(m, base, args);
 				if(recognizedValues != null) {
 					for(SymbolicValue recognizedValue : recognizedValues) {
 						results.add(new Pair<Value, SymbolicValue>(leftOp, recognizedValue));

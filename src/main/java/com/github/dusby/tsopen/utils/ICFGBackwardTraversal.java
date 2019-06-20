@@ -12,9 +12,9 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
  * @author Jordan Samhi
  *
  */
-public abstract class ICFGBackwardTraverser extends ICFGTraverser {
+public abstract class ICFGBackwardTraversal extends ICFGTraversal {
 
-	public ICFGBackwardTraverser(InfoflowCFG icfg, String nameOfAnalysis, SootMethod mainMethod) {
+	public ICFGBackwardTraversal(InfoflowCFG icfg, String nameOfAnalysis, SootMethod mainMethod) {
 		super(icfg, nameOfAnalysis, mainMethod);
 	}
 

@@ -9,7 +9,7 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 
 import com.github.dusby.tsopen.utils.Edge;
-import com.github.dusby.tsopen.utils.ICFGForwardTraverser;
+import com.github.dusby.tsopen.utils.ICFGForwardTraversal;
 import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
@@ -24,13 +24,13 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
  * @author Jordan Samhi
  *
  */
-public class SimpleBlockPredicateExtractioner extends ICFGForwardTraverser {
+public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 	
 	private Map<Literal, ConditionExpr> literalToCondition = null;
 	private List<Edge> annotatedEdges;
 	private final FormulaFactory formulaFactory;
 
-	public SimpleBlockPredicateExtractioner(InfoflowCFG icfg, SootMethod mainMethod) {
+	public SimpleBlockPredicateExtraction(InfoflowCFG icfg, SootMethod mainMethod) {
 		super(icfg, "Simple Block Extraction", mainMethod);
 		this.literalToCondition = new HashMap<Literal, ConditionExpr>();
 		this.annotatedEdges = new ArrayList<Edge>();

@@ -7,7 +7,7 @@ import java.util.Map;
 import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
-import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.DateRecognizer;
+import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.DateTimeRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.StringRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.TypeRecognizerHandler;
 import com.github.dusby.tsopen.utils.ICFGForwardTraversal;
@@ -31,7 +31,7 @@ public class SymbolicExecution extends ICFGForwardTraversal {
 		super(icfg, "Symbolic Execution", mainMethod);
 		this.symbolicExecutionResults = new HashMap<Value, ContextualValues>();
 		this.trh = new StringRecognizer(null, this, this.icfg);
-		this.trh = new DateRecognizer(this.trh, this, this.icfg);
+		this.trh = new DateTimeRecognizer(this.trh, this, this.icfg);
 	}
 
 	public Map<Value, ContextualValues> getContext() {
@@ -52,6 +52,9 @@ public class SymbolicExecution extends ICFGForwardTraversal {
 			for(Pair<Value, SymbolicValue> p : results) {
 				value = p.getValue0();
 				symbolicValue = p.getValue1();
+				if(symbolicValue.hasTag()) {
+					this.logger.debug("{}", symbolicValue.getStringTags());
+				}
 				contextualValues = this.symbolicExecutionResults.get(value);
 				if(contextualValues == null) {
 					contextualValues = new ContextualValues(this);

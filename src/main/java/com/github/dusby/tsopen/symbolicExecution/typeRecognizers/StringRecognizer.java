@@ -52,14 +52,14 @@ public class StringRecognizer extends TypeRecognizerHandler{
 
 	@Override
 	public List<Pair<Value, SymbolicValue>> processRecognitionOfDefStmt(DefinitionStmt defUnit) {
-		Value leftOp = null,
-				rightOp = null,
+		Value leftOp = defUnit.getLeftOp(),
+				rightOp = defUnit.getRightOp(),
 				callerRightOp = null,
 				base = null;
 		InvokeExpr rightOpInvokeExpr = null,
 				invExprCaller = null;
-		String leftOpType = null;
-		SootMethod m = null;
+		String leftOpType = leftOp.getType().toString();
+		SootMethod method = null;
 		List<Value> args = null;
 		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
 		CastExpr rightOpExpr = null;
@@ -69,9 +69,6 @@ public class StringRecognizer extends TypeRecognizerHandler{
 		AssignStmt assignCaller = null;
 		List<SymbolicValue> recognizedValues = null;
 
-		leftOp = defUnit.getLeftOp();
-		rightOp = defUnit.getRightOp();
-		leftOpType = leftOp.getType().toString();
 		if(this.isAuthorizedType(leftOpType)) {
 			if(rightOp instanceof StringConstant) {
 				results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue((StringConstant)rightOp)));
@@ -102,16 +99,16 @@ public class StringRecognizer extends TypeRecognizerHandler{
 				this.checkAndProcessContextValues(contextualValues, results, leftOp);
 			}else if(rightOp instanceof InvokeExpr) {
 				rightOpInvokeExpr = (InvokeExpr) rightOp;
-				m = rightOpInvokeExpr.getMethod();
+				method = rightOpInvokeExpr.getMethod();
 				args = rightOpInvokeExpr.getArgs();
 				base = rightOpInvokeExpr instanceof InstanceInvokeExpr ? ((InstanceInvokeExpr) rightOpInvokeExpr).getBase() : null;
-				recognizedValues = this.smrh.recognize(m, base, args);
+				recognizedValues = this.smrh.recognize(method, base, args);
 				if(recognizedValues != null) {
 					for(SymbolicValue recognizedValue : recognizedValues) {
 						results.add(new Pair<Value, SymbolicValue>(leftOp, recognizedValue));
 					}
 				}else {
-					results.add(new Pair<Value, SymbolicValue>(leftOp, new MethodRepresentationValue(base, args, m, this.se)));
+					results.add(new Pair<Value, SymbolicValue>(leftOp, new MethodRepresentationValue(base, args, method, this.se)));
 				}
 			}
 		}

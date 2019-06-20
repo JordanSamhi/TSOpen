@@ -23,7 +23,7 @@ public class ObjectValue extends ConcreteValue {
 	public String getValue() {
 		String value = "";
 		if(this.tags.isEmpty()) {
-			return String.format("new %s(%s)", this.type, this.computeArgs());
+			return String.format("%s(%s)", this.type, this.computeArgs());
 		}
 		for(StringConstantValueTag tag : this.tags) {
 			value += tag.getStringValue();

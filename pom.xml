@@ -7,7 +7,7 @@
 	<artifactId>TSOpen</artifactId>
 	<name>TSOpen</name>
 	<version>0.1</version>
-	<description>Open implementation of TriggerScope, a tool to detect logic bombs in Android applicatons, given the information of the 2016 Security and Privacy paper.</description>
+	<description>TSOpen is a tool to detect logic bombs in Android applicatons. This is an open implementation of TriggerScope made thanks to the details given in the 2016 Security and Privacy paper by Fratantonio &amp; al.</description>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>

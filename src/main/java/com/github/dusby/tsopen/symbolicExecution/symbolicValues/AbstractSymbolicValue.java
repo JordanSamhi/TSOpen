@@ -36,6 +36,18 @@ public abstract class AbstractSymbolicValue implements SymbolicValue {
 		return this.tags;
 	}
 
+	public String getStringTags() {
+		String tags = "";
+		for(StringConstantValueTag scvt : this.tags) {
+			tags += String.format("%s ", scvt.getStringValue());
+		}
+		return tags;
+	}
+
+	public boolean hasTag() {
+		return !this.tags.isEmpty();
+	}
+
 	public void addTag(StringConstantValueTag tag) {
 		this.tags.add(tag);
 	}

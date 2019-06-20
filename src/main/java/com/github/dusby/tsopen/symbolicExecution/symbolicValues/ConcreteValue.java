@@ -1,19 +1,15 @@
 package com.github.dusby.tsopen.symbolicExecution.symbolicValues;
 
-import soot.jimple.Constant;
+import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
 
-public class ConcreteValue implements SymbolicValueProvider {
+public abstract class ConcreteValue extends AbstractSymbolicValue {
 
-	private Constant constant;
-
-	public ConcreteValue(Constant c) {
-		this.constant = c;
+	public ConcreteValue() {
+		super();
 	}
 
-	//FIXME find better solution
-	@Override
-	public String getValue() {
-		return this.constant.toString().replace("\"", "").replace("\\", "");
+	public ConcreteValue(SymbolicExecutioner se) {
+		super(se);
 	}
 
 	@Override
@@ -24,11 +20,6 @@ public class ConcreteValue implements SymbolicValueProvider {
 	@Override
 	public boolean isSymbolic() {
 		return false;
-	}
-
-	@Override
-	public boolean isConcrete() {
-		return true;
 	}
 
 	@Override

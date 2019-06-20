@@ -13,9 +13,9 @@ import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.Strin
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.SubStringRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ToStringRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ValueOfRecognizer;
-import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConcreteValue;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
-import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
 import soot.Local;
 import soot.SootMethod;
@@ -51,7 +51,7 @@ public class StringRecognizer extends TypeRecognizerProcessor{
 	}
 
 	@Override
-	public List<Pair<Value, SymbolicValueProvider>> processRecognitionOfDefStmt(DefinitionStmt defUnit) {
+	public List<Pair<Value, SymbolicValue>> processRecognitionOfDefStmt(DefinitionStmt defUnit) {
 		Value leftOp = null,
 				rightOp = null,
 				callerRightOp = null,
@@ -61,20 +61,20 @@ public class StringRecognizer extends TypeRecognizerProcessor{
 		String leftOpType = null;
 		SootMethod m = null;
 		List<Value> args = null;
-		List<Pair<Value, SymbolicValueProvider>> results = new LinkedList<Pair<Value,SymbolicValueProvider>>();
+		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
 		CastExpr rightOpExpr = null;
 		ContextualValues contextualValues = null;
 		Collection<Unit> callers = null;
 		InvokeStmt invStmtCaller = null;
 		AssignStmt assignCaller = null;
-		List<SymbolicValueProvider> recognizedValues = null;
+		List<SymbolicValue> recognizedValues = null;
 
 		leftOp = defUnit.getLeftOp();
 		rightOp = defUnit.getRightOp();
 		leftOpType = leftOp.getType().toString();
 		if(this.isAuthorizedType(leftOpType)) {
 			if(rightOp instanceof StringConstant) {
-				results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue((StringConstant)rightOp)));
+				results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue((StringConstant)rightOp)));
 			}else if(rightOp instanceof ParameterRef) {
 				callers = this.icfg.getCallersOf(this.icfg.getMethodOf(defUnit));
 				for(Unit caller : callers) {
@@ -107,11 +107,11 @@ public class StringRecognizer extends TypeRecognizerProcessor{
 				base = rightOpInvokeExpr instanceof InstanceInvokeExpr ? ((InstanceInvokeExpr) rightOpInvokeExpr).getBase() : null;
 				recognizedValues = this.smrp.recognize(m, base, args);
 				if(recognizedValues != null) {
-					for(SymbolicValueProvider s : recognizedValues) {
-						results.add(new Pair<Value, SymbolicValueProvider>(leftOp, s));
+					for(SymbolicValue recognizedValue : recognizedValues) {
+						results.add(new Pair<Value, SymbolicValue>(leftOp, recognizedValue));
 					}
 				}else {
-					results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new MethodRepresentationValue(base, args, m, this.se)));
+					results.add(new Pair<Value, SymbolicValue>(leftOp, new MethodRepresentationValue(base, args, m, this.se)));
 				}
 			}
 		}
@@ -119,13 +119,13 @@ public class StringRecognizer extends TypeRecognizerProcessor{
 	}
 
 	@Override
-	public List<Pair<Value, SymbolicValueProvider>> processRecognitionOfInvokeStmt(InvokeStmt invUnit) {
+	public List<Pair<Value, SymbolicValue>> processRecognitionOfInvokeStmt(InvokeStmt invUnit) {
 		Value base = null,
 				arg = null;
 		InvokeExpr invExprUnit = null;
 		SootMethod m = null;
 		List<Value> args = null;
-		List<Pair<Value, SymbolicValueProvider>> results = new LinkedList<Pair<Value,SymbolicValueProvider>>();
+		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
 		ContextualValues contextualValues = null;
 
 		invExprUnit = invUnit.getInvokeExpr();
@@ -136,16 +136,16 @@ public class StringRecognizer extends TypeRecognizerProcessor{
 				if(this.isAuthorizedType(base.getType().toString())) {
 					args = invExprUnit.getArgs();
 					if(args.size() == 0) {
-						results.add(new Pair<Value, SymbolicValueProvider>(base, new ConcreteValue(StringConstant.v(EMPTY_STRING))));
+						results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue(StringConstant.v(EMPTY_STRING))));
 					}else {
 						arg = args.get(0);
 						if(arg instanceof Local) {
 							contextualValues = this.se.getContext().get(arg);
 							this.checkAndProcessContextValues(contextualValues, results, base);
 						}else if(arg instanceof StringConstant) {
-							results.add(new Pair<Value, SymbolicValueProvider>(base, new ConcreteValue((StringConstant)arg)));
+							results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue((StringConstant)arg)));
 						}else {
-							results.add(new Pair<Value, SymbolicValueProvider>(base, new ConcreteValue(StringConstant.v(EMPTY_STRING))));
+							results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue(StringConstant.v(EMPTY_STRING))));
 						}
 					}
 				}
@@ -154,14 +154,14 @@ public class StringRecognizer extends TypeRecognizerProcessor{
 		return results;
 	}
 
-	private void checkAndProcessContextValues(ContextualValues contextualValues, List<Pair<Value, SymbolicValueProvider>> results, Value leftOp) {
-		List<SymbolicValueProvider> values = null;
+	private void checkAndProcessContextValues(ContextualValues contextualValues, List<Pair<Value, SymbolicValue>> results, Value leftOp) {
+		List<SymbolicValue> values = null;
 		if(contextualValues == null) {
-			results.add(new Pair<Value, SymbolicValueProvider>(leftOp, new ConcreteValue(StringConstant.v(UNKNOWN_STRING))));
+			results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue(StringConstant.v(UNKNOWN_STRING))));
 		}else {
 			values = contextualValues.getLastCoherentValues();
-			for(SymbolicValueProvider svp : values) {
-				results.add(new Pair<Value, SymbolicValueProvider>(leftOp, svp));
+			for(SymbolicValue sv : values) {
+				results.add(new Pair<Value, SymbolicValue>(leftOp, sv));
 			}
 		}
 	}

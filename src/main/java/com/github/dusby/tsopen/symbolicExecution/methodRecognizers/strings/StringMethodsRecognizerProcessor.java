@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
-import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.UnknownValue;
 
 import soot.SootMethod;
 import soot.Value;
@@ -32,8 +32,8 @@ public abstract class StringMethodsRecognizerProcessor implements StringMethodsR
 	}
 
 	@Override
-	public List<SymbolicValueProvider> recognize(SootMethod method, Value base, List<Value> args) {
-		List<SymbolicValueProvider> result = this.processRecognition(method, base, args);
+	public List<SymbolicValue> recognize(SootMethod method, Value base, List<Value> args) {
+		List<SymbolicValue> result = this.processRecognition(method, base, args);
 
 		if(result != null && !result.isEmpty()) {
 			return result;
@@ -46,15 +46,15 @@ public abstract class StringMethodsRecognizerProcessor implements StringMethodsR
 		}
 	}
 
-	protected void addSimpleResult(Value effectiveArg, List<SymbolicValueProvider> results) {
+	protected void addSimpleResult(Value effectiveArg, List<SymbolicValue> results) {
 		ContextualValues contextualValues = this.se.getContext().get(effectiveArg);
-		List<SymbolicValueProvider> values = null;
+		List<SymbolicValue> values = null;
 		if(contextualValues == null) {
-			results.add(new SymbolicValue());
+			results.add(new UnknownValue());
 		}else {
 			values = contextualValues.getLastCoherentValues();
-			for(SymbolicValueProvider svp : values) {
-				results.add(svp);
+			for(SymbolicValue sv : values) {
+				results.add(sv);
 			}
 		}
 	}

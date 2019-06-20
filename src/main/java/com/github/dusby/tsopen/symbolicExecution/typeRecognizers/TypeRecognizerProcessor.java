@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
-import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
 import soot.Unit;
 import soot.Value;
@@ -33,9 +33,9 @@ public abstract class TypeRecognizerProcessor implements TypeRecognizerProvider 
 	}
 
 	@Override
-	public List<Pair<Value, SymbolicValueProvider>> recognize(Unit node) {
+	public List<Pair<Value, SymbolicValue>> recognize(Unit node) {
 
-		List<Pair<Value, SymbolicValueProvider>> result = null;
+		List<Pair<Value, SymbolicValue>> result = null;
 
 		if(node instanceof DefinitionStmt) {
 			result = this.processRecognitionOfDefStmt((DefinitionStmt) node);

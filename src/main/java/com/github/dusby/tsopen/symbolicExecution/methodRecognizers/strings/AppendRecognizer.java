@@ -5,10 +5,10 @@ import java.util.List;
 
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
-import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConcreteValue;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
-import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.UnknownValue;
 
 import soot.SootMethod;
 import soot.Value;
@@ -22,18 +22,18 @@ public class AppendRecognizer extends StringMethodsRecognizerProcessor {
 	}
 
 	@Override
-	public List<SymbolicValueProvider> processRecognition(SootMethod method, Value base, List<Value> args) {
-		List<SymbolicValueProvider> values = null;
-		List<SymbolicValueProvider> results = new ArrayList<SymbolicValueProvider>();
+	public List<SymbolicValue> processRecognition(SootMethod method, Value base, List<Value> args) {
+		List<SymbolicValue> values = null;
+		List<SymbolicValue> results = new ArrayList<SymbolicValue>();
 		ContextualValues contextualValuesOfBase = null;
 		if(method.getName().equals(APPEND)) {
 			contextualValuesOfBase = this.se.getContext().get(base);
 			if(contextualValuesOfBase == null) {
-				results.addAll(this.computeValue(new SymbolicValue(), args, base, method));
+				results.addAll(this.computeValue(new UnknownValue(), args, base, method));
 			}else {
 				values = contextualValuesOfBase.getLastCoherentValues();
-				for(SymbolicValueProvider svp : values) {
-					results.addAll(this.computeValue(svp, args, base, method));
+				for(SymbolicValue sv : values) {
+					results.addAll(this.computeValue(sv, args, base, method));
 				}
 			}
 			return results;
@@ -41,30 +41,30 @@ public class AppendRecognizer extends StringMethodsRecognizerProcessor {
 		return null;
 	}
 
-	private List<SymbolicValueProvider> computeValue(SymbolicValueProvider symVal, List<Value> args, Value base, SootMethod method) {
-		List<SymbolicValueProvider> results = new ArrayList<SymbolicValueProvider>();
+	private List<SymbolicValue> computeValue(SymbolicValue symVal, List<Value> args, Value base, SootMethod method) {
+		List<SymbolicValue> results = new ArrayList<SymbolicValue>();
 		Value effectiveArg = args.get(0);
 		ContextualValues contextualValuesOfBase = null;
-		List<SymbolicValueProvider> values = null;
+		List<SymbolicValue> values = null;
 		if(effectiveArg instanceof Constant) {
-			if(symVal.isConcrete()) {
-				results.add(new ConcreteValue(StringConstant.v(String.format("%s%s", symVal, effectiveArg))));
+			if(symVal.isConstant()) {
+				results.add(new ConstantValue(StringConstant.v(String.format("%s%s", symVal, effectiveArg))));
 			}else {
 				results.add(new MethodRepresentationValue(base, args, method, this.se));
 			}
 		}else {
 			contextualValuesOfBase = this.se.getContext().get(effectiveArg);
 			if(contextualValuesOfBase == null) {
-				if(symVal.isConcrete()) {
-					results.add(new ConcreteValue(StringConstant.v(String.format("%s%s", symVal, UNKNOWN_STRING))));
+				if(symVal.isConstant()) {
+					results.add(new ConstantValue(StringConstant.v(String.format("%s%s", symVal, UNKNOWN_STRING))));
 				}else {
 					results.add(new MethodRepresentationValue(base, args, method, this.se));
 				}
 			}else {
 				values = contextualValuesOfBase.getLastCoherentValues();
-				for(SymbolicValueProvider svp : values) {
-					if(symVal.isConcrete() && svp.isConcrete()) {
-						results.add(new ConcreteValue(StringConstant.v(String.format("%s%s", symVal, svp))));
+				for(SymbolicValue sv : values) {
+					if(symVal.isConstant() && sv.isConstant()) {
+						results.add(new ConstantValue(StringConstant.v(String.format("%s%s", symVal, sv))));
 					}else {
 						results.add(new MethodRepresentationValue(base, args, method, this.se));
 					}

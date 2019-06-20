@@ -6,9 +6,10 @@ import java.util.Map;
 
 import org.javatuples.Pair;
 
-import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
-import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.TypeRecognizerProcessor;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
+import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.DateRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.StringRecognizer;
+import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.TypeRecognizerProcessor;
 import com.github.dusby.tsopen.utils.ICFGForwardTraverser;
 
 import soot.SootMethod;
@@ -24,12 +25,13 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
  */
 public class SymbolicExecutioner extends ICFGForwardTraverser {
 	private Map<Value, ContextualValues> symbolicExecutionResults;
-	private TypeRecognizerProcessor rp;
+	private TypeRecognizerProcessor trp;
 
 	public SymbolicExecutioner(InfoflowCFG icfg, SootMethod mainMethod) {
 		super(icfg, "Symbolic Execution", mainMethod);
 		this.symbolicExecutionResults = new HashMap<Value, ContextualValues>();
-		this.rp = new StringRecognizer(null, this, this.icfg);
+		this.trp = new StringRecognizer(null, this, this.icfg);
+		this.trp = new DateRecognizer(this.trp, this, this.icfg);
 	}
 
 	public Map<Value, ContextualValues> getContext() {
@@ -42,12 +44,12 @@ public class SymbolicExecutioner extends ICFGForwardTraverser {
 	@Override
 	protected void processNodeBeforeNeighbors(Unit node) {
 		ContextualValues contextualValues = null;
-		List<Pair<Value, SymbolicValueProvider>> results = this.rp.recognize(node);
+		List<Pair<Value, SymbolicValue>> results = this.trp.recognize(node);
 		Value value = null;
-		SymbolicValueProvider symbolicValue = null;
+		SymbolicValue symbolicValue = null;
 
 		if(results != null) {
-			for(Pair<Value, SymbolicValueProvider> p : results) {
+			for(Pair<Value, SymbolicValue> p : results) {
 				value = p.getValue0();
 				symbolicValue = p.getValue1();
 				contextualValues = this.symbolicExecutionResults.get(value);

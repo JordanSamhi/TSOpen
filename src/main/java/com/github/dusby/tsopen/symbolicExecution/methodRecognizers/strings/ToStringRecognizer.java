@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecutioner;
-import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValueProvider;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
 import soot.SootMethod;
 import soot.Value;
@@ -16,8 +16,8 @@ public class ToStringRecognizer extends StringMethodsRecognizerProcessor {
 	}
 
 	@Override
-	public List<SymbolicValueProvider> processRecognition(SootMethod method, Value base, List<Value> args) {
-		List<SymbolicValueProvider> results = new ArrayList<SymbolicValueProvider>();
+	public List<SymbolicValue> processRecognition(SootMethod method, Value base, List<Value> args) {
+		List<SymbolicValue> results = new ArrayList<SymbolicValue>();
 		if(method.getName().equals(TOSTRING)) {
 			this.addSimpleResult(base, results);
 			return results;

@@ -34,9 +34,6 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public class StringRecognizer extends TypeRecognizerHandler{
 
-	private static final String UNKNOWN_STRING = "UNKNOWN_STRING";
-	private static final String EMPTY_STRING = "";
-
 	private StringMethodsRecognizerHandler smrh;
 
 	public StringRecognizer(TypeRecognizerHandler next, SymbolicExecution se, InfoflowCFG icfg) {
@@ -45,9 +42,9 @@ public class StringRecognizer extends TypeRecognizerHandler{
 		this.smrh = new ValueOfRecognizer(this.smrh, se);
 		this.smrh = new ToStringRecognizer(this.smrh, se);
 		this.smrh = new SubStringRecognizer(this.smrh, se);
-		this.authorizedTypes.add("java.lang.String");
-		this.authorizedTypes.add("java.lang.StringBuilder");
-		this.authorizedTypes.add("java.lang.StringBuffer");
+		this.authorizedTypes.add(JAVA_LANG_STRING);
+		this.authorizedTypes.add(JAVA_LANG_STRING_BUFFER);
+		this.authorizedTypes.add(JAVA_LANG_STRING_BUILDER);
 	}
 
 	@Override

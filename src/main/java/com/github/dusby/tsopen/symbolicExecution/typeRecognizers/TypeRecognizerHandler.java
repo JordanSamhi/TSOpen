@@ -18,6 +18,23 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public abstract class TypeRecognizerHandler implements TypeRecognizer {
 
+	protected static final String UNKNOWN_STRING = "UNKNOWN_STRING";
+	protected static final String EMPTY_STRING = "";
+	protected static final String GET_INSTANCE_METHOD = "getInstance";
+	protected static final String NOW_METHOD = "now";
+
+	protected static final String NOW_TAG = "#now";
+	protected static final String HERE_TAG = "#here";
+
+	protected static final String JAVA_UTIL_CALENDAR = "java.util.Calendar";
+	protected static final String JAVA_UTIL_DATE = "java.util.Date";
+	protected static final String JAVA_UTIL_GREGORIAN_CALENDAR = "java.util.Calendar";
+	protected static final String JAVA_TIME_LOCAL_DATE_TIME = "java.time.LocalDateTime";
+	protected static final String JAVA_TIME_LOCAL_DATE = "java.time.LocalDate";
+	protected static final String JAVA_LANG_STRING = "java.lang.String";
+	protected static final String JAVA_LANG_STRING_BUILDER = "java.lang.StringBuilder";
+	protected static final String JAVA_LANG_STRING_BUFFER = "java.lang.StringBuffer";
+
 	private TypeRecognizerHandler next;
 	protected SymbolicExecution se;
 	protected InfoflowCFG icfg;

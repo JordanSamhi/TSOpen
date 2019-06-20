@@ -52,7 +52,7 @@ public class Main {
 		ppr = new PathPredicateRecovery(icfg, sbpe, dummyMainMethod, options.hasExceptions());
 		se = new SymbolicExecution(icfg, dummyMainMethod);
 
-		sbpeThread = new Thread(sbpe, "Symbolic Block Predictae Extraction");
+		sbpeThread = new Thread(sbpe, "Symbolic Block Predicate Extraction");
 		pprThread = new Thread(ppr, "Path Predicate Recovery");
 		seThread = new Thread(se, "Symbolic Execution");
 

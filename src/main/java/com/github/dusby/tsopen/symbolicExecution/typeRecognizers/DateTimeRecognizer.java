@@ -22,16 +22,13 @@ import soot.tagkit.StringConstantValueTag;
 
 public class DateTimeRecognizer extends TypeRecognizerHandler {
 
-	private static final String NOW = "#now";
-	private static final String GET_INSTANCE_METHOD = "getInstance";
-	private static final String NOW_METHOD = "now";
-
 	public DateTimeRecognizer(TypeRecognizerHandler next, SymbolicExecution se, InfoflowCFG icfg) {
 		super(next, se, icfg);
-		this.authorizedTypes.add("java.util.Date");
-		this.authorizedTypes.add("java.util.Calendar");
-		this.authorizedTypes.add("java.time.LocalDateTime");
-		this.authorizedTypes.add("java.time.LocalDate");
+		this.authorizedTypes.add(JAVA_TIME_LOCAL_DATE);
+		this.authorizedTypes.add(JAVA_UTIL_CALENDAR);
+		this.authorizedTypes.add(JAVA_UTIL_GREGORIAN_CALENDAR);
+		this.authorizedTypes.add(JAVA_TIME_LOCAL_DATE_TIME);
+		this.authorizedTypes.add(JAVA_TIME_LOCAL_DATE);
 	}
 
 	@Override
@@ -57,7 +54,7 @@ public class DateTimeRecognizer extends TypeRecognizerHandler {
 						|| methodName.equals(NOW_METHOD)) {
 					args = rightOpStaticInvokeExpr.getArgs();
 					date = new ObjectValue(sootClass.getType(), args, this.se);
-					date.addTag(new StringConstantValueTag(NOW));
+					date.addTag(new StringConstantValueTag(NOW_TAG));
 					results.add(new Pair<Value, SymbolicValue>(leftOp, date));
 				}
 			}
@@ -83,7 +80,7 @@ public class DateTimeRecognizer extends TypeRecognizerHandler {
 					args = invExprUnit.getArgs();
 					date = new ObjectValue(base.getType(), args, this.se);
 					if(args.size() == 0) {
-						date.addTag(new StringConstantValueTag(NOW));
+						date.addTag(new StringConstantValueTag(NOW_TAG));
 					}
 					results.add(new Pair<Value, SymbolicValue>(base, date));
 				}

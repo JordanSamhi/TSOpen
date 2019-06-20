@@ -33,8 +33,8 @@ public class MethodRepresentationValue extends AbstractSymbolicValue {
 	private String computeValue(Value v) {
 		List<SymbolicValue> values = null;
 		String s = "";
-		if(this.values.containsKey(v)) {
-			values = this.values.get(v);
+		values = this.values.get(v);
+		if(values != null) {
 			for(SymbolicValue sv : values) {
 				s += sv;
 				if(sv != values.get(values.size() - 1)) {

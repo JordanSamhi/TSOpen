@@ -26,6 +26,7 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 	protected static final String EMPTY_STRING = "";
 	protected static final String GET_INSTANCE_METHOD = "getInstance";
 	protected static final String NOW_METHOD = "now";
+	protected static final String GET_LAST_KNOW_LOCATION = "getLastKnownLocation";
 
 	protected static final String NOW_TAG = "#now";
 	protected static final String HERE_TAG = "#here";
@@ -39,6 +40,7 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 	protected static final String JAVA_LANG_STRING_BUILDER = "java.lang.StringBuilder";
 	protected static final String JAVA_LANG_STRING_BUFFER = "java.lang.StringBuffer";
 	protected static final String ANDROID_LOCATION_LOCATION = "android.location.Location";
+	protected static final String ANDROID_LOCATION_LOCATION_MANAGER = "android.location.LocationManager";
 
 	private TypeRecognitionHandler next;
 	protected SymbolicExecution se;
@@ -77,6 +79,14 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 	}
 
 	@Override
+	public List<Pair<Value, SymbolicValue>> processDefinitionStmt(DefinitionStmt defUnit) {
+		if(this.isAuthorizedType(defUnit.getLeftOp().getType().toString())) {
+			return this.handleDefinitionStmt(defUnit);
+		}
+		return null;
+	}
+
+	@Override
 	public List<Pair<Value, SymbolicValue>> processInvokeStmt(InvokeStmt invUnit) {
 		Value base = null;
 		InvokeExpr invExprUnit = invUnit.getInvokeExpr();
@@ -102,7 +112,7 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 
 		args = invExprUnit.getArgs();
 		object = new ObjectValue(base.getType(), args, this.se);
-		this.handleTags(args, object);
+		this.handleConstructorTag(args, object);
 		results.add(new Pair<Value, SymbolicValue>(base, object));
 	}
 

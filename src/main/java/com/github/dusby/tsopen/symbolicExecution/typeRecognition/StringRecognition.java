@@ -47,71 +47,6 @@ public class StringRecognition extends TypeRecognitionHandler{
 		this.authorizedTypes.add(JAVA_LANG_STRING_BUILDER);
 	}
 
-	@Override
-	public List<Pair<Value, SymbolicValue>> processDefinitionStmt(DefinitionStmt defUnit) {
-		Value leftOp = defUnit.getLeftOp(),
-				rightOp = defUnit.getRightOp(),
-				callerRightOp = null,
-				base = null;
-		InvokeExpr rightOpInvokeExpr = null,
-				invExprCaller = null;
-		String leftOpType = leftOp.getType().toString();
-		SootMethod method = null;
-		List<Value> args = null;
-		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
-		CastExpr rightOpExpr = null;
-		ContextualValues contextualValues = null;
-		Collection<Unit> callers = null;
-		InvokeStmt invStmtCaller = null;
-		AssignStmt assignCaller = null;
-		List<SymbolicValue> recognizedValues = null;
-
-		if(this.isAuthorizedType(leftOpType)) {
-			if(rightOp instanceof StringConstant) {
-				results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue((StringConstant)rightOp)));
-			}else if(rightOp instanceof ParameterRef) {
-				callers = this.icfg.getCallersOf(this.icfg.getMethodOf(defUnit));
-				for(Unit caller : callers) {
-					if(caller instanceof InvokeStmt) {
-						invStmtCaller = (InvokeStmt) caller;
-						invExprCaller = invStmtCaller.getInvokeExpr();
-					}else if(caller instanceof AssignStmt) {
-						assignCaller = (AssignStmt) caller;
-						callerRightOp = assignCaller.getRightOp();
-						if(callerRightOp instanceof InvokeExpr) {
-							invExprCaller = (InvokeExpr)callerRightOp;
-						}else if(callerRightOp instanceof InvokeStmt) {
-							invExprCaller = ((InvokeStmt)callerRightOp).getInvokeExpr();
-						}
-					}
-					contextualValues = this.se.getContext().get(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()));
-					this.checkAndProcessContextValues(contextualValues, results, leftOp);
-				}
-			}else if(rightOp instanceof Local) {
-				contextualValues = this.se.getContext().get(rightOp);
-				this.checkAndProcessContextValues(contextualValues, results, leftOp);
-			}else if (rightOp instanceof CastExpr) {
-				rightOpExpr = (CastExpr) rightOp;
-				contextualValues = this.se.getContext().get(rightOpExpr.getOp());
-				this.checkAndProcessContextValues(contextualValues, results, leftOp);
-			}else if(rightOp instanceof InvokeExpr) {
-				rightOpInvokeExpr = (InvokeExpr) rightOp;
-				method = rightOpInvokeExpr.getMethod();
-				args = rightOpInvokeExpr.getArgs();
-				base = rightOpInvokeExpr instanceof InstanceInvokeExpr ? ((InstanceInvokeExpr) rightOpInvokeExpr).getBase() : null;
-				recognizedValues = this.smrh.recognize(method, base, args);
-				if(recognizedValues != null) {
-					for(SymbolicValue recognizedValue : recognizedValues) {
-						results.add(new Pair<Value, SymbolicValue>(leftOp, recognizedValue));
-					}
-				}else {
-					results.add(new Pair<Value, SymbolicValue>(leftOp, new MethodRepresentationValue(base, args, method, this.se)));
-				}
-			}
-		}
-		return results;
-	}
-
 	private void checkAndProcessContextValues(ContextualValues contextualValues, List<Pair<Value, SymbolicValue>> results, Value leftOp) {
 		List<SymbolicValue> values = null;
 		if(contextualValues == null) {
@@ -122,6 +57,68 @@ public class StringRecognition extends TypeRecognitionHandler{
 				results.add(new Pair<Value, SymbolicValue>(leftOp, sv));
 			}
 		}
+	}
+
+	@Override
+	public List<Pair<Value, SymbolicValue>> handleDefinitionStmt(DefinitionStmt defUnit) {
+		Value leftOp = defUnit.getLeftOp(),
+				rightOp = defUnit.getRightOp(),
+				callerRightOp = null,
+				base = null;
+		InvokeExpr rightOpInvokeExpr = null,
+				invExprCaller = null;
+		SootMethod method = null;
+		List<Value> args = null;
+		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
+		CastExpr rightOpExpr = null;
+		ContextualValues contextualValues = null;
+		Collection<Unit> callers = null;
+		InvokeStmt invStmtCaller = null;
+		AssignStmt assignCaller = null;
+		List<SymbolicValue> recognizedValues = null;
+
+		if(rightOp instanceof StringConstant) {
+			results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue((StringConstant)rightOp)));
+		}else if(rightOp instanceof ParameterRef) {
+			callers = this.icfg.getCallersOf(this.icfg.getMethodOf(defUnit));
+			for(Unit caller : callers) {
+				if(caller instanceof InvokeStmt) {
+					invStmtCaller = (InvokeStmt) caller;
+					invExprCaller = invStmtCaller.getInvokeExpr();
+				}else if(caller instanceof AssignStmt) {
+					assignCaller = (AssignStmt) caller;
+					callerRightOp = assignCaller.getRightOp();
+					if(callerRightOp instanceof InvokeExpr) {
+						invExprCaller = (InvokeExpr)callerRightOp;
+					}else if(callerRightOp instanceof InvokeStmt) {
+						invExprCaller = ((InvokeStmt)callerRightOp).getInvokeExpr();
+					}
+				}
+				contextualValues = this.se.getContext().get(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()));
+				this.checkAndProcessContextValues(contextualValues, results, leftOp);
+			}
+		}else if(rightOp instanceof Local) {
+			contextualValues = this.se.getContext().get(rightOp);
+			this.checkAndProcessContextValues(contextualValues, results, leftOp);
+		}else if (rightOp instanceof CastExpr) {
+			rightOpExpr = (CastExpr) rightOp;
+			contextualValues = this.se.getContext().get(rightOpExpr.getOp());
+			this.checkAndProcessContextValues(contextualValues, results, leftOp);
+		}else if(rightOp instanceof InvokeExpr) {
+			rightOpInvokeExpr = (InvokeExpr) rightOp;
+			method = rightOpInvokeExpr.getMethod();
+			args = rightOpInvokeExpr.getArgs();
+			base = rightOpInvokeExpr instanceof InstanceInvokeExpr ? ((InstanceInvokeExpr) rightOpInvokeExpr).getBase() : null;
+			recognizedValues = this.smrh.recognize(method, base, args);
+			if(recognizedValues != null) {
+				for(SymbolicValue recognizedValue : recognizedValues) {
+					results.add(new Pair<Value, SymbolicValue>(leftOp, recognizedValue));
+				}
+			}else {
+				results.add(new Pair<Value, SymbolicValue>(leftOp, new MethodRepresentationValue(base, args, method, this.se)));
+			}
+		}
+		return results;
 	}
 
 	@Override
@@ -146,5 +143,7 @@ public class StringRecognition extends TypeRecognitionHandler{
 	}
 
 	@Override
-	public void handleTags(List<Value> args, ObjectValue object) {}
+	public void handleConstructorTag(List<Value> args, ObjectValue object) {}
+
+
 }

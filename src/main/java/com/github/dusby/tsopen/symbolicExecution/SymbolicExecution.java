@@ -8,6 +8,7 @@ import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.DateTimeRecognition;
+import com.github.dusby.tsopen.symbolicExecution.typeRecognition.LocationRecognition;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.StringRecognition;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.TypeRecognitionHandler;
 import com.github.dusby.tsopen.utils.ICFGForwardTraversal;
@@ -19,7 +20,7 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 /**
  *
- * This is the class implementing the symbolic execution
+ * Model int, String, Location, SMS and Time related locals and fields
  * @author Jordan Samhi
  *
  */
@@ -32,6 +33,7 @@ public class SymbolicExecution extends ICFGForwardTraversal {
 		this.symbolicExecutionResults = new HashMap<Value, ContextualValues>();
 		this.trh = new StringRecognition(null, this, this.icfg);
 		this.trh = new DateTimeRecognition(this.trh, this, this.icfg);
+		this.trh = new LocationRecognition(this.trh, this, this.icfg);
 	}
 
 	public Map<Value, ContextualValues> getContext() {

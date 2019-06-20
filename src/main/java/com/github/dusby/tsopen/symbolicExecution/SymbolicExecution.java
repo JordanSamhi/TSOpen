@@ -7,9 +7,9 @@ import java.util.Map;
 import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
-import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.DateTimeRecognizer;
-import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.StringRecognizer;
-import com.github.dusby.tsopen.symbolicExecution.typeRecognizers.TypeRecognizerHandler;
+import com.github.dusby.tsopen.symbolicExecution.typeRecognition.DateTimeRecognition;
+import com.github.dusby.tsopen.symbolicExecution.typeRecognition.StringRecognition;
+import com.github.dusby.tsopen.symbolicExecution.typeRecognition.TypeRecognitionHandler;
 import com.github.dusby.tsopen.utils.ICFGForwardTraversal;
 
 import soot.SootMethod;
@@ -25,13 +25,13 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
  */
 public class SymbolicExecution extends ICFGForwardTraversal {
 	private Map<Value, ContextualValues> symbolicExecutionResults;
-	private TypeRecognizerHandler trh;
+	private TypeRecognitionHandler trh;
 
 	public SymbolicExecution(InfoflowCFG icfg, SootMethod mainMethod) {
 		super(icfg, "Symbolic Execution", mainMethod);
 		this.symbolicExecutionResults = new HashMap<Value, ContextualValues>();
-		this.trh = new StringRecognizer(null, this, this.icfg);
-		this.trh = new DateTimeRecognizer(this.trh, this, this.icfg);
+		this.trh = new StringRecognition(null, this, this.icfg);
+		this.trh = new DateTimeRecognition(this.trh, this, this.icfg);
 	}
 
 	public Map<Value, ContextualValues> getContext() {
@@ -44,7 +44,7 @@ public class SymbolicExecution extends ICFGForwardTraversal {
 	@Override
 	protected void processNodeBeforeNeighbors(Unit node) {
 		ContextualValues contextualValues = null;
-		List<Pair<Value, SymbolicValue>> results = this.trh.recognize(node);
+		List<Pair<Value, SymbolicValue>> results = this.trh.recognizeType(node);
 		Value value = null;
 		SymbolicValue symbolicValue = null;
 
@@ -53,7 +53,7 @@ public class SymbolicExecution extends ICFGForwardTraversal {
 				value = p.getValue0();
 				symbolicValue = p.getValue1();
 				if(symbolicValue.hasTag()) {
-					this.logger.debug("{}", symbolicValue.getStringTags());
+					this.logger.debug("{}", symbolicValue);
 				}
 				contextualValues = this.symbolicExecutionResults.get(value);
 				if(contextualValues == null) {

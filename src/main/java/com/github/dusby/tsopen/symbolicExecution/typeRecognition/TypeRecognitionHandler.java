@@ -1,4 +1,4 @@
-package com.github.dusby.tsopen.symbolicExecution.typeRecognizers;
+package com.github.dusby.tsopen.symbolicExecution.typeRecognition;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -8,15 +8,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
+import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
 import soot.jimple.DefinitionStmt;
+import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
+import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
-public abstract class TypeRecognizerHandler implements TypeRecognizer {
+public abstract class TypeRecognitionHandler implements TypeRecognition {
 
 	protected static final String UNKNOWN_STRING = "UNKNOWN_STRING";
 	protected static final String EMPTY_STRING = "";
@@ -34,15 +38,16 @@ public abstract class TypeRecognizerHandler implements TypeRecognizer {
 	protected static final String JAVA_LANG_STRING = "java.lang.String";
 	protected static final String JAVA_LANG_STRING_BUILDER = "java.lang.StringBuilder";
 	protected static final String JAVA_LANG_STRING_BUFFER = "java.lang.StringBuffer";
+	protected static final String ANDROID_LOCATION_LOCATION = "android.location.Location";
 
-	private TypeRecognizerHandler next;
+	private TypeRecognitionHandler next;
 	protected SymbolicExecution se;
 	protected InfoflowCFG icfg;
 	protected List<String> authorizedTypes;
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public TypeRecognizerHandler(TypeRecognizerHandler next, SymbolicExecution se, InfoflowCFG icfg) {
+	public TypeRecognitionHandler(TypeRecognitionHandler next, SymbolicExecution se, InfoflowCFG icfg) {
 		this.next = next;
 		this.se = se;
 		this.icfg = icfg;
@@ -50,25 +55,55 @@ public abstract class TypeRecognizerHandler implements TypeRecognizer {
 	}
 
 	@Override
-	public List<Pair<Value, SymbolicValue>> recognize(Unit node) {
+	public List<Pair<Value, SymbolicValue>> recognizeType(Unit node) {
 
 		List<Pair<Value, SymbolicValue>> result = null;
 
 		if(node instanceof DefinitionStmt) {
-			result = this.processRecognitionOfDefStmt((DefinitionStmt) node);
+			result = this.processDefinitionStmt((DefinitionStmt) node);
 		}else if (node instanceof InvokeStmt) {
-			result = this.processRecognitionOfInvokeStmt((InvokeStmt) node);
+			result = this.processInvokeStmt((InvokeStmt) node);
 		}
 
 		if(result != null && !result.isEmpty()) {
 			return result;
 		}
 		if(this.next != null) {
-			return this.next.recognize(node);
+			return this.next.recognizeType(node);
 		}
 		else {
 			return null;
 		}
+	}
+
+	@Override
+	public List<Pair<Value, SymbolicValue>> processInvokeStmt(InvokeStmt invUnit) {
+		Value base = null;
+		InvokeExpr invExprUnit = invUnit.getInvokeExpr();
+		SootMethod m = null;
+		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
+
+		if(invExprUnit instanceof SpecialInvokeExpr) {
+			m = invExprUnit.getMethod();
+			if(m.isConstructor()) {
+				base = ((SpecialInvokeExpr) invExprUnit).getBase();
+				if(this.isAuthorizedType(base.getType().toString())) {
+					this.handleConstructor(invExprUnit, base, results);
+				}
+			}
+		}
+		return results;
+	}
+
+	@Override
+	public void handleConstructor(InvokeExpr invExprUnit, Value base, List<Pair<Value, SymbolicValue>> results) {
+		List<Value> args = null;
+		ObjectValue object = null;
+
+		args = invExprUnit.getArgs();
+		object = new ObjectValue(base.getType(), args, this.se);
+		this.handleTags(args, object);
+		results.add(new Pair<Value, SymbolicValue>(base, object));
 	}
 
 	protected boolean isAuthorizedType(String type) {

@@ -1,4 +1,4 @@
-package com.github.dusby.tsopen.symbolicExecution.typeRecognizers;
+package com.github.dusby.tsopen.symbolicExecution.typeRecognition;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -15,6 +15,7 @@ import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ToStr
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ValueOfRecognizer;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
 import soot.Local;
@@ -28,15 +29,14 @@ import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.ParameterRef;
-import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StringConstant;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
-public class StringRecognizer extends TypeRecognizerHandler{
+public class StringRecognition extends TypeRecognitionHandler{
 
 	private StringMethodsRecognizerHandler smrh;
 
-	public StringRecognizer(TypeRecognizerHandler next, SymbolicExecution se, InfoflowCFG icfg) {
+	public StringRecognition(TypeRecognitionHandler next, SymbolicExecution se, InfoflowCFG icfg) {
 		super(next, se, icfg);
 		this.smrh = new AppendRecognizer(null, se);
 		this.smrh = new ValueOfRecognizer(this.smrh, se);
@@ -48,7 +48,7 @@ public class StringRecognizer extends TypeRecognizerHandler{
 	}
 
 	@Override
-	public List<Pair<Value, SymbolicValue>> processRecognitionOfDefStmt(DefinitionStmt defUnit) {
+	public List<Pair<Value, SymbolicValue>> processDefinitionStmt(DefinitionStmt defUnit) {
 		Value leftOp = defUnit.getLeftOp(),
 				rightOp = defUnit.getRightOp(),
 				callerRightOp = null,
@@ -112,42 +112,6 @@ public class StringRecognizer extends TypeRecognizerHandler{
 		return results;
 	}
 
-	@Override
-	public List<Pair<Value, SymbolicValue>> processRecognitionOfInvokeStmt(InvokeStmt invUnit) {
-		Value base = null,
-				arg = null;
-		InvokeExpr invExprUnit = null;
-		SootMethod m = null;
-		List<Value> args = null;
-		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
-		ContextualValues contextualValues = null;
-
-		invExprUnit = invUnit.getInvokeExpr();
-		if(invExprUnit instanceof SpecialInvokeExpr) {
-			m = invExprUnit.getMethod();
-			if(m.isConstructor()) {
-				base = ((SpecialInvokeExpr) invExprUnit).getBase();
-				if(this.isAuthorizedType(base.getType().toString())) {
-					args = invExprUnit.getArgs();
-					if(args.size() == 0) {
-						results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue(StringConstant.v(EMPTY_STRING))));
-					}else {
-						arg = args.get(0);
-						if(arg instanceof Local) {
-							contextualValues = this.se.getContext().get(arg);
-							this.checkAndProcessContextValues(contextualValues, results, base);
-						}else if(arg instanceof StringConstant) {
-							results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue((StringConstant)arg)));
-						}else {
-							results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue(StringConstant.v(EMPTY_STRING))));
-						}
-					}
-				}
-			}
-		}
-		return results;
-	}
-
 	private void checkAndProcessContextValues(ContextualValues contextualValues, List<Pair<Value, SymbolicValue>> results, Value leftOp) {
 		List<SymbolicValue> values = null;
 		if(contextualValues == null) {
@@ -159,4 +123,28 @@ public class StringRecognizer extends TypeRecognizerHandler{
 			}
 		}
 	}
+
+	@Override
+	public void handleConstructor(InvokeExpr invExprUnit, Value base, List<Pair<Value, SymbolicValue>> results) {
+		Value arg = null;
+		List<Value> args = invExprUnit.getArgs();
+		ContextualValues contextualValues = null;
+
+		if(args.size() == 0) {
+			results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue(StringConstant.v(EMPTY_STRING))));
+		}else {
+			arg = args.get(0);
+			if(arg instanceof Local) {
+				contextualValues = this.se.getContext().get(arg);
+				this.checkAndProcessContextValues(contextualValues, results, base);
+			}else if(arg instanceof StringConstant) {
+				results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue((StringConstant)arg)));
+			}else {
+				results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue(StringConstant.v(EMPTY_STRING))));
+			}
+		}
+	}
+
+	@Override
+	public void handleTags(List<Value> args, ObjectValue object) {}
 }

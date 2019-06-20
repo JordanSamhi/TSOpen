@@ -13,11 +13,6 @@ public abstract class ConcreteValue extends AbstractSymbolicValue {
 	}
 
 	@Override
-	public String toString() {
-		return this.getValue();
-	}
-
-	@Override
 	public boolean isSymbolic() {
 		return false;
 	}

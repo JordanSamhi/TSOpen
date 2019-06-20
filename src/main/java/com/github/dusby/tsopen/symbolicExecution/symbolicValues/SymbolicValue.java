@@ -11,7 +11,7 @@ public interface SymbolicValue {
 	public boolean isMethodRepresentation();
 	public boolean isObject();
 	public boolean hasTag();
-	public String getStringTags();
 	public void addTag(StringConstantValueTag scvt);
 	public List<StringConstantValueTag> getTags();
+	public String getStringTags();
 }

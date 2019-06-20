@@ -32,10 +32,12 @@ public abstract class AbstractSymbolicValue implements SymbolicValue {
 		return null;
 	}
 
+	@Override
 	public List<StringConstantValueTag> getTags() {
 		return this.tags;
 	}
 
+	@Override
 	public String getStringTags() {
 		String tags = "";
 		for(StringConstantValueTag scvt : this.tags) {
@@ -44,10 +46,17 @@ public abstract class AbstractSymbolicValue implements SymbolicValue {
 		return tags;
 	}
 
+	@Override
 	public boolean hasTag() {
 		return !this.tags.isEmpty();
 	}
 
+	@Override
+	public String toString() {
+		return this.getValue();
+	}
+
+	@Override
 	public void addTag(StringConstantValueTag tag) {
 		this.tags.add(tag);
 	}

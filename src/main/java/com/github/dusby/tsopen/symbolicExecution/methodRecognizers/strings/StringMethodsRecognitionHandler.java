@@ -13,7 +13,7 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.UnknownValue;
 import soot.SootMethod;
 import soot.Value;
 
-public abstract class StringMethodsRecognizerHandler implements StringMethodsRecognizer {
+public abstract class StringMethodsRecognitionHandler implements StringMethodsRecognition {
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	protected static final String APPEND = "append";
@@ -22,11 +22,13 @@ public abstract class StringMethodsRecognizerHandler implements StringMethodsRec
 	protected static final String TOSTRING = "toString";
 	protected static final String UNKNOWN_STRING = "UNKNOWN_STRING";
 	protected static final String NULL = "null";
+	protected static final String GET_MESSAGE_BODY = "getMessageBody";
+	protected static final String GET_DISPLAY_MESAGE_BODY = "getDisplayMessageBody";
 
-	private StringMethodsRecognizerHandler next;
+	private StringMethodsRecognitionHandler next;
 	protected SymbolicExecution se;
 
-	public StringMethodsRecognizerHandler(StringMethodsRecognizerHandler next, SymbolicExecution se) {
+	public StringMethodsRecognitionHandler(StringMethodsRecognitionHandler next, SymbolicExecution se) {
 		this.next = next;
 		this.se = se;
 	}

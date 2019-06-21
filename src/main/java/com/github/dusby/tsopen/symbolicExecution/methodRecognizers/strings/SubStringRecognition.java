@@ -13,9 +13,9 @@ import soot.Value;
 import soot.jimple.IntConstant;
 import soot.jimple.StringConstant;
 
-public class SubStringRecognizer extends StringMethodsRecognizerHandler {
+public class SubStringRecognition extends StringMethodsRecognitionHandler {
 
-	public SubStringRecognizer(StringMethodsRecognizerHandler next, SymbolicExecution se) {
+	public SubStringRecognition(StringMethodsRecognitionHandler next, SymbolicExecution se) {
 		super(next, se);
 	}
 

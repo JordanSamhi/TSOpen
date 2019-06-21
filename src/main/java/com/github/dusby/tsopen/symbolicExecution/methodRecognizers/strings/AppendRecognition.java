@@ -15,9 +15,9 @@ import soot.Value;
 import soot.jimple.Constant;
 import soot.jimple.StringConstant;
 
-public class AppendRecognizer extends StringMethodsRecognizerHandler {
+public class AppendRecognition extends StringMethodsRecognitionHandler {
 
-	public AppendRecognizer(StringMethodsRecognizerHandler next, SymbolicExecution se) {
+	public AppendRecognition(StringMethodsRecognitionHandler next, SymbolicExecution se) {
 		super(next, se);
 	}
 

@@ -8,11 +8,12 @@ import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
-import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.AppendRecognizer;
-import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.StringMethodsRecognizerHandler;
-import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.SubStringRecognizer;
-import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ToStringRecognizer;
-import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ValueOfRecognizer;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.AppendRecognition;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.GetMessageBodyRecognition;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.StringMethodsRecognitionHandler;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.SubStringRecognition;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ToStringRecognition;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ValueOfRecognition;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
@@ -34,14 +35,15 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public class StringRecognition extends TypeRecognitionHandler{
 
-	private StringMethodsRecognizerHandler smrh;
+	private StringMethodsRecognitionHandler smrh;
 
 	public StringRecognition(TypeRecognitionHandler next, SymbolicExecution se, InfoflowCFG icfg) {
 		super(next, se, icfg);
-		this.smrh = new AppendRecognizer(null, se);
-		this.smrh = new ValueOfRecognizer(this.smrh, se);
-		this.smrh = new ToStringRecognizer(this.smrh, se);
-		this.smrh = new SubStringRecognizer(this.smrh, se);
+		this.smrh = new AppendRecognition(null, se);
+		this.smrh = new ValueOfRecognition(this.smrh, se);
+		this.smrh = new ToStringRecognition(this.smrh, se);
+		this.smrh = new SubStringRecognition(this.smrh, se);
+		this.smrh = new GetMessageBodyRecognition(this.smrh, se);
 		this.authorizedTypes.add(JAVA_LANG_STRING);
 		this.authorizedTypes.add(JAVA_LANG_STRING_BUFFER);
 		this.authorizedTypes.add(JAVA_LANG_STRING_BUILDER);

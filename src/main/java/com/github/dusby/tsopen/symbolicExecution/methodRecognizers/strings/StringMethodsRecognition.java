@@ -7,7 +7,7 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import soot.SootMethod;
 import soot.Value;
 
-public interface StringMethodsRecognizer {
+public interface StringMethodsRecognition {
 	public List<SymbolicValue> recognize(SootMethod method, Value base, List<Value> args);
 	public List<SymbolicValue> processRecognition(SootMethod method, Value base, List<Value> args);
 }

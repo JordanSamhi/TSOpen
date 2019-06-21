@@ -29,10 +29,14 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 	protected static final String GET_LAST_KNOW_LOCATION = "getLastKnownLocation";
 	protected static final String GET_LAST_LOCATION = "getLastLocation";
 	protected static final String CREATE_FROM_PDU = "createFromPdu";
+	protected static final String GET_LONGITUDE = "getLongitude";
+	protected static final String GET_LATITUDE = "getLatitude";
 
 	protected static final String NOW_TAG = "#now";
 	protected static final String HERE_TAG = "#here";
 	protected static final String SMS_TAG = "#sms";
+	protected static final String LONGITUDE_TAG = "#here/#longitude";
+	protected static final String LATITUDE_TAG = "#here/#latitude";
 
 	protected static final String JAVA_UTIL_CALENDAR = "java.util.Calendar";
 	protected static final String JAVA_UTIL_DATE = "java.util.Date";
@@ -46,6 +50,8 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 	protected static final String ANDROID_LOCATION_LOCATION_MANAGER = "android.location.LocationManager";
 	protected static final String COM_GOOGLE_ANDROID_GMS_LOCATION_LOCATION_RESULT = "com.google.android.gms.location.LocationResult";
 	protected static final String ANDROID_TELEPHONY_SMSMESSAGE = "android.telephony.SmsMessage";
+	protected static final String INT = "int";
+	protected static final String LONG = "long";
 
 	private TypeRecognitionHandler next;
 	protected SymbolicExecution se;

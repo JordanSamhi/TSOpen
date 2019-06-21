@@ -36,7 +36,7 @@ public class DateTimeRecognition extends TypeRecognitionHandler {
 		StaticInvokeExpr rightOpStaticInvokeExpr = null;
 		SootMethod method = null;
 		List<Value> args = null;
-		ObjectValue date = null;
+		ObjectValue object = null;
 		String className = null;
 
 		if(rightOp instanceof StaticInvokeExpr) {
@@ -47,9 +47,9 @@ public class DateTimeRecognition extends TypeRecognitionHandler {
 			if((methodName.equals(GET_INSTANCE) && (className.equals(JAVA_UTIL_CALENDAR) || className.equals(JAVA_UTIL_GREGORIAN_CALENDAR)))
 					|| methodName.equals(NOW) && (className.equals(JAVA_TIME_LOCAL_DATE_TIME) || className.equals(JAVA_TIME_LOCAL_DATE))) {
 				args = rightOpStaticInvokeExpr.getArgs();
-				date = new ObjectValue(method.getDeclaringClass().getType(), args, this.se);
-				date.addTag(new StringConstantValueTag(NOW_TAG));
-				results.add(new Pair<Value, SymbolicValue>(leftOp, date));
+				object = new ObjectValue(method.getDeclaringClass().getType(), args, this.se);
+				object.addTag(new StringConstantValueTag(NOW_TAG));
+				results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 			}
 		}
 		return results;

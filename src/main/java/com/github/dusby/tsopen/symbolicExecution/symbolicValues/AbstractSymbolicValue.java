@@ -53,6 +53,14 @@ public abstract class AbstractSymbolicValue implements SymbolicValue {
 
 	@Override
 	public String toString() {
+		String value = "";
+		if(!this.tags.isEmpty()) {
+			for(StringConstantValueTag tag : this.tags) {
+				value += tag.getStringValue();
+			}
+			return value;
+		}
+
 		return this.getValue();
 	}
 

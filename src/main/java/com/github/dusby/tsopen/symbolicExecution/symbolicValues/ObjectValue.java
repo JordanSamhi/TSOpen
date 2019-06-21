@@ -6,7 +6,6 @@ import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 
 import soot.Type;
 import soot.Value;
-import soot.tagkit.StringConstantValueTag;
 
 public class ObjectValue extends ConcreteValue {
 
@@ -21,14 +20,7 @@ public class ObjectValue extends ConcreteValue {
 
 	@Override
 	public String getValue() {
-		String value = "";
-		if(this.tags.isEmpty()) {
-			return String.format("%s(%s)", this.type, this.computeArgs());
-		}
-		for(StringConstantValueTag tag : this.tags) {
-			value += tag.getStringValue();
-		}
-		return value;
+		return String.format("%s(%s)", this.type, this.computeArgs());
 	}
 
 	private String computeArgs() {

@@ -24,6 +24,11 @@ public abstract class StringMethodsRecognitionHandler implements StringMethodsRe
 	protected static final String NULL = "null";
 	protected static final String GET_MESSAGE_BODY = "getMessageBody";
 	protected static final String GET_DISPLAY_MESAGE_BODY = "getDisplayMessageBody";
+	protected static final String GET_ORIGINATING_ADDRESS = "getOriginatingAddress";
+	protected static final String GET_DISPLAY_ORIGINATING_ADDRESS = "getDisplayOriginatingAddress";
+
+	protected static final String BODY_TAG = "#sms/#body";
+	protected static final String SENDER_TAG = "#sms/#sender";
 
 	private StringMethodsRecognitionHandler next;
 	protected SymbolicExecution se;

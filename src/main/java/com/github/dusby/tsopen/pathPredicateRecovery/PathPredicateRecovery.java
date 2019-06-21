@@ -25,7 +25,7 @@ public class PathPredicateRecovery extends ICFGBackwardTraversal {
 	private final FormulaFactory formulaFactory;
 	private final DistributiveSimplifier simplifier;
 	private final boolean handleExceptions;
-	
+
 	public PathPredicateRecovery(InfoflowCFG icfg, SimpleBlockPredicateExtraction sbpe, SootMethod mainMethod, boolean handleExceptions) {
 		super(icfg, "Path Predicate Recovery", mainMethod);
 		this.sbpe = sbpe;
@@ -37,7 +37,7 @@ public class PathPredicateRecovery extends ICFGBackwardTraversal {
 	}
 
 	private void annotateNodeWithPathPredicate(Unit node, Unit neighbour) {
-		Edge edge = sbpe.getAnnotatedEdge(neighbour, node);
+		Edge edge = this.sbpe.getAnnotatedEdge(neighbour, node);
 		Formula currentPathPredicate = null,
 				neighborPathPredicate = this.nodeToFullPathPredicate.get(neighbour);
 		List<Formula> nodePredicates = this.nodeToPathPredicates.get(node);

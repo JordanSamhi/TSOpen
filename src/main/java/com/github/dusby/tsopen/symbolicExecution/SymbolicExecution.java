@@ -9,6 +9,7 @@ import org.javatuples.Pair;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.DateTimeRecognition;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.LocationRecognition;
+import com.github.dusby.tsopen.symbolicExecution.typeRecognition.SmsRecognition;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.StringRecognition;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.TypeRecognitionHandler;
 import com.github.dusby.tsopen.utils.ICFGForwardTraversal;
@@ -34,6 +35,7 @@ public class SymbolicExecution extends ICFGForwardTraversal {
 		this.trh = new StringRecognition(null, this, this.icfg);
 		this.trh = new DateTimeRecognition(this.trh, this, this.icfg);
 		this.trh = new LocationRecognition(this.trh, this, this.icfg);
+		this.trh = new SmsRecognition(this.trh, this, this.icfg);
 	}
 
 	public Map<Value, ContextualValues> getContext() {

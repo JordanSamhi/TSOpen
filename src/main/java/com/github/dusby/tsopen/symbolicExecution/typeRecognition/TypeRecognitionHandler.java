@@ -24,12 +24,15 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 
 	protected static final String UNKNOWN_STRING = "UNKNOWN_STRING";
 	protected static final String EMPTY_STRING = "";
-	protected static final String GET_INSTANCE_METHOD = "getInstance";
-	protected static final String NOW_METHOD = "now";
+	protected static final String GET_INSTANCE = "getInstance";
+	protected static final String NOW = "now";
 	protected static final String GET_LAST_KNOW_LOCATION = "getLastKnownLocation";
+	protected static final String GET_LAST_LOCATION = "getLastLocation";
+	protected static final String CREATE_FROM_PDU = "createFromPdu";
 
 	protected static final String NOW_TAG = "#now";
 	protected static final String HERE_TAG = "#here";
+	protected static final String SMS_TAG = "#sms";
 
 	protected static final String JAVA_UTIL_CALENDAR = "java.util.Calendar";
 	protected static final String JAVA_UTIL_DATE = "java.util.Date";
@@ -41,6 +44,8 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 	protected static final String JAVA_LANG_STRING_BUFFER = "java.lang.StringBuffer";
 	protected static final String ANDROID_LOCATION_LOCATION = "android.location.Location";
 	protected static final String ANDROID_LOCATION_LOCATION_MANAGER = "android.location.LocationManager";
+	protected static final String COM_GOOGLE_ANDROID_GMS_LOCATION_LOCATION_RESULT = "com.google.android.gms.location.LocationResult";
+	protected static final String ANDROID_TELEPHONY_SMSMESSAGE = "android.telephony.SmsMessage";
 
 	private TypeRecognitionHandler next;
 	protected SymbolicExecution se;

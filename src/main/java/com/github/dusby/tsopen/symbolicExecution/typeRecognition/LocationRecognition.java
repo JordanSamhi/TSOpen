@@ -33,7 +33,8 @@ public class LocationRecognition extends TypeRecognitionHandler {
 	@Override
 	public List<Pair<Value, SymbolicValue>> handleDefinitionStmt(DefinitionStmt defUnit) {
 		Value leftOp = defUnit.getLeftOp(),
-				rightOp = defUnit.getRightOp();
+				rightOp = defUnit.getRightOp(),
+				base = null;
 		String methodName = null;
 		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
 		InvokeExpr rightOpInvExpr = null;
@@ -54,13 +55,15 @@ public class LocationRecognition extends TypeRecognitionHandler {
 			if(rightOpInvExpr instanceof StaticInvokeExpr) {
 				type = sootClass.getType();
 			}else if(rightOpInvExpr instanceof InstanceInvokeExpr){
-				type = ((InstanceInvokeExpr)rightOpInvExpr).getBase().getType();
+				base = ((InstanceInvokeExpr)rightOpInvExpr).getBase();
+				type = base.getType();
 			}else {
 				type = null;
 			}
 
 			location = new ObjectValue(type, args, this.se);
-			if(sootClass.getName().equals(ANDROID_LOCATION_LOCATION_MANAGER) && methodName.equals(GET_LAST_KNOW_LOCATION)) {
+			if((sootClass.getName().equals(ANDROID_LOCATION_LOCATION_MANAGER) && methodName.equals(GET_LAST_KNOW_LOCATION))
+					|| (base != null && type.toString().equals(COM_GOOGLE_ANDROID_GMS_LOCATION_LOCATION_RESULT) && methodName.equals(GET_LAST_LOCATION))) {
 				location.addTag(new StringConstantValueTag(HERE_TAG));
 			}
 			results.add(new Pair<Value, SymbolicValue>(leftOp, location));

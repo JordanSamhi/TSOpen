@@ -20,7 +20,7 @@ public class DateTimeRecognition extends TypeRecognitionHandler {
 
 	public DateTimeRecognition(TypeRecognitionHandler next, SymbolicExecution se, InfoflowCFG icfg) {
 		super(next, se, icfg);
-		this.authorizedTypes.add(JAVA_TIME_LOCAL_DATE);
+		this.authorizedTypes.add(JAVA_UTIL_DATE);
 		this.authorizedTypes.add(JAVA_UTIL_CALENDAR);
 		this.authorizedTypes.add(JAVA_UTIL_GREGORIAN_CALENDAR);
 		this.authorizedTypes.add(JAVA_TIME_LOCAL_DATE_TIME);
@@ -37,13 +37,15 @@ public class DateTimeRecognition extends TypeRecognitionHandler {
 		SootMethod method = null;
 		List<Value> args = null;
 		ObjectValue date = null;
+		String className = null;
 
 		if(rightOp instanceof StaticInvokeExpr) {
 			rightOpStaticInvokeExpr = (StaticInvokeExpr) rightOp;
 			method = rightOpStaticInvokeExpr.getMethod();
 			methodName = method.getName();
-			if(methodName.equals(GET_INSTANCE_METHOD)
-					|| methodName.equals(NOW_METHOD)) {
+			className = method.getDeclaringClass().getName();
+			if((methodName.equals(GET_INSTANCE) && (className.equals(JAVA_UTIL_CALENDAR) || className.equals(JAVA_UTIL_GREGORIAN_CALENDAR)))
+					|| methodName.equals(NOW) && (className.equals(JAVA_TIME_LOCAL_DATE_TIME) || className.equals(JAVA_TIME_LOCAL_DATE))) {
 				args = rightOpStaticInvokeExpr.getArgs();
 				date = new ObjectValue(method.getDeclaringClass().getType(), args, this.se);
 				date.addTag(new StringConstantValueTag(NOW_TAG));

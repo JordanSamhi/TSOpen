@@ -16,7 +16,6 @@ import soot.Value;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
-import soot.jimple.InvokeStmt;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 import soot.tagkit.StringConstantValueTag;
@@ -37,27 +36,29 @@ public class LocationRecognition extends TypeRecognitionHandler {
 				rightOp = defUnit.getRightOp();
 		String methodName = null;
 		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
-		InvokeExpr rightOpStaticInvokeExpr = null;
+		InvokeExpr rightOpInvExpr = null;
 		SootMethod method = null;
 		SootClass sootClass = null;
 		List<Value> args = null;
 		ObjectValue location = null;
 		Type type = null;
 
-		if(rightOp instanceof InvokeStmt) {
-			rightOpStaticInvokeExpr = ((InvokeStmt)((StaticInvokeExpr) rightOp)).getInvokeExpr();
-			method = rightOpStaticInvokeExpr.getMethod();
+		if(rightOp instanceof InvokeExpr) {
+			rightOpInvExpr = (InvokeExpr) rightOp;
+
+			method = rightOpInvExpr.getMethod();
 			sootClass = method.getDeclaringClass();
 			methodName = method.getName();
+			args = rightOpInvExpr.getArgs();
 
-			if(rightOpStaticInvokeExpr instanceof StaticInvokeExpr) {
+			if(rightOpInvExpr instanceof StaticInvokeExpr) {
 				type = sootClass.getType();
-			}else if(rightOpStaticInvokeExpr instanceof InstanceInvokeExpr){
-				type = ((InstanceInvokeExpr)rightOpStaticInvokeExpr).getBase().getType();
+			}else if(rightOpInvExpr instanceof InstanceInvokeExpr){
+				type = ((InstanceInvokeExpr)rightOpInvExpr).getBase().getType();
 			}else {
 				type = null;
 			}
-			args = rightOpStaticInvokeExpr.getArgs();
+
 			location = new ObjectValue(type, args, this.se);
 			if(sootClass.getName().equals(ANDROID_LOCATION_LOCATION_MANAGER) && methodName.equals(GET_LAST_KNOW_LOCATION)) {
 				location.addTag(new StringConstantValueTag(HERE_TAG));

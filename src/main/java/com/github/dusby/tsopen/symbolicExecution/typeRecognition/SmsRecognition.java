@@ -36,19 +36,19 @@ public class SmsRecognition extends TypeRecognitionHandler {
 		StaticInvokeExpr rightOpStaticInvokeExpr = null;
 		SootMethod method = null;
 		List<Value> args = null;
-		ObjectValue date = null;
-		SootClass sootClass = null;
+		ObjectValue object = null;
+		SootClass declaringClass = null;
 
 		if(rightOp instanceof StaticInvokeExpr) {
 			rightOpStaticInvokeExpr = (StaticInvokeExpr) rightOp;
 			method = rightOpStaticInvokeExpr.getMethod();
 			methodName = method.getName();
-			sootClass = method.getDeclaringClass();
-			if(methodName.equals(CREATE_FROM_PDU) && sootClass.getName().equals(ANDROID_TELEPHONY_SMSMESSAGE)) {
+			declaringClass = method.getDeclaringClass();
+			if(methodName.equals(CREATE_FROM_PDU) && declaringClass.getName().equals(ANDROID_TELEPHONY_SMSMESSAGE)) {
 				args = rightOpStaticInvokeExpr.getArgs();
-				date = new ObjectValue(method.getDeclaringClass().getType(), args, this.se);
-				date.addTag(new StringConstantValueTag(SMS_TAG));
-				results.add(new Pair<Value, SymbolicValue>(leftOp, date));
+				object = new ObjectValue(method.getDeclaringClass().getType(), args, this.se);
+				object.addTag(new StringConstantValueTag(SMS_TAG));
+				results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 			}
 		}
 		return results;

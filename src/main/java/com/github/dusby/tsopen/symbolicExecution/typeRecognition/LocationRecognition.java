@@ -39,21 +39,21 @@ public class LocationRecognition extends TypeRecognitionHandler {
 		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
 		InvokeExpr rightOpInvExpr = null;
 		SootMethod method = null;
-		SootClass sootClass = null;
+		SootClass declaringClass = null;
 		List<Value> args = null;
-		ObjectValue location = null;
+		ObjectValue object = null;
 		Type type = null;
 
 		if(rightOp instanceof InvokeExpr) {
 			rightOpInvExpr = (InvokeExpr) rightOp;
 
 			method = rightOpInvExpr.getMethod();
-			sootClass = method.getDeclaringClass();
+			declaringClass = method.getDeclaringClass();
 			methodName = method.getName();
 			args = rightOpInvExpr.getArgs();
 
 			if(rightOpInvExpr instanceof StaticInvokeExpr) {
-				type = sootClass.getType();
+				type = declaringClass.getType();
 			}else if(rightOpInvExpr instanceof InstanceInvokeExpr){
 				base = ((InstanceInvokeExpr)rightOpInvExpr).getBase();
 				type = base.getType();
@@ -61,12 +61,12 @@ public class LocationRecognition extends TypeRecognitionHandler {
 				type = null;
 			}
 
-			location = new ObjectValue(type, args, this.se);
-			if((sootClass.getName().equals(ANDROID_LOCATION_LOCATION_MANAGER) && methodName.equals(GET_LAST_KNOW_LOCATION))
+			object = new ObjectValue(type, args, this.se);
+			if((declaringClass.getName().equals(ANDROID_LOCATION_LOCATION_MANAGER) && methodName.equals(GET_LAST_KNOW_LOCATION))
 					|| (base != null && type.toString().equals(COM_GOOGLE_ANDROID_GMS_LOCATION_LOCATION_RESULT) && methodName.equals(GET_LAST_LOCATION))) {
-				location.addTag(new StringConstantValueTag(HERE_TAG));
+				object.addTag(new StringConstantValueTag(HERE_TAG));
 			}
-			results.add(new Pair<Value, SymbolicValue>(leftOp, location));
+			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		}
 		return results;
 	}

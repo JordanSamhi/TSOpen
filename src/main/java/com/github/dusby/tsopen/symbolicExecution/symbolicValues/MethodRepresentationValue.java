@@ -88,4 +88,9 @@ public class MethodRepresentationValue extends AbstractSymbolicValue {
 	public boolean isObject() {
 		return false;
 	}
+
+	@Override
+	public Value getBase() {
+		return this.base;
+	}
 }

@@ -78,4 +78,9 @@ public abstract class AbstractSymbolicValue implements SymbolicValue {
 		}
 		return false;
 	}
+
+	@Override
+	public Value getBase() {
+		return null;
+	}
 }

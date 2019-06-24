@@ -1,12 +1,9 @@
 package com.github.dusby.tsopen.symbolicExecution.methodRecognizers.dateTime;
 
-import java.util.List;
-
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
 import soot.SootMethod;
-import soot.Value;
 
 public abstract class DateTimeMethodsRecognitionHandler implements DateTimeMethodsRecognition {
 
@@ -19,14 +16,14 @@ public abstract class DateTimeMethodsRecognitionHandler implements DateTimeMetho
 	}
 
 	@Override
-	public boolean recognizeDateTimeMethod(SootMethod method, List<Value> args, SymbolicValue sv) {
-		boolean recognized = this.processDateTimeMethod(method, args, sv);
+	public boolean recognizeDateTimeMethod(SootMethod method, SymbolicValue sv) {
+		boolean recognized = this.processDateTimeMethod(method, sv);
 
 		if(recognized) {
 			return recognized;
 		}
 		if(this.next != null) {
-			return this.next.recognizeDateTimeMethod(method, args, sv);
+			return this.next.recognizeDateTimeMethod(method, sv);
 		}
 		else {
 			return false;

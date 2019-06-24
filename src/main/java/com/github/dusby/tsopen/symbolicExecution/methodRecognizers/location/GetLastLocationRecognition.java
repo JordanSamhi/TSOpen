@@ -1,7 +1,5 @@
 package com.github.dusby.tsopen.symbolicExecution.methodRecognizers.location;
 
-import java.util.List;
-
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
@@ -18,7 +16,7 @@ public class GetLastLocationRecognition extends LocationMethodsRecognitionHandle
 	}
 
 	@Override
-	public boolean processLocationMethod(SootMethod method, List<Value> args, SymbolicValue sv) {
+	public boolean processLocationMethod(SootMethod method, SymbolicValue sv) {
 		String methodName = method.getName();
 		Value base = sv.getBase();
 		Type type = base == null ? method.getDeclaringClass().getType() : base.getType();

@@ -1,13 +1,10 @@
 package com.github.dusby.tsopen.symbolicExecution.methodRecognizers.location;
 
-import java.util.List;
-
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
 
 import soot.SootMethod;
-import soot.Value;
 import soot.tagkit.StringConstantValueTag;
 
 public class GetLastKnowLocationRecognition extends LocationMethodsRecognitionHandler {
@@ -17,7 +14,7 @@ public class GetLastKnowLocationRecognition extends LocationMethodsRecognitionHa
 	}
 
 	@Override
-	public boolean processLocationMethod(SootMethod method, List<Value> args, SymbolicValue sv) {
+	public boolean processLocationMethod(SootMethod method, SymbolicValue sv) {
 		String className = method.getDeclaringClass().getName();
 		String methodName = method.getName();
 		if((className.equals(Constants.ANDROID_LOCATION_LOCATION_MANAGER) && methodName.equals(Constants.GET_LAST_KNOW_LOCATION))) {

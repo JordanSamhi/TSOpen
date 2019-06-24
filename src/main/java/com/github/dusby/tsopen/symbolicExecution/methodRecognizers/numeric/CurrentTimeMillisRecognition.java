@@ -1,7 +1,5 @@
 package com.github.dusby.tsopen.symbolicExecution.methodRecognizers.numeric;
 
-import java.util.List;
-
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
@@ -18,7 +16,7 @@ public class CurrentTimeMillisRecognition extends NumericMethodsRecognitionHandl
 	}
 
 	@Override
-	public boolean processNumericMethod(SootMethod method, Value base, List<Value> args, SymbolicValue sv) {
+	public boolean processNumericMethod(SootMethod method, Value base, SymbolicValue sv) {
 		SootClass declaringClass = method.getDeclaringClass();
 		String methodName = method.getName();
 		if (declaringClass.getName().equals(Constants.JAVA_LANG_SYSTEM) && methodName.equals(Constants.CURRENT_TIME_MILLIS)) {

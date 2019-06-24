@@ -1,12 +1,9 @@
 package com.github.dusby.tsopen.symbolicExecution.methodRecognizers.location;
 
-import java.util.List;
-
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
 import soot.SootMethod;
-import soot.Value;
 
 public abstract class LocationMethodsRecognitionHandler implements LocationMethodsRecognition {
 
@@ -19,14 +16,14 @@ public abstract class LocationMethodsRecognitionHandler implements LocationMetho
 	}
 
 	@Override
-	public boolean recognizeLocationMethod(SootMethod method, List<Value> args, SymbolicValue sv) {
-		boolean recognized = this.processLocationMethod(method, args, sv);
+	public boolean recognizeLocationMethod(SootMethod method, SymbolicValue sv) {
+		boolean recognized = this.processLocationMethod(method, sv);
 
 		if(recognized) {
 			return recognized;
 		}
 		if(this.next != null) {
-			return this.next.recognizeLocationMethod(method, args, sv);
+			return this.next.recognizeLocationMethod(method, sv);
 		}
 		else {
 			return false;

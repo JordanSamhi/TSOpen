@@ -6,9 +6,9 @@ import java.util.List;
 import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.dateTime.DateTimeMethodsRecognitionHandler;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.dateTime.GetInstanceRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.dateTime.NowRecognition;
-import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.dateTime.DateTimeMethodsRecognitionHandler;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
@@ -50,7 +50,7 @@ public class DateTimeRecognition extends TypeRecognitionHandler {
 			method = rightOpStaticInvokeExpr.getMethod();
 			args = rightOpStaticInvokeExpr.getArgs();
 			object = new ObjectValue(method.getDeclaringClass().getType(), args, this.se);
-			this.dtmr.recognizeDateTimeMethod(method, args, object);
+			this.dtmr.recognizeDateTimeMethod(method, object);
 			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		}
 		return results;

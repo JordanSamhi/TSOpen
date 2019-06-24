@@ -65,7 +65,7 @@ public class LocationRecognition extends TypeRecognitionHandler {
 			}
 
 			object = new ObjectValue(type, args, this.se);
-			this.lmrh.recognizeLocationMethod(method, args, object);
+			this.lmrh.recognizeLocationMethod(method, object);
 			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		}
 		return results;

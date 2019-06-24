@@ -46,7 +46,7 @@ public class SmsRecognition extends TypeRecognitionHandler {
 			method = rightOpStaticInvokeExpr.getMethod();
 			args = rightOpStaticInvokeExpr.getArgs();
 			object = new ObjectValue(method.getDeclaringClass().getType(), args, this.se);
-			this.smrh.recognizeSmsMethod(method, args, object);
+			this.smrh.recognizeSmsMethod(method, object);
 			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		}
 		return results;

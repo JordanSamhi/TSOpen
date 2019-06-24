@@ -7,7 +7,6 @@ import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
@@ -22,45 +21,6 @@ import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public abstract class TypeRecognitionHandler implements TypeRecognition {
-
-	protected static final String UNKNOWN_STRING = "UNKNOWN_STRING";
-	protected static final String EMPTY_STRING = "";
-	protected static final String GET_INSTANCE = "getInstance";
-	protected static final String NOW = "now";
-	protected static final String GET_LAST_KNOW_LOCATION = "getLastKnownLocation";
-	protected static final String GET_LAST_LOCATION = "getLastLocation";
-	protected static final String CREATE_FROM_PDU = "createFromPdu";
-	protected static final String GET_LONGITUDE = "getLongitude";
-	protected static final String GET_LATITUDE = "getLatitude";
-	protected static final String CURRENT_TIME_MILLIS = "currentTimeMillis";
-	protected static final String GET_MINUTES = "getMinutes";
-	protected static final String GET_SECONDS = "getSeconds";
-	protected static final String GET_MONTH = "getMonth";
-
-	protected static final String NOW_TAG = "#now";
-	protected static final String HERE_TAG = "#here";
-	protected static final String SMS_TAG = "#sms";
-	protected static final String LONGITUDE_TAG = "#here/#longitude";
-	protected static final String LATITUDE_TAG = "#here/#latitude";
-	protected static final String SECONDS_TAG = "#now/#seconds";
-	protected static final String MINUTES_TAG = "#now/#minutes";
-	protected static final String MONTH_TAG = "#now/#month";
-
-	protected static final String JAVA_UTIL_CALENDAR = "java.util.Calendar";
-	protected static final String JAVA_UTIL_DATE = "java.util.Date";
-	protected static final String JAVA_UTIL_GREGORIAN_CALENDAR = "java.util.Calendar";
-	protected static final String JAVA_TIME_LOCAL_DATE_TIME = "java.time.LocalDateTime";
-	protected static final String JAVA_TIME_LOCAL_DATE = "java.time.LocalDate";
-	protected static final String JAVA_LANG_STRING = "java.lang.String";
-	protected static final String JAVA_LANG_STRING_BUILDER = "java.lang.StringBuilder";
-	protected static final String JAVA_LANG_STRING_BUFFER = "java.lang.StringBuffer";
-	protected static final String ANDROID_LOCATION_LOCATION = "android.location.Location";
-	protected static final String ANDROID_LOCATION_LOCATION_MANAGER = "android.location.LocationManager";
-	protected static final String COM_GOOGLE_ANDROID_GMS_LOCATION_LOCATION_RESULT = "com.google.android.gms.location.LocationResult";
-	protected static final String ANDROID_TELEPHONY_SMSMESSAGE = "android.telephony.SmsMessage";
-	protected static final String JAVA_LANG_SYSTEM = "java.lang.System";
-	protected static final String INT = "int";
-	protected static final String LONG = "long";
 
 	private TypeRecognitionHandler next;
 	protected SymbolicExecution se;
@@ -134,24 +94,6 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 		object = new ObjectValue(base.getType(), args, this.se);
 		this.handleConstructorTag(args, object);
 		results.add(new Pair<Value, SymbolicValue>(base, object));
-	}
-
-	@Override
-	public boolean containsTag(Value base, String nowTag) {
-		List<SymbolicValue> values = null;
-		ContextualValues contextualValues = null;
-		if(base != null) {
-			contextualValues = this.se.getContext().get(base);
-			if(contextualValues != null) {
-				values = contextualValues.getLastCoherentValues();
-				for(SymbolicValue sv : values) {
-					if(sv.containsTag(nowTag)) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
 	}
 
 	protected boolean isAuthorizedType(String type) {

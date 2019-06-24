@@ -18,6 +18,7 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
+import com.github.dusby.tsopen.utils.Constants;
 
 import soot.Local;
 import soot.SootMethod;
@@ -44,15 +45,15 @@ public class StringRecognition extends TypeRecognitionHandler{
 		this.smrh = new ToStringRecognition(this.smrh, se);
 		this.smrh = new SubStringRecognition(this.smrh, se);
 		this.smrh = new GetMessageBodyRecognition(this.smrh, se);
-		this.authorizedTypes.add(JAVA_LANG_STRING);
-		this.authorizedTypes.add(JAVA_LANG_STRING_BUFFER);
-		this.authorizedTypes.add(JAVA_LANG_STRING_BUILDER);
+		this.authorizedTypes.add(Constants.JAVA_LANG_STRING);
+		this.authorizedTypes.add(Constants.JAVA_LANG_STRING_BUFFER);
+		this.authorizedTypes.add(Constants.JAVA_LANG_STRING_BUILDER);
 	}
 
 	private void checkAndProcessContextValues(ContextualValues contextualValues, List<Pair<Value, SymbolicValue>> results, Value leftOp) {
 		List<SymbolicValue> values = null;
 		if(contextualValues == null) {
-			results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue(StringConstant.v(UNKNOWN_STRING))));
+			results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue(StringConstant.v(Constants.UNKNOWN_STRING))));
 		}else {
 			values = contextualValues.getLastCoherentValues();
 			for(SymbolicValue sv : values) {
@@ -130,7 +131,7 @@ public class StringRecognition extends TypeRecognitionHandler{
 		ContextualValues contextualValues = null;
 
 		if(args.size() == 0) {
-			results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue(StringConstant.v(EMPTY_STRING))));
+			results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue(StringConstant.v(Constants.EMPTY_STRING))));
 		}else {
 			arg = args.get(0);
 			if(arg instanceof Local) {
@@ -139,7 +140,7 @@ public class StringRecognition extends TypeRecognitionHandler{
 			}else if(arg instanceof StringConstant) {
 				results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue((StringConstant)arg)));
 			}else {
-				results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue(StringConstant.v(EMPTY_STRING))));
+				results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue(StringConstant.v(Constants.EMPTY_STRING))));
 			}
 		}
 	}

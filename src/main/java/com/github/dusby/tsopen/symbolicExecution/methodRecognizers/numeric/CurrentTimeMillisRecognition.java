@@ -1,6 +1,5 @@
-package com.github.dusby.tsopen.symbolicExecution.methodRecognizers.numerics;
+package com.github.dusby.tsopen.symbolicExecution.methodRecognizers.numeric;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
@@ -12,21 +11,21 @@ import soot.SootMethod;
 import soot.Value;
 import soot.tagkit.StringConstantValueTag;
 
-public class CurrentTimeMillisRecognition extends LongMethodsRecognitionHandler {
+public class CurrentTimeMillisRecognition extends NumericMethodsRecognitionHandler {
 
-	public CurrentTimeMillisRecognition(LongMethodsRecognitionHandler next, SymbolicExecution se) {
+	public CurrentTimeMillisRecognition(NumericMethodsRecognitionHandler next, SymbolicExecution se) {
 		super(next, se);
 	}
 
 	@Override
-	public List<SymbolicValue> processLongMethod(SootMethod method, Value base, List<Value> args, SymbolicValue sv) {
+	public boolean processLongMethod(SootMethod method, Value base, List<Value> args, SymbolicValue sv) {
 		SootClass declaringClass = method.getDeclaringClass();
 		String methodName = method.getName();
-		List<SymbolicValue> results = new ArrayList<SymbolicValue>();
 		if (declaringClass.getName().equals(Constants.JAVA_LANG_SYSTEM) && methodName.equals(Constants.CURRENT_TIME_MILLIS)) {
 			sv.addTag(new StringConstantValueTag(Constants.NOW_TAG));
+			return true;
 		}
-		return results;
+		return false;
 	}
 
 }

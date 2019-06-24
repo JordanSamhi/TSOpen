@@ -8,6 +8,7 @@ import org.javatuples.Pair;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
+import com.github.dusby.tsopen.utils.Constants;
 
 import soot.SootClass;
 import soot.SootMethod;
@@ -21,7 +22,7 @@ public class SmsRecognition extends TypeRecognitionHandler {
 
 	public SmsRecognition(TypeRecognitionHandler next, SymbolicExecution se, InfoflowCFG icfg) {
 		super(next, se, icfg);
-		this.authorizedTypes.add(ANDROID_TELEPHONY_SMSMESSAGE);
+		this.authorizedTypes.add(Constants.ANDROID_TELEPHONY_SMSMESSAGE);
 	}
 
 	@Override
@@ -44,12 +45,12 @@ public class SmsRecognition extends TypeRecognitionHandler {
 			method = rightOpStaticInvokeExpr.getMethod();
 			methodName = method.getName();
 			declaringClass = method.getDeclaringClass();
-			if(methodName.equals(CREATE_FROM_PDU) && declaringClass.getName().equals(ANDROID_TELEPHONY_SMSMESSAGE)) {
-				args = rightOpStaticInvokeExpr.getArgs();
-				object = new ObjectValue(method.getDeclaringClass().getType(), args, this.se);
-				object.addTag(new StringConstantValueTag(SMS_TAG));
-				results.add(new Pair<Value, SymbolicValue>(leftOp, object));
+			args = rightOpStaticInvokeExpr.getArgs();
+			object = new ObjectValue(method.getDeclaringClass().getType(), args, this.se);
+			if(methodName.equals(Constants.CREATE_FROM_PDU) && declaringClass.getName().equals(Constants.ANDROID_TELEPHONY_SMSMESSAGE)) {
+				object.addTag(new StringConstantValueTag(Constants.SMS_TAG));
 			}
+			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		}
 		return results;
 	}

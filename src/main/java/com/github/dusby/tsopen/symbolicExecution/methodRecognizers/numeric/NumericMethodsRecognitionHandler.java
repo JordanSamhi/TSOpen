@@ -1,4 +1,4 @@
-package com.github.dusby.tsopen.symbolicExecution.methodRecognizers.numerics;
+package com.github.dusby.tsopen.symbolicExecution.methodRecognizers.numeric;
 
 import java.util.List;
 
@@ -9,28 +9,28 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import soot.SootMethod;
 import soot.Value;
 
-public abstract class LongMethodsRecognitionHandler implements LongMethodsRecognition {
+public abstract class NumericMethodsRecognitionHandler implements NumericMethodsRecognition {
 
-	private LongMethodsRecognitionHandler next;
+	private NumericMethodsRecognitionHandler next;
 	protected SymbolicExecution se;
 
-	public LongMethodsRecognitionHandler(LongMethodsRecognitionHandler next, SymbolicExecution se) {
+	public NumericMethodsRecognitionHandler(NumericMethodsRecognitionHandler next, SymbolicExecution se) {
 		this.next = next;
 		this.se = se;
 	}
 
 	@Override
-	public List<SymbolicValue> recognizeLongMethod(SootMethod method, Value base, List<Value> args, SymbolicValue sv) {
-		List<SymbolicValue> result = this.processLongMethod(method, base, args, sv);
+	public boolean recognizeLongMethod(SootMethod method, Value base, List<Value> args, SymbolicValue sv) {
+		boolean recognized = this.processLongMethod(method, base, args, sv);
 
-		if(result != null && !result.isEmpty()) {
-			return result;
+		if(recognized) {
+			return recognized;
 		}
 		if(this.next != null) {
 			return this.next.recognizeLongMethod(method, base, args, sv);
 		}
 		else {
-			return null;
+			return false;
 		}
 	}
 

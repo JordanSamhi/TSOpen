@@ -6,11 +6,11 @@ import java.util.List;
 import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.numeric.NumericMethodsRecognitionHandler;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
-import soot.SootClass;
 import soot.SootMethod;
 import soot.Value;
 import soot.jimple.DefinitionStmt;
@@ -19,6 +19,8 @@ import soot.jimple.StaticInvokeExpr;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public abstract class NumericRecognition extends TypeRecognitionHandler {
+
+	protected NumericMethodsRecognitionHandler lmrh;
 
 	public NumericRecognition(TypeRecognitionHandler next, SymbolicExecution se, InfoflowCFG icfg) {
 		super(next, se, icfg);
@@ -32,12 +34,10 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 		Value leftOp = defUnit.getLeftOp(),
 				rightOp = defUnit.getRightOp(),
 				base = null;
-		String methodName = null;
 		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
 		InstanceInvokeExpr rightOpInvExpr = null;
 		StaticInvokeExpr rightOpStExpr = null;
 		SootMethod method = null;
-		SootClass declaringClass = null;
 		List<Value> args = null;
 		MethodRepresentationValue object = null;
 
@@ -54,10 +54,8 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 		}else {
 			return results;
 		}
-		declaringClass = method.getDeclaringClass();
-		methodName = method.getName();
 		object = new MethodRepresentationValue(base, args, method, this.se);
-		this.handleTags(object, base, method, args);
+		this.lmrh.recognizeLongMethod(method, base, args, object);
 		results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		return results;
 	}

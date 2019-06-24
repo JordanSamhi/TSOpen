@@ -18,7 +18,6 @@ public interface TypeRecognition {
 	public List<Pair<Value, SymbolicValue>> processDefinitionStmt(DefinitionStmt defUnit);
 	public List<Pair<Value, SymbolicValue>> processInvokeStmt(InvokeStmt invUnit);
 	public void handleConstructor(InvokeExpr invExprUnit, Value base, List<Pair<Value, SymbolicValue>> results);
-	public abstract void handleConstructorTag(List<Value> args, ObjectValue object);
+	public void handleConstructorTag(List<Value> args, ObjectValue object);
 	public List<Pair<Value, SymbolicValue>> handleDefinitionStmt(DefinitionStmt defUnit);
-	public boolean containsTag(Value base, String nowTag);
 }

@@ -59,6 +59,9 @@ public class MethodRepresentationValue extends AbstractSymbolicValue {
 		value += "(";
 		for(Value arg : this.args) {
 			value += this.computeValue(arg);
+			if(arg != this.args.get(this.args.size() - 1)) {
+				value += ", ";
+			}
 		}
 		value += "))";
 		return value;

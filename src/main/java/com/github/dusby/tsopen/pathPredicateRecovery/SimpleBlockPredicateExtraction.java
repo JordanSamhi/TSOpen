@@ -25,7 +25,7 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
  *
  */
 public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
-	
+
 	private Map<Literal, ConditionExpr> literalToCondition = null;
 	private List<Edge> annotatedEdges;
 	private final FormulaFactory formulaFactory;
@@ -36,7 +36,7 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 		this.annotatedEdges = new ArrayList<Edge>();
 		this.formulaFactory = new FormulaFactory();
 	}
-	
+
 	/**
 	 * Annotate simple predicates on condition's edges
 	 * @param node the current node being traversed
@@ -64,9 +64,9 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 			}
 		}
 	}
-	
+
 	/**
-	 * Return the edge corresponding to the units in 
+	 * Return the edge corresponding to the units in
 	 * the given order
 	 * @param source the source node of the edge
 	 * @param target the target node of the edge
@@ -80,7 +80,7 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 		}
 		return null;
 	}
-	
+
 	@Override
 	protected void processNeighbor(Unit node, Unit neighbour) {
 		this.annotateEdgeWithSimplePredicate(node, neighbour);

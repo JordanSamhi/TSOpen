@@ -9,6 +9,7 @@ import org.slf4j.profiler.Profiler;
 import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecovery;
 import com.github.dusby.tsopen.pathPredicateRecovery.SimpleBlockPredicateExtraction;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
+import com.github.dusby.tsopen.utils.TimeOut;
 
 import soot.Scene;
 import soot.SootMethod;
@@ -33,6 +34,8 @@ public class Main {
 		Thread sbpeThread = null,
 				pprThread = null,
 				seThread = null;
+		TimeOut timeOut = new TimeOut();
+		timeOut.trigger(options.getTimeout());
 
 		mainProfiler.start("CallGraph");
 		ifac.getAnalysisFileConfig().setAndroidPlatformDir(options.getPlatforms());
@@ -61,9 +64,18 @@ public class Main {
 
 		try {
 			sbpeThread.join();
-		} catch (InterruptedException e1) {
-			logger.error(e1.getMessage());
+		} catch (InterruptedException e) {
+			logger.error(e.getMessage());
 		}
+
 		pprThread.start();
+
+		try {
+			pprThread.join();
+			seThread.join();
+		} catch (InterruptedException e) {
+			logger.error(e.getMessage());
+		}
+		timeOut.cancel();
 	}
 }

@@ -57,7 +57,6 @@ public class LongRecognition extends TypeRecognitionHandler {
 			}else if(declaringClass.getName().equals(ANDROID_LOCATION_LOCATION) && methodName.equals(GET_LONGITUDE)) {
 				object.addTag(new StringConstantValueTag(LONGITUDE_TAG));
 			}
-			this.logger.debug("{}", object);
 			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		}
 		return results;

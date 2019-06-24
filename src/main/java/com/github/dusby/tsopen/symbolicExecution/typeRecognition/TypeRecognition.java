@@ -20,4 +20,5 @@ public interface TypeRecognition {
 	public void handleConstructor(InvokeExpr invExprUnit, Value base, List<Pair<Value, SymbolicValue>> results);
 	public abstract void handleConstructorTag(List<Value> args, ObjectValue object);
 	public List<Pair<Value, SymbolicValue>> handleDefinitionStmt(DefinitionStmt defUnit);
+	public boolean containsTag(Value base, String nowTag);
 }

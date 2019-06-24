@@ -14,4 +14,5 @@ public interface SymbolicValue {
 	public void addTag(StringConstantValueTag scvt);
 	public List<StringConstantValueTag> getTags();
 	public String getStringTags();
+	public boolean containsTag(String t);
 }

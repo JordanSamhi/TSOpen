@@ -68,4 +68,14 @@ public abstract class AbstractSymbolicValue implements SymbolicValue {
 	public void addTag(StringConstantValueTag tag) {
 		this.tags.add(tag);
 	}
+
+	@Override
+	public boolean containsTag(String t) {
+		for(StringConstantValueTag tag : this.tags) {
+			if(tag.getStringValue().equals(t)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

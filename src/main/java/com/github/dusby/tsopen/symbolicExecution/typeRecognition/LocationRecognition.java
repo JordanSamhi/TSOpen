@@ -6,6 +6,9 @@ import java.util.List;
 import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.location.GetLastKnowLocationRecognition;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.location.GetLastLocationRecognition;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.location.LocationMethodsRecognitionHandler;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
@@ -19,13 +22,16 @@ import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
-import soot.tagkit.StringConstantValueTag;
 
 public class LocationRecognition extends TypeRecognitionHandler {
+
+	private LocationMethodsRecognitionHandler lmrh;
 
 	public LocationRecognition(TypeRecognitionHandler next, SymbolicExecution se, InfoflowCFG icfg) {
 		super(next, se, icfg);
 		this.authorizedTypes.add(Constants.ANDROID_LOCATION_LOCATION);
+		this.lmrh = new GetLastKnowLocationRecognition(null, se);
+		this.lmrh = new GetLastLocationRecognition(this.lmrh, se);
 	}
 
 	@Override
@@ -36,7 +42,6 @@ public class LocationRecognition extends TypeRecognitionHandler {
 		Value leftOp = defUnit.getLeftOp(),
 				rightOp = defUnit.getRightOp(),
 				base = null;
-		String methodName = null;
 		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
 		InvokeExpr rightOpInvExpr = null;
 		SootMethod method = null;
@@ -50,7 +55,6 @@ public class LocationRecognition extends TypeRecognitionHandler {
 
 			method = rightOpInvExpr.getMethod();
 			declaringClass = method.getDeclaringClass();
-			methodName = method.getName();
 			args = rightOpInvExpr.getArgs();
 
 			if(rightOpInvExpr instanceof StaticInvokeExpr) {
@@ -61,10 +65,7 @@ public class LocationRecognition extends TypeRecognitionHandler {
 			}
 
 			object = new ObjectValue(type, args, this.se);
-			if((declaringClass.getName().equals(Constants.ANDROID_LOCATION_LOCATION_MANAGER) && methodName.equals(Constants.GET_LAST_KNOW_LOCATION))
-					|| (base != null && type.toString().equals(Constants.COM_GOOGLE_ANDROID_GMS_LOCATION_LOCATION_RESULT) && methodName.equals(Constants.GET_LAST_LOCATION))) {
-				object.addTag(new StringConstantValueTag(Constants.HERE_TAG));
-			}
+			this.lmrh.recognizeLocationMethod(method, args, object);
 			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		}
 		return results;

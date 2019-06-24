@@ -3,6 +3,11 @@ package com.github.dusby.tsopen.utils;
 public class Constants {
 	public static final String UNKNOWN_STRING = "UNKNOWN_STRING";
 	public static final String EMPTY_STRING = "";
+	public static final String NULL = "null";
+
+	/**
+	 * Methods
+	 */
 	public static final String GET_INSTANCE = "getInstance";
 	public static final String NOW = "now";
 	public static final String GET_LAST_KNOW_LOCATION = "getLastKnownLocation";
@@ -14,7 +19,18 @@ public class Constants {
 	public static final String GET_MINUTES = "getMinutes";
 	public static final String GET_SECONDS = "getSeconds";
 	public static final String GET_MONTH = "getMonth";
+	public static final String APPEND = "append";
+	public static final String VALUEOF = "valueOf";
+	public static final String SUBSTRING = "substring";
+	public static final String TOSTRING = "toString";
+	public static final String GET_MESSAGE_BODY = "getMessageBody";
+	public static final String GET_DISPLAY_MESAGE_BODY = "getDisplayMessageBody";
+	public static final String GET_ORIGINATING_ADDRESS = "getOriginatingAddress";
+	public static final String GET_DISPLAY_ORIGINATING_ADDRESS = "getDisplayOriginatingAddress";
 
+	/**
+	 * Tags
+	 */
 	public static final String NOW_TAG = "#now";
 	public static final String HERE_TAG = "#here";
 	public static final String SMS_TAG = "#sms";
@@ -23,7 +39,12 @@ public class Constants {
 	public static final String SECONDS_TAG = "#now/#seconds";
 	public static final String MINUTES_TAG = "#now/#minutes";
 	public static final String MONTH_TAG = "#now/#month";
+	public static final String BODY_TAG = "#sms/#body";
+	public static final String SENDER_TAG = "#sms/#sender";
 
+	/**
+	 * Classes, types
+	 */
 	public static final String JAVA_UTIL_CALENDAR = "java.util.Calendar";
 	public static final String JAVA_UTIL_DATE = "java.util.Date";
 	public static final String JAVA_UTIL_GREGORIAN_CALENDAR = "java.util.Calendar";
@@ -39,4 +60,5 @@ public class Constants {
 	public static final String JAVA_LANG_SYSTEM = "java.lang.System";
 	public static final String INT = "int";
 	public static final String LONG = "long";
+	public static final String BOOLEAN = "boolean";
 }

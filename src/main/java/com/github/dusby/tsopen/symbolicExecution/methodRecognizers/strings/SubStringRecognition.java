@@ -7,6 +7,7 @@ import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
+import com.github.dusby.tsopen.utils.Constants;
 
 import soot.SootMethod;
 import soot.Value;
@@ -27,10 +28,10 @@ public class SubStringRecognition extends StringMethodsRecognitionHandler {
 				arg2 = null;
 		int v1 = 0,
 				v2 = 0;
-		if(method.getName().equals(SUBSTRING)) {
+		if(method.getName().equals(Constants.SUBSTRING)) {
 			if(base instanceof StringConstant) {
 				baseStr = (StringConstant) base;
-				if(baseStr.value.contains(UNKNOWN_STRING)){
+				if(baseStr.value.contains(Constants.UNKNOWN_STRING)){
 					results.add(new MethodRepresentationValue(base, args, method, this.se));
 				}else {
 					arg1 = args.get(0);

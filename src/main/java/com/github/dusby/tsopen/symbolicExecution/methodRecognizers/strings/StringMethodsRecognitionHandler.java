@@ -16,19 +16,6 @@ import soot.Value;
 public abstract class StringMethodsRecognitionHandler implements StringMethodsRecognition {
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
-	protected static final String APPEND = "append";
-	protected static final String VALUEOF = "valueOf";
-	protected static final String SUBSTRING = "substring";
-	protected static final String TOSTRING = "toString";
-	protected static final String UNKNOWN_STRING = "UNKNOWN_STRING";
-	protected static final String NULL = "null";
-	protected static final String GET_MESSAGE_BODY = "getMessageBody";
-	protected static final String GET_DISPLAY_MESAGE_BODY = "getDisplayMessageBody";
-	protected static final String GET_ORIGINATING_ADDRESS = "getOriginatingAddress";
-	protected static final String GET_DISPLAY_ORIGINATING_ADDRESS = "getDisplayOriginatingAddress";
-
-	protected static final String BODY_TAG = "#sms/#body";
-	protected static final String SENDER_TAG = "#sms/#sender";
 
 	private StringMethodsRecognitionHandler next;
 	protected SymbolicExecution se;

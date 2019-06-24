@@ -9,6 +9,7 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.UnknownValue;
+import com.github.dusby.tsopen.utils.Constants;
 
 import soot.SootMethod;
 import soot.Value;
@@ -26,7 +27,7 @@ public class AppendRecognition extends StringMethodsRecognitionHandler {
 		List<SymbolicValue> values = null;
 		List<SymbolicValue> results = new ArrayList<SymbolicValue>();
 		ContextualValues contextualValuesOfBase = null;
-		if(method.getName().equals(APPEND)) {
+		if(method.getName().equals(Constants.APPEND)) {
 			contextualValuesOfBase = this.se.getContext().get(base);
 			if(contextualValuesOfBase == null) {
 				results.addAll(this.computeValue(new UnknownValue(), args, base, method));
@@ -56,7 +57,7 @@ public class AppendRecognition extends StringMethodsRecognitionHandler {
 			contextualValuesOfBase = this.se.getContext().get(effectiveArg);
 			if(contextualValuesOfBase == null) {
 				if(symVal.isConstant()) {
-					results.add(new ConstantValue(StringConstant.v(String.format("%s%s", symVal, UNKNOWN_STRING))));
+					results.add(new ConstantValue(StringConstant.v(String.format("%s%s", symVal, Constants.UNKNOWN_STRING))));
 				}else {
 					results.add(new MethodRepresentationValue(base, args, method, this.se));
 				}

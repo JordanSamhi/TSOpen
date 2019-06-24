@@ -24,7 +24,9 @@ public class MethodRepresentationValue extends AbstractSymbolicValue {
 		this.base = b;
 		this.args = a;
 
-		this.values.put(this.base, this.getSymbolicValues(this.base));
+		if(this.base != null) {
+			this.values.put(this.base, this.getSymbolicValues(this.base));
+		}
 		for(Value arg : this.args) {
 			this.values.put(arg, this.getSymbolicValues(arg));
 		}

@@ -8,7 +8,7 @@ import org.javatuples.Pair;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.dateTime.GetInstanceRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.dateTime.NowRecognition;
-import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.dateTime.dateTimeMethodsRecognitionHandler;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.dateTime.DateTimeMethodsRecognitionHandler;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
@@ -22,7 +22,7 @@ import soot.tagkit.StringConstantValueTag;
 
 public class DateTimeRecognition extends TypeRecognitionHandler {
 
-	private dateTimeMethodsRecognitionHandler dtmr;
+	private DateTimeMethodsRecognitionHandler dtmr;
 
 	public DateTimeRecognition(TypeRecognitionHandler next, SymbolicExecution se, InfoflowCFG icfg) {
 		super(next, se, icfg);

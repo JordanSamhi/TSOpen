@@ -7,7 +7,7 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import soot.SootMethod;
 import soot.Value;
 
-public interface dateTimeMethodsRecognition {
+public interface DateTimeMethodsRecognition {
 	public boolean recognizeDateTimeMethod(SootMethod method, List<Value> args, SymbolicValue sv);
 	public boolean processDateTimeMethod(SootMethod method, List<Value> args, SymbolicValue sv);
 }

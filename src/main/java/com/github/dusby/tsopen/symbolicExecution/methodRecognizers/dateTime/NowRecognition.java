@@ -10,9 +10,9 @@ import soot.SootMethod;
 import soot.Value;
 import soot.tagkit.StringConstantValueTag;
 
-public class NowRecognition extends dateTimeMethodsRecognitionHandler {
+public class NowRecognition extends DateTimeMethodsRecognitionHandler {
 
-	public NowRecognition(dateTimeMethodsRecognitionHandler next, SymbolicExecution se) {
+	public NowRecognition(DateTimeMethodsRecognitionHandler next, SymbolicExecution se) {
 		super(next, se);
 	}
 

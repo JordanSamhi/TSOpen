@@ -8,12 +8,12 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import soot.SootMethod;
 import soot.Value;
 
-public abstract class dateTimeMethodsRecognitionHandler implements dateTimeMethodsRecognition {
+public abstract class DateTimeMethodsRecognitionHandler implements DateTimeMethodsRecognition {
 
-	private dateTimeMethodsRecognitionHandler next;
+	private DateTimeMethodsRecognitionHandler next;
 	protected SymbolicExecution se;
 
-	public dateTimeMethodsRecognitionHandler(dateTimeMethodsRecognitionHandler next, SymbolicExecution se) {
+	public DateTimeMethodsRecognitionHandler(DateTimeMethodsRecognitionHandler next, SymbolicExecution se) {
 		this.next = next;
 		this.se = se;
 	}

@@ -18,7 +18,7 @@ public class GetMinutesRecognition extends NumericMethodsRecognitionHandler {
 	}
 
 	@Override
-	public boolean processLongMethod(SootMethod method, Value base, List<Value> args, SymbolicValue sv) {
+	public boolean processNumericMethod(SootMethod method, Value base, List<Value> args, SymbolicValue sv) {
 		SootClass declaringClass = method.getDeclaringClass();
 		String methodName = method.getName();
 		if(this.containsTag(base, Constants.NOW_TAG)) {

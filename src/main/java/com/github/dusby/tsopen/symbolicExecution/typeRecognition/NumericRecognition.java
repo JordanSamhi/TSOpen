@@ -55,7 +55,7 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 			return results;
 		}
 		object = new MethodRepresentationValue(base, args, method, this.se);
-		this.lmrh.recognizeLongMethod(method, base, args, object);
+		this.lmrh.recognizeNumericMethod(method, base, args, object);
 		results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		return results;
 	}

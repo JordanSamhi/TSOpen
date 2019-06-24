@@ -18,7 +18,7 @@ public class CurrentTimeMillisRecognition extends NumericMethodsRecognitionHandl
 	}
 
 	@Override
-	public boolean processLongMethod(SootMethod method, Value base, List<Value> args, SymbolicValue sv) {
+	public boolean processNumericMethod(SootMethod method, Value base, List<Value> args, SymbolicValue sv) {
 		SootClass declaringClass = method.getDeclaringClass();
 		String methodName = method.getName();
 		if (declaringClass.getName().equals(Constants.JAVA_LANG_SYSTEM) && methodName.equals(Constants.CURRENT_TIME_MILLIS)) {

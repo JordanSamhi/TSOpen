@@ -8,6 +8,6 @@ import soot.SootMethod;
 import soot.Value;
 
 public interface dateTimeMethodsRecognition {
-	public boolean recognizeLongMethod(SootMethod method, List<Value> args, SymbolicValue sv);
-	public boolean processLongMethod(SootMethod method, List<Value> args, SymbolicValue sv);
+	public boolean recognizeDateTimeMethod(SootMethod method, List<Value> args, SymbolicValue sv);
+	public boolean processDateTimeMethod(SootMethod method, List<Value> args, SymbolicValue sv);
 }

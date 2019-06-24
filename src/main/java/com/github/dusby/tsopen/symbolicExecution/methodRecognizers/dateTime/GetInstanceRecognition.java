@@ -17,7 +17,7 @@ public class GetInstanceRecognition extends dateTimeMethodsRecognitionHandler {
 	}
 
 	@Override
-	public boolean processLongMethod(SootMethod method, List<Value> args, SymbolicValue sv) {
+	public boolean processDateTimeMethod(SootMethod method, List<Value> args, SymbolicValue sv) {
 		String className = method.getDeclaringClass().getName();
 		String methodName = method.getName();
 		if((methodName.equals(Constants.GET_INSTANCE) && (className.equals(Constants.JAVA_UTIL_CALENDAR) || className.equals(Constants.JAVA_UTIL_GREGORIAN_CALENDAR)))) {

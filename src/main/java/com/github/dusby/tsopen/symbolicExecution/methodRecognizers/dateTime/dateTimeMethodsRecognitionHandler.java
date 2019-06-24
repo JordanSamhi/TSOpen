@@ -19,14 +19,14 @@ public abstract class dateTimeMethodsRecognitionHandler implements dateTimeMetho
 	}
 
 	@Override
-	public boolean recognizeLongMethod(SootMethod method, List<Value> args, SymbolicValue sv) {
-		boolean recognized = this.processLongMethod(method, args, sv);
+	public boolean recognizeDateTimeMethod(SootMethod method, List<Value> args, SymbolicValue sv) {
+		boolean recognized = this.processDateTimeMethod(method, args, sv);
 
 		if(recognized) {
 			return recognized;
 		}
 		if(this.next != null) {
-			return this.next.recognizeLongMethod(method, args, sv);
+			return this.next.recognizeDateTimeMethod(method, args, sv);
 		}
 		else {
 			return false;

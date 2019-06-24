@@ -50,7 +50,7 @@ public class DateTimeRecognition extends TypeRecognitionHandler {
 			method = rightOpStaticInvokeExpr.getMethod();
 			args = rightOpStaticInvokeExpr.getArgs();
 			object = new ObjectValue(method.getDeclaringClass().getType(), args, this.se);
-			this.dtmr.recognizeLongMethod(method, args, object);
+			this.dtmr.recognizeDateTimeMethod(method, args, object);
 			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		}
 		return results;

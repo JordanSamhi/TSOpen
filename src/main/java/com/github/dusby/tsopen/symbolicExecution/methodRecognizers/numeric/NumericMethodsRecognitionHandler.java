@@ -20,14 +20,14 @@ public abstract class NumericMethodsRecognitionHandler implements NumericMethods
 	}
 
 	@Override
-	public boolean recognizeLongMethod(SootMethod method, Value base, List<Value> args, SymbolicValue sv) {
-		boolean recognized = this.processLongMethod(method, base, args, sv);
+	public boolean recognizeNumericMethod(SootMethod method, Value base, List<Value> args, SymbolicValue sv) {
+		boolean recognized = this.processNumericMethod(method, base, args, sv);
 
 		if(recognized) {
 			return recognized;
 		}
 		if(this.next != null) {
-			return this.next.recognizeLongMethod(method, base, args, sv);
+			return this.next.recognizeNumericMethod(method, base, args, sv);
 		}
 		else {
 			return false;

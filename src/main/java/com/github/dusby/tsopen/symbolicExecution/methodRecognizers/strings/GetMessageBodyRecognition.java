@@ -18,7 +18,7 @@ public class GetMessageBodyRecognition extends StringMethodsRecognitionHandler {
 	}
 
 	@Override
-	public List<SymbolicValue> processRecognition(SootMethod method, Value base, List<Value> args) {
+	public List<SymbolicValue> processStringMethod(SootMethod method, Value base, List<Value> args) {
 		List<SymbolicValue> results = new ArrayList<SymbolicValue>();
 		MethodRepresentationValue mrv = new MethodRepresentationValue(base, args, method, this.se);
 		if(method.getName().equals(GET_MESSAGE_BODY) || method.getName().equals(GET_DISPLAY_MESAGE_BODY)) {

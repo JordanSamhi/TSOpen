@@ -8,6 +8,7 @@ import soot.SootMethod;
 import soot.Value;
 
 public interface StringMethodsRecognition {
-	public List<SymbolicValue> recognize(SootMethod method, Value base, List<Value> args);
-	public List<SymbolicValue> processRecognition(SootMethod method, Value base, List<Value> args);
+	//TODO Change those name + add long method recognition
+	public List<SymbolicValue> recognizeStringMethod(SootMethod method, Value base, List<Value> args);
+	public List<SymbolicValue> processStringMethod(SootMethod method, Value base, List<Value> args);
 }

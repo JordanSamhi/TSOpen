@@ -111,7 +111,7 @@ public class StringRecognition extends TypeRecognitionHandler{
 			method = rightOpInvokeExpr.getMethod();
 			args = rightOpInvokeExpr.getArgs();
 			base = rightOpInvokeExpr instanceof InstanceInvokeExpr ? ((InstanceInvokeExpr) rightOpInvokeExpr).getBase() : null;
-			recognizedValues = this.smrh.recognize(method, base, args);
+			recognizedValues = this.smrh.recognizeStringMethod(method, base, args);
 			if(recognizedValues != null) {
 				for(SymbolicValue recognizedValue : recognizedValues) {
 					results.add(new Pair<Value, SymbolicValue>(leftOp, recognizedValue));

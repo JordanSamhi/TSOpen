@@ -39,14 +39,14 @@ public abstract class StringMethodsRecognitionHandler implements StringMethodsRe
 	}
 
 	@Override
-	public List<SymbolicValue> recognize(SootMethod method, Value base, List<Value> args) {
-		List<SymbolicValue> result = this.processRecognition(method, base, args);
+	public List<SymbolicValue> recognizeStringMethod(SootMethod method, Value base, List<Value> args) {
+		List<SymbolicValue> result = this.processStringMethod(method, base, args);
 
 		if(result != null && !result.isEmpty()) {
 			return result;
 		}
 		if(this.next != null) {
-			return this.next.recognize(method, base, args);
+			return this.next.recognizeStringMethod(method, base, args);
 		}
 		else {
 			return null;

@@ -16,7 +16,7 @@ public class ToStringRecognition extends StringMethodsRecognitionHandler {
 	}
 
 	@Override
-	public List<SymbolicValue> processRecognition(SootMethod method, Value base, List<Value> args) {
+	public List<SymbolicValue> processStringMethod(SootMethod method, Value base, List<Value> args) {
 		List<SymbolicValue> results = new ArrayList<SymbolicValue>();
 		if(method.getName().equals(TOSTRING)) {
 			this.addSimpleResult(base, results);

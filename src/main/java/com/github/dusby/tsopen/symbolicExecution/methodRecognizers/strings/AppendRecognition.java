@@ -22,7 +22,7 @@ public class AppendRecognition extends StringMethodsRecognitionHandler {
 	}
 
 	@Override
-	public List<SymbolicValue> processRecognition(SootMethod method, Value base, List<Value> args) {
+	public List<SymbolicValue> processStringMethod(SootMethod method, Value base, List<Value> args) {
 		List<SymbolicValue> values = null;
 		List<SymbolicValue> results = new ArrayList<SymbolicValue>();
 		ContextualValues contextualValuesOfBase = null;

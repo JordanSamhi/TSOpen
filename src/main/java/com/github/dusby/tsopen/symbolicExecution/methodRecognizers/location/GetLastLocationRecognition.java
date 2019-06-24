@@ -21,7 +21,7 @@ public class GetLastLocationRecognition extends LocationMethodsRecognitionHandle
 	public boolean processLocationMethod(SootMethod method, List<Value> args, SymbolicValue sv) {
 		String methodName = method.getName();
 		Value base = sv.getBase();
-		Type type = base.getType();
+		Type type = base == null ? method.getDeclaringClass().getType() : base.getType();
 		if((base != null && type.toString().equals(Constants.COM_GOOGLE_ANDROID_GMS_LOCATION_LOCATION_RESULT) && methodName.equals(Constants.GET_LAST_LOCATION))) {
 			sv.addTag(new StringConstantValueTag(Constants.HERE_TAG));
 			return true;

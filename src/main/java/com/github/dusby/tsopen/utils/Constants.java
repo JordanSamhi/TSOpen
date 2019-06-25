@@ -27,6 +27,12 @@ public class Constants {
 	public static final String GET_DISPLAY_MESAGE_BODY = "getDisplayMessageBody";
 	public static final String GET_ORIGINATING_ADDRESS = "getOriginatingAddress";
 	public static final String GET_DISPLAY_ORIGINATING_ADDRESS = "getDisplayOriginatingAddress";
+	public static final String AFTER = "after";
+	public static final String BEFORE = "before";
+	public static final String EQUALS = "equals";
+	public static final String CONTAINS = "contains";
+	public static final String STARTS_WITH = "startsWith";
+	public static final String MATCHES = "matches";
 
 	/**
 	 * Tags
@@ -39,8 +45,9 @@ public class Constants {
 	public static final String SECONDS_TAG = "#now/#seconds";
 	public static final String MINUTES_TAG = "#now/#minutes";
 	public static final String MONTH_TAG = "#now/#month";
-	public static final String BODY_TAG = "#sms/#body";
-	public static final String SENDER_TAG = "#sms/#sender";
+	public static final String SMS_BODY_TAG = "#sms/#body";
+	public static final String SMS_SENDER_TAG = "#sms/#sender";
+	public static final String SUSPICIOUS_CMP = "#SuspiciousCmp";
 
 	/**
 	 * Classes, types

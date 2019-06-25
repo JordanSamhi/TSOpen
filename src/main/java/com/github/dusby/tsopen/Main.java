@@ -35,7 +35,8 @@ public class Main {
 		PotentialLogicBombsRecovery plbr = null;
 		Thread sbpeThread = null,
 				pprThread = null,
-				seThread = null;
+				seThread = null,
+				plbrThread = null;
 		TimeOut timeOut = new TimeOut();
 		timeOut.trigger(options.getTimeout());
 
@@ -60,6 +61,7 @@ public class Main {
 		sbpeThread = new Thread(sbpe, "Symbolic Block Predicate Extraction");
 		pprThread = new Thread(ppr, "Path Predicate Recovery");
 		seThread = new Thread(se, "Symbolic Execution");
+		plbrThread = new Thread(plbr, "Potential Logic Bomb Recovery");
 
 		sbpeThread.start();
 		seThread.start();
@@ -78,7 +80,15 @@ public class Main {
 		} catch (InterruptedException e) {
 			logger.error(e.getMessage());
 		}
-		plbr = new PotentialLogicBombsRecovery(sbpe, se);
+		plbr = new PotentialLogicBombsRecovery(sbpe, se, ppr);
+		plbrThread.start();
+
+		try {
+			plbrThread.join();
+		} catch (InterruptedException e) {
+			logger.error(e.getMessage());
+		}
+
 		System.out.println(plbr.getPotentialLogicBombs().size());
 		timeOut.cancel();
 	}

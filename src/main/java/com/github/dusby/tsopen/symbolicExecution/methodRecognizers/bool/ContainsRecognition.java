@@ -16,7 +16,6 @@ public class ContainsRecognition extends BooleanMethodsRecognitionHandler {
 
 	public ContainsRecognition(BooleanMethodsRecognitionHandler next, SymbolicExecution se) {
 		super(next, se);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

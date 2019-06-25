@@ -8,5 +8,4 @@ import soot.Value;
 public interface NumericMethodsRecognition {
 	public boolean recognizeNumericMethod(SootMethod method, Value base, SymbolicValue sv);
 	public boolean processNumericMethod(SootMethod method, Value base, SymbolicValue sv);
-	public boolean containsTag(Value base, String nowTag);
 }

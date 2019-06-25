@@ -87,7 +87,9 @@ public class PathPredicateRecovery extends ICFGBackwardTraversal {
 		if(nodePredicates != null) {
 			simplifiedPredicate = this.simplifier.apply(this.formulaFactory.or(nodePredicates), true);
 			this.nodeToFullPathPredicate.put(node, simplifiedPredicate);
-			this.computeGuardedBlock(node);
+			if(!(node instanceof IfStmt)) {
+				this.computeGuardedBlock(node);
+			}
 		}
 	}
 

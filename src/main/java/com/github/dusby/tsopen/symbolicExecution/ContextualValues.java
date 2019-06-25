@@ -51,4 +51,11 @@ public class ContextualValues {
 		}
 		return lasts;
 	}
+
+	public List<SymbolicValue> getAllSymbolicValues(Unit node){
+		if(this.values.containsKey(node)) {
+			return this.values.get(node);
+		}
+		return null;
+	}
 }

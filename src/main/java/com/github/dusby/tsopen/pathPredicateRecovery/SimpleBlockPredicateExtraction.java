@@ -26,6 +26,7 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 
 	private Map<Literal, IfStmt> literalToCondition = null;
+	private List<IfStmt> conditions;
 	private List<Edge> annotatedEdges;
 	private final FormulaFactory formulaFactory;
 
@@ -34,6 +35,7 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 		this.literalToCondition = new HashMap<Literal, IfStmt>();
 		this.annotatedEdges = new ArrayList<Edge>();
 		this.formulaFactory = new FormulaFactory();
+		this.conditions = new ArrayList<IfStmt>();
 	}
 
 	/**
@@ -59,6 +61,7 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 					simplePredicate = this.formulaFactory.literal(condition, false);
 				}
 				this.literalToCondition.put(simplePredicate, ifStmt);
+				this.conditions.add(ifStmt);
 				edge.setPredicate(simplePredicate);
 			}
 		}
@@ -85,6 +88,10 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 			return this.literalToCondition.get(l);
 		}
 		return null;
+	}
+
+	public List<IfStmt> getConditions(){
+		return this.conditions;
 	}
 
 	@Override

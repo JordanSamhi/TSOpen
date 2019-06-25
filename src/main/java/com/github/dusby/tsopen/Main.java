@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.profiler.Profiler;
 
+import com.github.dusby.tsopen.logicBombs.PotentialLogicBombsRecovery;
 import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecovery;
 import com.github.dusby.tsopen.pathPredicateRecovery.SimpleBlockPredicateExtraction;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
@@ -31,6 +32,7 @@ public class Main {
 		SimpleBlockPredicateExtraction sbpe = null;
 		PathPredicateRecovery ppr = null;
 		SymbolicExecution se = null;
+		PotentialLogicBombsRecovery plbr = null;
 		Thread sbpeThread = null,
 				pprThread = null,
 				seThread = null;
@@ -76,6 +78,8 @@ public class Main {
 		} catch (InterruptedException e) {
 			logger.error(e.getMessage());
 		}
+		plbr = new PotentialLogicBombsRecovery(sbpe, se);
+		System.out.println(plbr.getPotentialLogicBombs().size());
 		timeOut.cancel();
 	}
 }

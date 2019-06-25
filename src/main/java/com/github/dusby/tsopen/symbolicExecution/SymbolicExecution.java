@@ -7,6 +7,7 @@ import java.util.Map;
 import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
+import com.github.dusby.tsopen.symbolicExecution.typeRecognition.BooleanRecognition;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.DateTimeRecognition;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.IntRecognition;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.LocationRecognition;
@@ -40,10 +41,7 @@ public class SymbolicExecution extends ICFGForwardTraversal {
 		this.trh = new SmsRecognition(this.trh, this, this.icfg);
 		this.trh = new LongRecognition(this.trh, this, this.icfg);
 		this.trh = new IntRecognition(this.trh, this, this.icfg);
-	}
-
-	public Map<Value, ContextualValues> getContext() {
-		return this.symbolicExecutionResults;
+		this.trh = new BooleanRecognition(this.trh, this, icfg);
 	}
 
 	/**
@@ -71,6 +69,17 @@ public class SymbolicExecution extends ICFGForwardTraversal {
 				contextualValues.addValue(node, symbolicValue);
 			}
 		}
+	}
+
+	public Map<Value, ContextualValues> getContext() {
+		return this.symbolicExecutionResults;
+	}
+
+	public ContextualValues getContextualValues(Value v) {
+		if(this.symbolicExecutionResults.containsKey(v)) {
+			return this.symbolicExecutionResults.get(v);
+		}
+		return null;
 	}
 
 	@Override

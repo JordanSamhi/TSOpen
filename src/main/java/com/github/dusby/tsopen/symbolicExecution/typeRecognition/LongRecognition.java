@@ -12,7 +12,7 @@ public class LongRecognition extends NumericRecognition {
 	public LongRecognition(TypeRecognitionHandler next, SymbolicExecution se, InfoflowCFG icfg) {
 		super(next, se, icfg);
 		this.authorizedTypes.add(Constants.LONG);
-		this.lmrh = new GetLongitudeRecognition(null, se);
-		this.lmrh = new GetLatitudeRecognition(this.lmrh, se);
+		this.nmrh = new GetLongitudeRecognition(null, se);
+		this.nmrh = new GetLatitudeRecognition(this.nmrh, se);
 	}
 }

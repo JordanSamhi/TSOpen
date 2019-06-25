@@ -22,7 +22,7 @@ import soot.tagkit.StringConstantValueTag;
 
 public class DateTimeRecognition extends TypeRecognitionHandler {
 
-	private DateTimeMethodsRecognitionHandler dtmr;
+	private DateTimeMethodsRecognitionHandler dtmrh;
 
 	public DateTimeRecognition(TypeRecognitionHandler next, SymbolicExecution se, InfoflowCFG icfg) {
 		super(next, se, icfg);
@@ -31,8 +31,8 @@ public class DateTimeRecognition extends TypeRecognitionHandler {
 		this.authorizedTypes.add(Constants.JAVA_UTIL_GREGORIAN_CALENDAR);
 		this.authorizedTypes.add(Constants.JAVA_TIME_LOCAL_DATE_TIME);
 		this.authorizedTypes.add(Constants.JAVA_TIME_LOCAL_DATE);
-		this.dtmr = new GetInstanceRecognition(null, se);
-		this.dtmr = new NowRecognition(this.dtmr, se);
+		this.dtmrh = new GetInstanceRecognition(null, se);
+		this.dtmrh = new NowRecognition(this.dtmrh, se);
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public class DateTimeRecognition extends TypeRecognitionHandler {
 			method = rightOpStaticInvokeExpr.getMethod();
 			args = rightOpStaticInvokeExpr.getArgs();
 			object = new ObjectValue(method.getDeclaringClass().getType(), args, this.se);
-			this.dtmr.recognizeDateTimeMethod(method, object);
+			this.dtmrh.recognizeDateTimeMethod(method, object);
 			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		}
 		return results;

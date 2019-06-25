@@ -20,7 +20,7 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public abstract class NumericRecognition extends TypeRecognitionHandler {
 
-	protected NumericMethodsRecognitionHandler lmrh;
+	protected NumericMethodsRecognitionHandler nmrh;
 
 	public NumericRecognition(TypeRecognitionHandler next, SymbolicExecution se, InfoflowCFG icfg) {
 		super(next, se, icfg);
@@ -55,7 +55,7 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 			return results;
 		}
 		object = new MethodRepresentationValue(base, args, method, this.se);
-		this.lmrh.recognizeNumericMethod(method, base, object);
+		this.nmrh.recognizeNumericMethod(method, base, object);
 		results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		return results;
 	}

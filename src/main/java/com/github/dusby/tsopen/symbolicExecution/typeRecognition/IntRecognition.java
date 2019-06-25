@@ -13,8 +13,8 @@ public class IntRecognition extends NumericRecognition {
 	public IntRecognition(TypeRecognitionHandler next, SymbolicExecution se, InfoflowCFG icfg) {
 		super(next, se, icfg);
 		this.authorizedTypes.add(Constants.INT);
-		this.lmrh = new GetMonthRecognition(null, se);
-		this.lmrh = new GetMinutesRecognition(this.lmrh, se);
-		this.lmrh = new GetSecondsRecognition(this.lmrh, se);
+		this.nmrh = new GetMonthRecognition(null, se);
+		this.nmrh = new GetMinutesRecognition(this.nmrh, se);
+		this.nmrh = new GetSecondsRecognition(this.nmrh, se);
 	}
 }

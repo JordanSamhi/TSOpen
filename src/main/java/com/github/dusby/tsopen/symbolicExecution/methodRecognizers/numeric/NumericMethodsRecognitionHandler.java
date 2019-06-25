@@ -1,8 +1,5 @@
 package com.github.dusby.tsopen.symbolicExecution.methodRecognizers.numeric;
 
-import java.util.List;
-
-import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
@@ -32,23 +29,5 @@ public abstract class NumericMethodsRecognitionHandler implements NumericMethods
 		else {
 			return false;
 		}
-	}
-
-	@Override
-	public boolean containsTag(Value base, String nowTag) {
-		List<SymbolicValue> values = null;
-		ContextualValues contextualValues = null;
-		if(base != null) {
-			contextualValues = this.se.getContext().get(base);
-			if(contextualValues != null) {
-				values = contextualValues.getLastCoherentValues();
-				for(SymbolicValue sv : values) {
-					if(sv.containsTag(nowTag)) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
 	}
 }

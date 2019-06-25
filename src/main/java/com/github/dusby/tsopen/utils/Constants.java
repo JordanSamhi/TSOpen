@@ -47,7 +47,7 @@ public class Constants {
 	public static final String MONTH_TAG = "#now/#month";
 	public static final String SMS_BODY_TAG = "#sms/#body";
 	public static final String SMS_SENDER_TAG = "#sms/#sender";
-	public static final String SUSPICIOUS_CMP = "#SuspiciousCmp";
+	public static final String SUSPICIOUS = "#Suspicious";
 
 	/**
 	 * Classes, types

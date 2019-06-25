@@ -58,9 +58,6 @@ public class SymbolicExecution extends ICFGForwardTraversal {
 			for(Pair<Value, SymbolicValue> p : results) {
 				value = p.getValue0();
 				symbolicValue = p.getValue1();
-				if(symbolicValue.hasTag()) {
-					this.logger.debug("{}", symbolicValue);
-				}
 				contextualValues = this.symbolicExecutionResults.get(value);
 				if(contextualValues == null) {
 					contextualValues = new ContextualValues(this);

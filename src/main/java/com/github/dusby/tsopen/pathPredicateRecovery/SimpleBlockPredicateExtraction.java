@@ -14,7 +14,6 @@ import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
 import soot.Unit;
-import soot.jimple.ConditionExpr;
 import soot.jimple.IfStmt;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
@@ -26,13 +25,13 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
  */
 public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 
-	private Map<Literal, ConditionExpr> literalToCondition = null;
+	private Map<Literal, IfStmt> literalToCondition = null;
 	private List<Edge> annotatedEdges;
 	private final FormulaFactory formulaFactory;
 
 	public SimpleBlockPredicateExtraction(InfoflowCFG icfg, SootMethod mainMethod) {
 		super(icfg, "Simple Block Extraction", mainMethod);
-		this.literalToCondition = new HashMap<Literal, ConditionExpr>();
+		this.literalToCondition = new HashMap<Literal, IfStmt>();
 		this.annotatedEdges = new ArrayList<Edge>();
 		this.formulaFactory = new FormulaFactory();
 	}
@@ -59,7 +58,7 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 				}else {
 					simplePredicate = this.formulaFactory.literal(condition, false);
 				}
-				this.literalToCondition.put(simplePredicate, (ConditionExpr) ifStmt.getCondition());
+				this.literalToCondition.put(simplePredicate, ifStmt);
 				edge.setPredicate(simplePredicate);
 			}
 		}
@@ -77,6 +76,13 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 			if(edge.correspondsTo(source, target)) {
 				return edge;
 			}
+		}
+		return null;
+	}
+
+	public IfStmt getCondtionFromLiteral(Literal l) {
+		if(this.literalToCondition.containsKey(l)) {
+			return this.literalToCondition.get(l);
 		}
 		return null;
 	}

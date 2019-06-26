@@ -97,15 +97,17 @@ public class PathPredicateRecovery extends ICFGBackwardTraversal {
 		Formula fullPath = this.getNodeFullPath(node);
 		IfStmt ifStmt = null;
 		List<Unit> blocks = this.guardedBlocks.get(ifStmt);
-		for(Literal lit : fullPath.literals()) {
-			ifStmt = this.sbpe.getCondtionFromLiteral(lit);
-			if(ifStmt != null) {
-				if(blocks == null) {
-					blocks = new ArrayList<Unit>();
-					this.guardedBlocks.put(ifStmt, blocks);
-				}
-				if(!blocks.contains(node)) {
-					blocks.add(node);
+		if(fullPath != null) {
+			for(Literal lit : fullPath.literals()) {
+				ifStmt = this.sbpe.getCondtionFromLiteral(lit);
+				if(ifStmt != null) {
+					if(blocks == null) {
+						blocks = new ArrayList<Unit>();
+						this.guardedBlocks.put(ifStmt, blocks);
+					}
+					if(!blocks.contains(node)) {
+						blocks.add(node);
+					}
 				}
 			}
 		}

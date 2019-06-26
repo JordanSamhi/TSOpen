@@ -57,6 +57,7 @@ public class Main {
 		sbpe = new SimpleBlockPredicateExtraction(icfg, dummyMainMethod);
 		ppr = new PathPredicateRecovery(icfg, sbpe, dummyMainMethod, options.hasExceptions());
 		se = new SymbolicExecution(icfg, dummyMainMethod);
+		plbr = new PotentialLogicBombsRecovery(sbpe, se, ppr);
 
 		sbpeThread = new Thread(sbpe, "Symbolic Block Predicate Extraction");
 		pprThread = new Thread(ppr, "Path Predicate Recovery");
@@ -80,7 +81,7 @@ public class Main {
 		} catch (InterruptedException e) {
 			logger.error(e.getMessage());
 		}
-		plbr = new PotentialLogicBombsRecovery(sbpe, se, ppr);
+
 		plbrThread.start();
 
 		try {

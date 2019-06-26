@@ -41,7 +41,7 @@ Two of them are currently required :
 java -jar TSOpen/target/TSOpen-X.Y-jar-with-dependencies.jar -f \<APK file> -p \<path/to/android/platforms>
 </pre>
 
-Indeed, one has to provide a file to analyze and the path to the android platforms folder (in Android SDL folder).
+Indeed, one has to provide a file to analyze and the path to the android platforms folder (in Android SDK folder).
 
 ## Built With
 

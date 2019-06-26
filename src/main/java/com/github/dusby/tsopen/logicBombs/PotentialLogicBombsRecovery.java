@@ -164,4 +164,8 @@ public class PotentialLogicBombsRecovery implements Runnable {
 	public List<IfStmt> getPotentialLogicBombs(){
 		return this.potentialLogicBombs;
 	}
+
+	public boolean hasLogicBombs() {
+		return !this.potentialLogicBombs.isEmpty();
+	}
 }

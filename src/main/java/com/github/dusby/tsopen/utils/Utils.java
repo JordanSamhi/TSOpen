@@ -11,6 +11,7 @@ import soot.Value;
 import soot.ValueBox;
 import soot.jimple.CaughtExceptionRef;
 import soot.jimple.internal.IdentityRefBox;
+import soot.tagkit.StringConstantValueTag;
 
 public class Utils {
 
@@ -31,20 +32,38 @@ public class Utils {
 		return false;
 	}
 
-	public static boolean containsTag(Value base, String nowTag, SymbolicExecution se) {
-		List<SymbolicValue> values = null;
-		ContextualValues contextualValues = null;
-		if(base != null) {
-			contextualValues = se.getContext().get(base);
-			if(contextualValues != null) {
-				values = contextualValues.getLastCoherentValues();
-				for(SymbolicValue sv : values) {
-					if(sv.containsTag(nowTag)) {
-						return true;
+	public static boolean containsTag(Value v, String tag, SymbolicExecution se) {
+		List<SymbolicValue> values = getSymbolicValues(v, se);
+		for(SymbolicValue sv : values) {
+			if(sv.containsTag(tag)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static void propagateTags(Value src, SymbolicValue dst, SymbolicExecution se) {
+		List<SymbolicValue> values = getSymbolicValues(src, se);
+		for(SymbolicValue sv : values) {
+			if(sv.hasTag()) {
+				for(StringConstantValueTag t : sv.getTags()) {
+					if(!dst.containsTag(t.getStringValue())) {
+						dst.addTag(new StringConstantValueTag(t.getStringValue()));
 					}
 				}
 			}
 		}
-		return false;
+	}
+
+	private static List<SymbolicValue> getSymbolicValues(Value v, SymbolicExecution se) {
+		List<SymbolicValue> values = null;
+		ContextualValues contextualValues = null;
+		if(v != null) {
+			contextualValues = se.getContext().get(v);
+			if(contextualValues != null) {
+				values = contextualValues.getLastCoherentValues();
+			}
+		}
+		return values;
 	}
 }

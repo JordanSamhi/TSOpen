@@ -31,6 +31,7 @@ public class DateTimeRecognition extends TypeRecognitionHandler {
 		this.authorizedTypes.add(Constants.JAVA_UTIL_GREGORIAN_CALENDAR);
 		this.authorizedTypes.add(Constants.JAVA_TIME_LOCAL_DATE_TIME);
 		this.authorizedTypes.add(Constants.JAVA_TIME_LOCAL_DATE);
+		this.authorizedTypes.add(Constants.JAVA_TEXT_SIMPLE_DATE_FORMAT);
 		this.dtmrh = new GetInstanceRecognition(null, se);
 		this.dtmrh = new NowRecognition(this.dtmrh, se);
 	}

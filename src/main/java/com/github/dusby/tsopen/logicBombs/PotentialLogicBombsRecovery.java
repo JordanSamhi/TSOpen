@@ -64,13 +64,13 @@ public class PotentialLogicBombsRecovery implements Runnable {
 			return true;
 		}
 		for(Unit block : guardedBlocks) {
-			this.logger.debug("{}", block);
 		}
 		return false;
 	}
 
 	private boolean isSensitive(List<Unit> guardedBlocks) {
-		// TODO Auto-generated method stub
+		for(Unit block : guardedBlocks) {
+		}
 		return false;
 	}
 

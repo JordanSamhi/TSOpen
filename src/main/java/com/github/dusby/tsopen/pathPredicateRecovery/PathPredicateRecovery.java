@@ -88,18 +88,19 @@ public class PathPredicateRecovery extends ICFGBackwardTraversal {
 			simplifiedPredicate = this.simplifier.apply(this.formulaFactory.or(nodePredicates), true);
 			this.nodeToFullPathPredicate.put(node, simplifiedPredicate);
 			if(!(node instanceof IfStmt)) {
-				this.computeGuardedBlock(node);
+				this.computeGuardedBlocks(node);
 			}
 		}
 	}
 
-	private void computeGuardedBlock(Unit node) {
+	private void computeGuardedBlocks(Unit node) {
 		Formula fullPath = this.getNodeFullPath(node);
 		IfStmt ifStmt = null;
-		List<Unit> blocks = this.guardedBlocks.get(ifStmt);
+		List<Unit> blocks = null;
 		if(fullPath != null) {
 			for(Literal lit : fullPath.literals()) {
 				ifStmt = this.sbpe.getCondtionFromLiteral(lit);
+				blocks = this.guardedBlocks.get(ifStmt);
 				if(ifStmt != null) {
 					if(blocks == null) {
 						blocks = new ArrayList<Unit>();

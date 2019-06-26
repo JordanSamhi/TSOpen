@@ -61,7 +61,9 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 					simplePredicate = this.formulaFactory.literal(condition, false);
 				}
 				this.literalToCondition.put(simplePredicate, ifStmt);
-				this.conditions.add(ifStmt);
+				if(!this.conditions.contains(ifStmt)) {
+					this.conditions.add(ifStmt);
+				}
 				edge.setPredicate(simplePredicate);
 			}
 		}

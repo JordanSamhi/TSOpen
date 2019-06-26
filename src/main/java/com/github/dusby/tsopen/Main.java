@@ -10,10 +10,13 @@ import com.github.dusby.tsopen.logicBombs.PotentialLogicBombsRecovery;
 import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecovery;
 import com.github.dusby.tsopen.pathPredicateRecovery.SimpleBlockPredicateExtraction;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
+import com.github.dusby.tsopen.utils.Constants;
 import com.github.dusby.tsopen.utils.TimeOut;
 
-import soot.Scene;
 import soot.SootMethod;
+import soot.jimple.ConditionExpr;
+import soot.jimple.IfStmt;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
@@ -50,7 +53,6 @@ public class Main {
 
 		mainProfiler.stop();
 		logger.info("CallGraph construction : {} ms", TimeUnit.MILLISECONDS.convert(mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS));
-		logger.info("CallGraph has {} edges", Scene.v().getCallGraph().size());
 
 		dummyMainMethod = sa.getDummyMainMethod();
 
@@ -59,10 +61,10 @@ public class Main {
 		se = new SymbolicExecution(icfg, dummyMainMethod);
 		plbr = new PotentialLogicBombsRecovery(sbpe, se, ppr, icfg);
 
-		sbpeThread = new Thread(sbpe, "Symbolic Block Predicate Extraction");
-		pprThread = new Thread(ppr, "Path Predicate Recovery");
-		seThread = new Thread(se, "Symbolic Execution");
-		plbrThread = new Thread(plbr, "Potential Logic Bomb Recovery");
+		sbpeThread = new Thread(sbpe, "sbpe");
+		pprThread = new Thread(ppr, "pprr");
+		seThread = new Thread(se, "syex");
+		plbrThread = new Thread(plbr, "plbr");
 
 		sbpeThread.start();
 		seThread.start();
@@ -82,6 +84,7 @@ public class Main {
 			logger.error(e.getMessage());
 		}
 
+		mainProfiler.start("plbr");
 		plbrThread.start();
 
 		try {
@@ -89,6 +92,25 @@ public class Main {
 		} catch (InterruptedException e) {
 			logger.error(e.getMessage());
 		}
+		mainProfiler.stop();
+		logger.info("Potential Logic Bombs Recovery : {} ms", TimeUnit.MILLISECONDS.convert(mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS));
+
+		logger.info("-------------------------------------------------------------------");
+
+		if(plbr.hasLogicBombs()) {
+			logger.info("Potential Logic bombs found : ");
+			for(IfStmt i : plbr.getPotentialLogicBombs()) {
+				logger.info("- {}", i);
+				for(SymbolicValue sv : se.getContextualValues(((ConditionExpr)i.getCondition()).getOp1()).getAllValues()) {
+					if(sv.containsTag(Constants.SUSPICIOUS)) {
+						logger.info("-- {}", sv.getValue());
+					}
+				}
+			}
+		}else {
+			logger.info("No logic bomb found");
+		}
+
 		timeOut.cancel();
 	}
 }

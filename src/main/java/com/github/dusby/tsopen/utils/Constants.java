@@ -24,7 +24,7 @@ public class Constants {
 	public static final String SUBSTRING = "substring";
 	public static final String TOSTRING = "toString";
 	public static final String GET_MESSAGE_BODY = "getMessageBody";
-	public static final String GET_DISPLAY_MESAGE_BODY = "getDisplayMessageBody";
+	public static final String GET_DISPLAY_MESSAGE_BODY = "getDisplayMessageBody";
 	public static final String GET_ORIGINATING_ADDRESS = "getOriginatingAddress";
 	public static final String GET_DISPLAY_ORIGINATING_ADDRESS = "getDisplayOriginatingAddress";
 	public static final String AFTER = "after";
@@ -33,6 +33,7 @@ public class Constants {
 	public static final String CONTAINS = "contains";
 	public static final String STARTS_WITH = "startsWith";
 	public static final String MATCHES = "matches";
+	public static final String FORMAT = "format";
 
 	/**
 	 * Tags

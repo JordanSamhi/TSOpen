@@ -108,6 +108,7 @@ public abstract class ICFGTraversal implements Runnable{
 		for(SootMethod callee : pointsTo) {
 			if(callee.getDeclaringClass().isApplicationClass()) {
 				if(!this.visitedMethods.contains(callee)) {
+					// TODO Check duplicate add
 					this.visitedMethods.add(callee);
 					this.methodWorkList.add(callee);
 				}

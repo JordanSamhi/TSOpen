@@ -1,6 +1,7 @@
 package com.github.dusby.tsopen.logicBombs;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecovery;
@@ -10,11 +11,14 @@ import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
 
+import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
+import soot.ValueBox;
 import soot.jimple.ConditionExpr;
 import soot.jimple.Constant;
 import soot.jimple.IfStmt;
+import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public class PotentialLogicBombsRecovery implements Runnable {
 
@@ -22,11 +26,17 @@ public class PotentialLogicBombsRecovery implements Runnable {
 	private final SymbolicExecution se;
 	private final PathPredicateRecovery ppr;
 	private List<IfStmt> potentialLogicBombs;
+	private final InfoflowCFG icfg;
+	private List<SootMethod> visitedMethods;
+	private List<IfStmt> visitedIfs;
 
-	public PotentialLogicBombsRecovery(SimpleBlockPredicateExtraction sbpe, SymbolicExecution se, PathPredicateRecovery ppr) {
+	public PotentialLogicBombsRecovery(SimpleBlockPredicateExtraction sbpe, SymbolicExecution se, PathPredicateRecovery ppr, InfoflowCFG icfg) {
 		this.sbpe = sbpe;
 		this.se = se;
 		this.ppr = ppr;
+		this.icfg = icfg;
+		this.visitedMethods = new ArrayList<SootMethod>();
+		this.visitedIfs = new ArrayList<IfStmt>();
 		this.potentialLogicBombs = new ArrayList<IfStmt>();
 	}
 
@@ -59,14 +69,52 @@ public class PotentialLogicBombsRecovery implements Runnable {
 			return true;
 		}
 		for(Unit block : guardedBlocks) {
+			for(ValueBox vb : block.getDefBoxes()) {
+				for(IfStmt i : this.getRelatedPredicates(vb.getValue())) {
+					if(ifStmt != i && !this.visitedIfs.contains(i)) {
+						this.visitedIfs.add(i);
+						if(this.controlSensitiveAction(i)) {
+							return true;
+						}
+					}
+				}
+			}
 		}
 		return false;
 	}
 
-	private boolean isSensitive(List<Unit> guardedBlocks) {
+	private List<IfStmt> getRelatedPredicates(Value value) {
+		List<IfStmt> ifs = new ArrayList<IfStmt>();
+		for(IfStmt ifStmt : this.sbpe.getConditions()) {
+			for(ValueBox vb : ifStmt.getUseBoxes()) {
+				if(vb.getValue() == value) {
+					ifs.add(ifStmt);
+				}
+			}
+		}
+		return ifs;
+	}
+
+	private boolean isSensitive(Collection<Unit> guardedBlocks) {
 		for(Unit block : guardedBlocks) {
+			for(SootMethod m : this.icfg.getCalleesOfCallAt(block)) {
+				if(!this.visitedMethods.contains(m)) {
+					this.visitedMethods.add(m);
+					if(this.isSensitiveMethod(m)) {
+						return true;
+					}
+					if(this.isSensitive(m.retrieveActiveBody().getUnits())) {
+						return true;
+					}
+				}
+			}
 		}
 		return false;
+	}
+
+	private boolean isSensitiveMethod(SootMethod m) {
+		// TODO Auto-generated method stub
+		return true;
 	}
 
 	private boolean isSuspicious(IfStmt ifStmt) {

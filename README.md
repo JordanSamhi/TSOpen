@@ -33,15 +33,19 @@ To run the tool, simply issue this command :
 java -jar TSOpen/target/TSOpen-X.Y-jar-with-dependencies.jar <i>options</i>
 </pre>
 
-There are multiples options to run the tool, use --help to see all of them.
-
-Two of them are currently required : 
+Two options are currently required : 
 
 ```
 java -jar TSOpen/target/TSOpen-X.Y-jar-with-dependencies.jar -f <APK file> -p <path/to/android/platforms>
 ```
 
 Indeed, one has to provide a file to analyze and the path to the android platforms folder (in Android SDK folder).
+
+Additional options : 
+
+* ```-e``` : Take exceptions into account during full path predicate recovery.
+* ```-t``` : Set a timeout for the tool (60 mins by default).
+Indeed, the tool faces NP-complete problems, therefore for some apps it can run indefinitely, that is why a timeout is useful in some cases.
 
 ## Built With
 

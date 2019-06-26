@@ -34,9 +34,11 @@ public class Utils {
 
 	public static boolean containsTag(Value v, String tag, SymbolicExecution se) {
 		List<SymbolicValue> values = getSymbolicValues(v, se);
-		for(SymbolicValue sv : values) {
-			if(sv.containsTag(tag)) {
-				return true;
+		if(values != null) {
+			for(SymbolicValue sv : values) {
+				if(sv.containsTag(tag)) {
+					return true;
+				}
 			}
 		}
 		return false;

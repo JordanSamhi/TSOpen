@@ -20,7 +20,7 @@ public class FormatRecognition extends StringMethodsRecognitionHandler {
 	@Override
 	public List<SymbolicValue> processStringMethod(SootMethod method, Value base, List<Value> args) {
 		List<SymbolicValue> results = new ArrayList<SymbolicValue>();
-		if(method.getName().equals(Constants.FORMAT) && base.getType().toString().equals(Constants.JAVA_TEXT_SIMPLE_DATE_FORMAT)) {
+		if(method.getName().equals(Constants.FORMAT) && base != null && base.getType().toString().equals(Constants.JAVA_TEXT_SIMPLE_DATE_FORMAT)) {
 			this.addSimpleResult(base, results);
 			for(Value arg : args) {
 				for(SymbolicValue sv : results) {

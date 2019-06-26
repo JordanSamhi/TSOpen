@@ -30,7 +30,7 @@ Where X.Y is the current version of the tool.
 To run the tool, simply issue this command : 
 
 <pre>
-java -jar TSOpen/target/TSOpen-X.Y-jar-with-dependencies.jar *options*
+java -jar TSOpen/target/TSOpen-X.Y-jar-with-dependencies.jar <i>options</i>
 </pre>
 
 There are multiples options to run the tool, use --help to see all of them.

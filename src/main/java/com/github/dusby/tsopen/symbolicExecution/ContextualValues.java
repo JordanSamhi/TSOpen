@@ -1,5 +1,6 @@
 package com.github.dusby.tsopen.symbolicExecution;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -34,7 +35,7 @@ public class ContextualValues {
 	 * Otherwise the last computed values
 	 * @return a list of symbolic values
 	 */
-	public List<SymbolicValue> getLastCoherentValues(){
+	public List<SymbolicValue> getLastCoherentValues() {
 		Iterator<Unit> it = this.se.getCurrentPath().descendingIterator();
 		Unit node = null;
 		LinkedList<SymbolicValue> lasts = null;
@@ -50,5 +51,13 @@ public class ContextualValues {
 			lasts = e.getValue();
 		}
 		return lasts;
+	}
+
+	public List<SymbolicValue> getAllValues() {
+		List<SymbolicValue> values = new ArrayList<SymbolicValue>();
+		for(Entry<Unit, LinkedList<SymbolicValue>> e : this.values.entrySet()) {
+			values.addAll(e.getValue());
+		}
+		return values;
 	}
 }

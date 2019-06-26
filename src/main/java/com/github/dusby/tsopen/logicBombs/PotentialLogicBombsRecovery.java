@@ -3,9 +3,6 @@ package com.github.dusby.tsopen.logicBombs;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecovery;
 import com.github.dusby.tsopen.pathPredicateRecovery.SimpleBlockPredicateExtraction;
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
@@ -25,8 +22,6 @@ public class PotentialLogicBombsRecovery implements Runnable {
 	private final SymbolicExecution se;
 	private final PathPredicateRecovery ppr;
 	private List<IfStmt> potentialLogicBombs;
-
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public PotentialLogicBombsRecovery(SimpleBlockPredicateExtraction sbpe, SymbolicExecution se, PathPredicateRecovery ppr) {
 		this.sbpe = sbpe;
@@ -90,10 +85,10 @@ public class PotentialLogicBombsRecovery implements Runnable {
 			contextualValuesOp2 = this.se.getContextualValues(op2);
 		}
 		if(contextualValuesOp1 != null) {
-			valuesOp1 = contextualValuesOp1.getLastCoherentValues();
+			valuesOp1 = contextualValuesOp1.getAllValues();
 		}
 		if(contextualValuesOp2 != null) {
-			valuesOp2 = contextualValuesOp2.getLastCoherentValues();
+			valuesOp2 = contextualValuesOp2.getAllValues();
 		}
 
 		if(valuesOp1 != null && (op2 instanceof Constant)) {

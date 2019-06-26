@@ -9,6 +9,7 @@ import org.javatuples.Pair;
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.AppendRecognition;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.FormatRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.GetMessageBodyRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.StringMethodsRecognitionHandler;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.SubStringRecognition;
@@ -19,6 +20,7 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresenta
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
+import com.github.dusby.tsopen.utils.Utils;
 
 import soot.Local;
 import soot.SootMethod;
@@ -45,18 +47,21 @@ public class StringRecognition extends TypeRecognitionHandler{
 		this.smrh = new ToStringRecognition(this.smrh, se);
 		this.smrh = new SubStringRecognition(this.smrh, se);
 		this.smrh = new GetMessageBodyRecognition(this.smrh, se);
+		this.smrh = new FormatRecognition(this.smrh, se);
 		this.authorizedTypes.add(Constants.JAVA_LANG_STRING);
 		this.authorizedTypes.add(Constants.JAVA_LANG_STRING_BUFFER);
 		this.authorizedTypes.add(Constants.JAVA_LANG_STRING_BUILDER);
 	}
 
-	private void checkAndProcessContextValues(ContextualValues contextualValues, List<Pair<Value, SymbolicValue>> results, Value leftOp) {
+	private void checkAndProcessContextValues(Value v, List<Pair<Value, SymbolicValue>> results, Value leftOp) {
+		ContextualValues contextualValues = this.se.getContext().get(v);
 		List<SymbolicValue> values = null;
 		if(contextualValues == null) {
 			results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue(StringConstant.v(Constants.UNKNOWN_STRING))));
 		}else {
 			values = contextualValues.getLastCoherentValues();
 			for(SymbolicValue sv : values) {
+				Utils.propagateTags(v, sv, this.se);
 				results.add(new Pair<Value, SymbolicValue>(leftOp, sv));
 			}
 		}
@@ -74,7 +79,6 @@ public class StringRecognition extends TypeRecognitionHandler{
 		List<Value> args = null;
 		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
 		CastExpr rightOpExpr = null;
-		ContextualValues contextualValues = null;
 		Collection<Unit> callers = null;
 		InvokeStmt invStmtCaller = null;
 		AssignStmt assignCaller = null;
@@ -97,16 +101,13 @@ public class StringRecognition extends TypeRecognitionHandler{
 						invExprCaller = ((InvokeStmt)callerRightOp).getInvokeExpr();
 					}
 				}
-				contextualValues = this.se.getContext().get(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()));
-				this.checkAndProcessContextValues(contextualValues, results, leftOp);
+				this.checkAndProcessContextValues(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()), results, leftOp);
 			}
 		}else if(rightOp instanceof Local) {
-			contextualValues = this.se.getContext().get(rightOp);
-			this.checkAndProcessContextValues(contextualValues, results, leftOp);
+			this.checkAndProcessContextValues(rightOp, results, leftOp);
 		}else if (rightOp instanceof CastExpr) {
 			rightOpExpr = (CastExpr) rightOp;
-			contextualValues = this.se.getContext().get(rightOpExpr.getOp());
-			this.checkAndProcessContextValues(contextualValues, results, leftOp);
+			this.checkAndProcessContextValues(rightOpExpr.getOp(), results, leftOp);
 		}else if(rightOp instanceof InvokeExpr) {
 			rightOpInvokeExpr = (InvokeExpr) rightOp;
 			method = rightOpInvokeExpr.getMethod();
@@ -128,25 +129,25 @@ public class StringRecognition extends TypeRecognitionHandler{
 	public void handleConstructor(InvokeExpr invExprUnit, Value base, List<Pair<Value, SymbolicValue>> results) {
 		Value arg = null;
 		List<Value> args = invExprUnit.getArgs();
-		ContextualValues contextualValues = null;
-
+		ConstantValue cv = null;
 		if(args.size() == 0) {
 			results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue(StringConstant.v(Constants.EMPTY_STRING))));
 		}else {
 			arg = args.get(0);
 			if(arg instanceof Local) {
-				contextualValues = this.se.getContext().get(arg);
-				this.checkAndProcessContextValues(contextualValues, results, base);
-			}else if(arg instanceof StringConstant) {
-				results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue((StringConstant)arg)));
+				this.checkAndProcessContextValues(arg, results, base);
 			}else {
-				results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue(StringConstant.v(Constants.EMPTY_STRING))));
+				if(arg instanceof StringConstant) {
+					cv = new ConstantValue((StringConstant)arg);
+				}
+				else {
+					cv = new ConstantValue(StringConstant.v(Constants.EMPTY_STRING));
+				}
+				results.add(new Pair<Value, SymbolicValue>(base, cv));
 			}
 		}
 	}
 
 	@Override
 	public void handleConstructorTag(List<Value> args, ObjectValue object) {}
-
-
 }

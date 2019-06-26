@@ -53,7 +53,6 @@ public class SymbolicExecution extends ICFGForwardTraversal {
 		List<Pair<Value, SymbolicValue>> results = this.trh.recognizeType(node);
 		Value value = null;
 		SymbolicValue symbolicValue = null;
-
 		if(results != null) {
 			for(Pair<Value, SymbolicValue> p : results) {
 				value = p.getValue0();

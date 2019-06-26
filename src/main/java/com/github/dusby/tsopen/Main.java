@@ -89,8 +89,6 @@ public class Main {
 		} catch (InterruptedException e) {
 			logger.error(e.getMessage());
 		}
-
-		System.out.println(plbr.getPotentialLogicBombs().size());
 		timeOut.cancel();
 	}
 }

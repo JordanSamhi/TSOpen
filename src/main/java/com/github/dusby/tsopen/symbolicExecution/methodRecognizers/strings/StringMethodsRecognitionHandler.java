@@ -9,6 +9,7 @@ import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.UnknownValue;
+import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
 import soot.Value;
@@ -40,14 +41,15 @@ public abstract class StringMethodsRecognitionHandler implements StringMethodsRe
 		}
 	}
 
-	protected void addSimpleResult(Value effectiveArg, List<SymbolicValue> results) {
-		ContextualValues contextualValues = this.se.getContext().get(effectiveArg);
+	protected void addSimpleResult(Value v, List<SymbolicValue> results) {
+		ContextualValues contextualValues = this.se.getContext().get(v);
 		List<SymbolicValue> values = null;
 		if(contextualValues == null) {
 			results.add(new UnknownValue());
 		}else {
 			values = contextualValues.getLastCoherentValues();
 			for(SymbolicValue sv : values) {
+				Utils.propagateTags(v, sv, this.se);
 				results.add(sv);
 			}
 		}

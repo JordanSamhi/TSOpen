@@ -21,13 +21,17 @@ public class GetMessageBodyRecognition extends StringMethodsRecognitionHandler {
 	@Override
 	public List<SymbolicValue> processStringMethod(SootMethod method, Value base, List<Value> args) {
 		List<SymbolicValue> results = new ArrayList<SymbolicValue>();
+		StringConstantValueTag scvt = null;
 		MethodRepresentationValue mrv = new MethodRepresentationValue(base, args, method, this.se);
-		if(method.getName().equals(Constants.GET_MESSAGE_BODY) || method.getName().equals(Constants.GET_DISPLAY_MESAGE_BODY)) {
-			mrv.addTag(new StringConstantValueTag(Constants.SMS_BODY_TAG));
+		if(method.getName().equals(Constants.GET_MESSAGE_BODY) || method.getName().equals(Constants.GET_DISPLAY_MESSAGE_BODY)) {
+			scvt = new StringConstantValueTag(Constants.SMS_BODY_TAG);
 		}else if(method.getName().equals(Constants.GET_ORIGINATING_ADDRESS) || method.getName().equals(Constants.GET_DISPLAY_ORIGINATING_ADDRESS)) {
-			mrv.addTag(new StringConstantValueTag(Constants.SMS_SENDER_TAG));
+			scvt = new StringConstantValueTag(Constants.SMS_SENDER_TAG);
 		}
-		results.add(mrv);
+		if(scvt != null) {
+			mrv.addTag(scvt);
+			results.add(mrv);
+		}
 		return results;
 	}
 }

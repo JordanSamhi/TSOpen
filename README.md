@@ -37,9 +37,9 @@ There are multiples options to run the tool, use --help to see all of them.
 
 Two of them are currently required : 
 
-<pre>
-java -jar TSOpen/target/TSOpen-X.Y-jar-with-dependencies.jar -f \<APK file> -p \<path/to/android/platforms>
-</pre>
+```
+java -jar TSOpen/target/TSOpen-X.Y-jar-with-dependencies.jar -f <APK file> -p <path/to/android/platforms>
+```
 
 Indeed, one has to provide a file to analyze and the path to the android platforms folder (in Android SDK folder).
 

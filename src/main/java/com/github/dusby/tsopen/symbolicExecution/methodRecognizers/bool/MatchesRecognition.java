@@ -24,7 +24,9 @@ public class MatchesRecognition extends BooleanMethodsRecognitionHandler {
 		String methodName = method.getName();
 		if(methodName.equals(Constants.MATCHES)) {
 			firstArg = args.get(0);
-			if(Utils.containsTag(base, Constants.SMS_BODY_TAG, this.se) || Utils.containsTag(base, Constants.SMS_SENDER_TAG, this.se)) {
+			if(Utils.containsTag(base, Constants.SMS_BODY_TAG, this.se)
+					|| Utils.containsTag(base, Constants.SMS_SENDER_TAG, this.se)
+					|| Utils.containsTag(base, Constants.NOW_TAG, this.se)) {
 				if(firstArg instanceof Constant) {
 					sv.addTag(new StringConstantValueTag(Constants.SUSPICIOUS));
 					return true;

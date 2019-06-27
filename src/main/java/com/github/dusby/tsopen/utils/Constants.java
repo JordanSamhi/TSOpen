@@ -70,4 +70,9 @@ public class Constants {
 	public static final String INT = "int";
 	public static final String LONG = "long";
 	public static final String BOOLEAN = "boolean";
+
+	/**
+	 * Files
+	 */
+	public static final String SENSITIVE_METHODS_FILE = "src/main/resources/sensitiveMethods.pscout";
 }

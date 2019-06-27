@@ -29,6 +29,7 @@ public class Main {
 	public static void main(String[] args) {
 		CommandLineOptions options = new CommandLineOptions(args);
 		InfoflowAndroidConfiguration ifac = new InfoflowAndroidConfiguration();
+		ifac.setIgnoreFlowsInSystemPackages(false);
 		SetupApplication sa = null;
 		InfoflowCFG icfg = null;
 		SootMethod dummyMainMethod = null;
@@ -59,7 +60,7 @@ public class Main {
 		sbpe = new SimpleBlockPredicateExtraction(icfg, dummyMainMethod);
 		ppr = new PathPredicateRecovery(icfg, sbpe, dummyMainMethod, options.hasExceptions());
 		se = new SymbolicExecution(icfg, dummyMainMethod);
-		plbr = new PotentialLogicBombsRecovery(sbpe, se, ppr, icfg);
+		plbr = new PotentialLogicBombsRecovery(sbpe, se, ppr);
 
 		sbpeThread = new Thread(sbpe, "sbpe");
 		pprThread = new Thread(ppr, "pprr");

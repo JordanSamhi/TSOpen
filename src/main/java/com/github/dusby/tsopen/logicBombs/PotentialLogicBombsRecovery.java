@@ -1,8 +1,15 @@
 package com.github.dusby.tsopen.logicBombs;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecovery;
 import com.github.dusby.tsopen.pathPredicateRecovery.SimpleBlockPredicateExtraction;
@@ -18,7 +25,7 @@ import soot.ValueBox;
 import soot.jimple.ConditionExpr;
 import soot.jimple.Constant;
 import soot.jimple.IfStmt;
-import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
+import soot.jimple.InvokeExpr;
 
 public class PotentialLogicBombsRecovery implements Runnable {
 
@@ -26,15 +33,15 @@ public class PotentialLogicBombsRecovery implements Runnable {
 	private final SymbolicExecution se;
 	private final PathPredicateRecovery ppr;
 	private List<IfStmt> potentialLogicBombs;
-	private final InfoflowCFG icfg;
 	private List<SootMethod> visitedMethods;
 	private List<IfStmt> visitedIfs;
 
-	public PotentialLogicBombsRecovery(SimpleBlockPredicateExtraction sbpe, SymbolicExecution se, PathPredicateRecovery ppr, InfoflowCFG icfg) {
+	protected Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	public PotentialLogicBombsRecovery(SimpleBlockPredicateExtraction sbpe, SymbolicExecution se, PathPredicateRecovery ppr) {
 		this.sbpe = sbpe;
 		this.se = se;
 		this.ppr = ppr;
-		this.icfg = icfg;
 		this.visitedMethods = new ArrayList<SootMethod>();
 		this.visitedIfs = new ArrayList<IfStmt>();
 		this.potentialLogicBombs = new ArrayList<IfStmt>();
@@ -97,13 +104,13 @@ public class PotentialLogicBombsRecovery implements Runnable {
 
 	private boolean isSensitive(Collection<Unit> guardedBlocks) {
 		for(Unit block : guardedBlocks) {
-			for(SootMethod m : this.icfg.getCalleesOfCallAt(block)) {
+			for(SootMethod m : this.getInvokedMethods(block)) {
 				if(!this.visitedMethods.contains(m)) {
 					this.visitedMethods.add(m);
 					if(this.isSensitiveMethod(m)) {
 						return true;
 					}
-					if(this.isSensitive(m.retrieveActiveBody().getUnits())) {
+					if(m.getDeclaringClass().isApplicationClass() && this.isSensitive(m.retrieveActiveBody().getUnits())) {
 						return true;
 					}
 				}
@@ -112,9 +119,42 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		return false;
 	}
 
+	private List<SootMethod> getInvokedMethods(Unit block) {
+		List<SootMethod> methods = new ArrayList<SootMethod>();
+		Value value = null;
+		for(ValueBox v : block.getUseAndDefBoxes()) {
+			value = v.getValue();
+			if(value instanceof InvokeExpr) {
+				methods.add(((InvokeExpr)value).getMethod());
+			}
+		}
+		return methods;
+	}
+
 	private boolean isSensitiveMethod(SootMethod m) {
-		// TODO Auto-generated method stub
-		return true;
+		FileInputStream fis = null;
+		BufferedReader br = null;
+		String line = null;
+		try {
+			fis = new FileInputStream(Constants.SENSITIVE_METHODS_FILE);
+			br = new BufferedReader(new InputStreamReader(fis));
+			while ((line = br.readLine()) != null)   {
+				if(m.getSignature().equals(line)) {
+					return true;
+				}
+			}
+		} catch (IOException e) {
+			this.logger.error(e.getMessage());
+		} finally {
+			try {
+				br.close();
+				fis.close();
+			} catch (IOException e) {
+				this.logger.error(e.getMessage());
+			} finally {
+			}
+		}
+		return false;
 	}
 
 	private boolean isSuspicious(IfStmt ifStmt) {

@@ -16,6 +16,7 @@ public class Constants {
 	public static final String GET_LONGITUDE = "getLongitude";
 	public static final String GET_LATITUDE = "getLatitude";
 	public static final String CURRENT_TIME_MILLIS = "currentTimeMillis";
+	public static final String SET_TO_NOW = "setToNow";
 	public static final String GET_MINUTES = "getMinutes";
 	public static final String GET_SECONDS = "getSeconds";
 	public static final String GET_MONTH = "getMonth";
@@ -59,6 +60,7 @@ public class Constants {
 	public static final String JAVA_UTIL_GREGORIAN_CALENDAR = "java.util.Calendar";
 	public static final String JAVA_TIME_LOCAL_DATE_TIME = "java.time.LocalDateTime";
 	public static final String JAVA_TIME_LOCAL_DATE = "java.time.LocalDate";
+	public static final String ANDROID_TEXT_FORMAT_TIME = "android.text.format.Time";
 	public static final String JAVA_LANG_STRING = "java.lang.String";
 	public static final String JAVA_LANG_STRING_BUILDER = "java.lang.StringBuilder";
 	public static final String JAVA_LANG_STRING_BUFFER = "java.lang.StringBuffer";

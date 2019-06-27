@@ -178,7 +178,6 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		if(contextualValuesOp2 != null) {
 			valuesOp2 = contextualValuesOp2.getAllValues();
 		}
-
 		if(valuesOp1 != null && (op2 instanceof Constant)) {
 			values = valuesOp1;
 		}else if (valuesOp2 != null && (op1 instanceof Constant)) {
@@ -193,9 +192,39 @@ public class PotentialLogicBombsRecovery implements Runnable {
 						|| sv.containsTag(Constants.LONGITUDE_TAG)
 						|| sv.containsTag(Constants.LATITUDE_TAG)
 						|| sv.containsTag(Constants.CURRENT_TIME_MILLIS)
+						|| sv.containsTag(Constants.NOW_TAG)
 						|| sv.containsTag(Constants.SUSPICIOUS)) {
 					return true;
 				}
+			}
+		}
+		if(!(op1 instanceof Constant) && !(op2 instanceof Constant)) {
+			if(valuesOp1 != null) {
+				for(SymbolicValue sv1 : valuesOp1) {
+					if(sv1.containsTag(Constants.HERE_TAG)
+							|| sv1.containsTag(Constants.NOW_TAG)
+							|| sv1.containsTag(Constants.LATITUDE_TAG)
+							|| sv1.containsTag(Constants.LONGITUDE_TAG)
+							|| sv1.containsTag(Constants.MINUTES_TAG)
+							|| sv1.containsTag(Constants.SECONDS_TAG)
+							|| sv1.containsTag(Constants.MONTH_TAG)) {
+						return true;
+					}
+				}
+			}
+			if(valuesOp2 != null) {
+				for(SymbolicValue sv2 : valuesOp2) {
+					if(sv2.containsTag(Constants.HERE_TAG)
+							|| sv2.containsTag(Constants.NOW_TAG)
+							|| sv2.containsTag(Constants.LATITUDE_TAG)
+							|| sv2.containsTag(Constants.LONGITUDE_TAG)
+							|| sv2.containsTag(Constants.MINUTES_TAG)
+							|| sv2.containsTag(Constants.SECONDS_TAG)
+							|| sv2.containsTag(Constants.MONTH_TAG)) {
+						return true;
+					}
+				}
+
 			}
 		}
 		return false;

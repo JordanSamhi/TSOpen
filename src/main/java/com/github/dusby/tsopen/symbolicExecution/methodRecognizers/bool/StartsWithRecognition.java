@@ -33,5 +33,4 @@ public class StartsWithRecognition extends BooleanMethodsRecognitionHandler {
 		}
 		return false;
 	}
-
 }

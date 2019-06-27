@@ -70,4 +70,7 @@ public class LocationRecognition extends TypeRecognitionHandler {
 		}
 		return results;
 	}
+
+	@Override
+	protected void handleInvokeTag(List<Value> args, Value base, SymbolicValue object, SootMethod method) {}
 }

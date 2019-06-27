@@ -9,6 +9,7 @@ import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.dateTime.DateTimeMethodsRecognitionHandler;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.dateTime.GetInstanceRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.dateTime.NowRecognition;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.dateTime.SetToNowRecognition;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
@@ -32,8 +33,10 @@ public class DateTimeRecognition extends TypeRecognitionHandler {
 		this.authorizedTypes.add(Constants.JAVA_TIME_LOCAL_DATE_TIME);
 		this.authorizedTypes.add(Constants.JAVA_TIME_LOCAL_DATE);
 		this.authorizedTypes.add(Constants.JAVA_TEXT_SIMPLE_DATE_FORMAT);
+		this.authorizedTypes.add(Constants.ANDROID_TEXT_FORMAT_TIME);
 		this.dtmrh = new GetInstanceRecognition(null, se);
 		this.dtmrh = new NowRecognition(this.dtmrh, se);
+		this.dtmrh = new SetToNowRecognition(this.dtmrh, se);
 	}
 
 	@Override
@@ -62,5 +65,10 @@ public class DateTimeRecognition extends TypeRecognitionHandler {
 		if(args.size() == 0) {
 			object.addTag(new StringConstantValueTag(Constants.NOW_TAG));
 		}
+	}
+
+	@Override
+	protected void handleInvokeTag(List<Value> args, Value base, SymbolicValue object, SootMethod method) {
+		this.dtmrh.recognizeDateTimeMethod(method, object);
 	}
 }

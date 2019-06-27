@@ -46,11 +46,13 @@ public class Utils {
 
 	public static void propagateTags(Value src, SymbolicValue dst, SymbolicExecution se) {
 		List<SymbolicValue> values = getSymbolicValues(src, se);
-		for(SymbolicValue sv : values) {
-			if(sv.hasTag()) {
-				for(StringConstantValueTag t : sv.getTags()) {
-					if(!dst.containsTag(t.getStringValue())) {
-						dst.addTag(new StringConstantValueTag(t.getStringValue()));
+		if(values != null) {
+			for(SymbolicValue sv : values) {
+				if(sv.hasTag()) {
+					for(StringConstantValueTag t : sv.getTags()) {
+						if(!dst.containsTag(t.getStringValue())) {
+							dst.addTag(new StringConstantValueTag(t.getStringValue()));
+						}
 					}
 				}
 			}

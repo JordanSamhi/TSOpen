@@ -2,9 +2,11 @@ package com.github.dusby.tsopen.symbolicExecution.methodRecognizers.numeric;
 
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
+import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
 import soot.Value;
+import soot.tagkit.StringConstantValueTag;
 
 public abstract class NumericMethodsRecognitionHandler implements NumericMethodsRecognition {
 
@@ -29,5 +31,25 @@ public abstract class NumericMethodsRecognitionHandler implements NumericMethods
 		else {
 			return false;
 		}
+	}
+
+	@Override
+	public boolean genericProcessNumericMethod(SootMethod method, Value base, SymbolicValue sv,
+			String className, String methodName, String containedTag, String addedTag) {
+		if(method.getDeclaringClass().getName().equals(className) && method.getName().equals(methodName)) {
+			if(this.isTagHandled(containedTag, addedTag, base, sv)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean isTagHandled(String containedTag, String addedTag, Value base, SymbolicValue sv) {
+		if(Utils.containsTag(base, containedTag, this.se)) {
+			sv.addTag(new StringConstantValueTag(addedTag));
+			return true;
+		}
+		return false;
 	}
 }

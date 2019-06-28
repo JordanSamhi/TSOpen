@@ -11,10 +11,9 @@ public class ConstantValue extends ConcreteValue {
 		this.constant = c;
 	}
 
-	//FIXME find better solution
 	@Override
 	public String getValue() {
-		return this.constant.toString().replace("\"", "").replace("\\", "");
+		return this.constant.toString();
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package com.github.dusby.tsopen;
 
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -99,11 +101,10 @@ public class Main {
 
 		if(plbr.hasPotentialLogicBombs()) {
 			logger.info("Potential Logic bombs found : ");
-			for(IfStmt i : plbr.getPotentialLogicBombsIfs()) {
-				logger.info("- {}", i);
-				//TODO modify output
-				for(SymbolicValue sv : se.getContextualValues(((ConditionExpr)i.getCondition()).getOp1()).getAllValues()) {
-					logger.info("-- {}{}{}", sv.getValue(), ((ConditionExpr)i.getCondition()).getSymbol(), ((ConditionExpr)i.getCondition()).getOp2());
+			for(Entry<IfStmt, List<SymbolicValue>> e : plbr.getPotentialLogicBombs().entrySet()) {
+				logger.info("- {}", e.getKey());
+				for(SymbolicValue sv : e.getValue()) {
+					logger.info("-- {}", sv.getValue());
 				}
 			}
 		}else {

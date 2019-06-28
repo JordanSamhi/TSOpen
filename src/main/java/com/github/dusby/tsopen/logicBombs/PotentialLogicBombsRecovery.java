@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +29,14 @@ import soot.jimple.Constant;
 import soot.jimple.IfStmt;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
+import soot.jimple.NullConstant;
 
 public class PotentialLogicBombsRecovery implements Runnable {
 
 	private final SimpleBlockPredicateExtraction sbpe;
 	private final SymbolicExecution se;
 	private final PathPredicateRecovery ppr;
-	private List<IfStmt> potentialLogicBombsIfs;
-	private List<SymbolicValue> potentialLogicBombsValues;
+	private Map<IfStmt, List<SymbolicValue>> potentialLogicBombs;
 	private List<SootMethod> visitedMethods;
 	private List<IfStmt> visitedIfs;
 
@@ -46,8 +48,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		this.ppr = ppr;
 		this.visitedMethods = new ArrayList<SootMethod>();
 		this.visitedIfs = new ArrayList<IfStmt>();
-		this.potentialLogicBombsIfs = new ArrayList<IfStmt>();
-		this.potentialLogicBombsValues = new ArrayList<SymbolicValue>();
+		this.potentialLogicBombs = new HashMap<IfStmt, List<SymbolicValue>>();
 	}
 
 	@Override
@@ -57,18 +58,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 
 	private void retrievePotentialLogicBombs() {
 		for(IfStmt ifStmt : this.sbpe.getConditions()) {
-			if(this.isTrigger(ifStmt)) {
-				if(!this.potentialLogicBombsIfs.contains(ifStmt)) {
-					this.potentialLogicBombsIfs.add(ifStmt);
-				}
-				for(SymbolicValue sv : this.se.getContextualValues(((ConditionExpr)ifStmt.getCondition()).getOp1()).getAllValues()) {
-					if(sv.containsTag(Constants.SUSPICIOUS)) {
-						if(!this.potentialLogicBombsValues.contains(sv)) {
-							this.potentialLogicBombsValues.add(sv);
-						}
-					}
-				}
-			}
+			this.isTrigger(ifStmt);
 		}
 	}
 
@@ -77,7 +67,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 			return false;
 		}
 		if(!this.isSuspiciousAfterPostFilters(ifStmt)) {
-			return true;
+			return false;
 		}
 		if(this.controlSensitiveAction(ifStmt)) {
 			return true;
@@ -94,7 +84,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		List<SymbolicValue> valuesOp1 = null,
 				valuesOp2 = null,
 				values = null;
-		IntConstant constant = null;
+		Constant constant = null;
 
 		if(!(op1 instanceof Constant)) {
 			contextualValuesOp1 = this.se.getContextualValues(op1);
@@ -110,14 +100,10 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		}
 		if(valuesOp1 != null && (op2 instanceof Constant)) {
 			values = valuesOp1;
-			if(op2 instanceof IntConstant) {
-				constant = (IntConstant) op2;
-			}
+			constant = (Constant) op2;
 		}else if (valuesOp2 != null && (op1 instanceof Constant)) {
 			values = valuesOp2;
-			if(op1 instanceof IntConstant) {
-				constant = (IntConstant) op1;
-			}
+			constant = (Constant) op1;
 		}
 
 		if(values != null) {
@@ -137,12 +123,25 @@ public class PotentialLogicBombsRecovery implements Runnable {
 						|| sv.containsTag(Constants.SMS_BODY_TAG)
 						|| sv.containsTag(Constants.SUSPICIOUS))
 						&& (constant != null)
-						&& (constant.value == 0 || constant.value == -1)) {
-					return false;
+						&& (constant instanceof IntConstant && ((IntConstant)constant).value == -1
+						|| (constant instanceof NullConstant))) {
+					continue;
+				}else if(!sv.hasTag()) {
+					continue;
 				}
+				this.addPotentialLogicBomb(ifStmt, sv);
 			}
 		}
-		return false;
+		return true;
+	}
+
+	private void addPotentialLogicBomb(IfStmt ifStmt, SymbolicValue sv) {
+		List<SymbolicValue> lbs = this.potentialLogicBombs.get(ifStmt);
+		if(lbs == null) {
+			lbs = new ArrayList<SymbolicValue>();
+			this.potentialLogicBombs.put(ifStmt, lbs);
+		}
+		lbs.add(sv);
 	}
 
 	private boolean controlSensitiveAction(IfStmt ifStmt) {
@@ -162,7 +161,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 				}
 			}
 		}
-		return true;
+		return false;
 	}
 
 	private List<IfStmt> getRelatedPredicates(Value value) {
@@ -310,15 +309,11 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		return false;
 	}
 
-	public List<IfStmt> getPotentialLogicBombsIfs(){
-		return this.potentialLogicBombsIfs;
-	}
-
-	public List<SymbolicValue> getPotentialLogicBombsValues(){
-		return this.potentialLogicBombsValues;
+	public Map<IfStmt, List<SymbolicValue>> getPotentialLogicBombs(){
+		return this.potentialLogicBombs;
 	}
 
 	public boolean hasPotentialLogicBombs() {
-		return !this.potentialLogicBombsIfs.isEmpty();
+		return !this.potentialLogicBombs.isEmpty();
 	}
 }

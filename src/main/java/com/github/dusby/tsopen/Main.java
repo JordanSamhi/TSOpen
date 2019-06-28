@@ -11,7 +11,6 @@ import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecovery;
 import com.github.dusby.tsopen.pathPredicateRecovery.SimpleBlockPredicateExtraction;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
-import com.github.dusby.tsopen.utils.Constants;
 import com.github.dusby.tsopen.utils.TimeOut;
 
 import soot.SootMethod;
@@ -98,14 +97,13 @@ public class Main {
 
 		logger.info("-------------------------------------------------------------------");
 
-		if(plbr.hasLogicBombs()) {
+		if(plbr.hasPotentialLogicBombs()) {
 			logger.info("Potential Logic bombs found : ");
-			for(IfStmt i : plbr.getPotentialLogicBombs()) {
+			for(IfStmt i : plbr.getPotentialLogicBombsIfs()) {
 				logger.info("- {}", i);
+				//TODO modify output
 				for(SymbolicValue sv : se.getContextualValues(((ConditionExpr)i.getCondition()).getOp1()).getAllValues()) {
-					if(sv.containsTag(Constants.SUSPICIOUS)) {
-						logger.info("-- {}", sv.getValue());
-					}
+					logger.info("-- {}{}{}", sv.getValue(), ((ConditionExpr)i.getCondition()).getSymbol(), ((ConditionExpr)i.getCondition()).getOp2());
 				}
 			}
 		}else {

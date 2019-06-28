@@ -18,7 +18,7 @@ import soot.Value;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.InstanceInvokeExpr;
-import soot.jimple.StaticInvokeExpr;
+import soot.jimple.InvokeExpr;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public abstract class NumericRecognition extends TypeRecognitionHandler {
@@ -38,25 +38,19 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 				rightOp = defUnit.getRightOp(),
 				base = null;
 		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
-		InstanceInvokeExpr rightOpInvExpr = null;
-		StaticInvokeExpr rightOpStExpr = null;
+		InvokeExpr rightOpInvExpr = null;
 		SootMethod method = null;
 		List<Value> args = null;
 		SymbolicValue object = null;
 		InstanceFieldRef field = null;
 
-		//TODO factorize
-		if(rightOp instanceof InstanceInvokeExpr) {
-			rightOpInvExpr = (InstanceInvokeExpr) rightOp;
+		if(rightOp instanceof InvokeExpr) {
+			rightOpInvExpr = (InvokeExpr) rightOp;
 			method = rightOpInvExpr.getMethod();
 			args = rightOpInvExpr.getArgs();
-			base = rightOpInvExpr.getBase();
-			object = new MethodRepresentationValue(base, args, method, this.se);
-			this.nmrh.recognizeNumericMethod(method, base, object);
-		}else if (rightOp instanceof StaticInvokeExpr){
-			rightOpStExpr = (StaticInvokeExpr) rightOp;
-			method = rightOpStExpr.getMethod();
-			args = rightOpStExpr.getArgs();
+			if(rightOp instanceof InstanceInvokeExpr) {
+				base = ((InstanceInvokeExpr)rightOpInvExpr).getBase();
+			}
 			object = new MethodRepresentationValue(base, args, method, this.se);
 			this.nmrh.recognizeNumericMethod(method, base, object);
 		}else if(rightOp instanceof InstanceFieldRef) {
@@ -67,7 +61,6 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 		}else {
 			return results;
 		}
-
 		results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		return results;
 	}

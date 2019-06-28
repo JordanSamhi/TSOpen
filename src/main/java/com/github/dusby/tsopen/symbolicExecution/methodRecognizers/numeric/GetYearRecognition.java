@@ -10,20 +10,19 @@ import soot.SootMethod;
 import soot.Value;
 import soot.tagkit.StringConstantValueTag;
 
-public class GetSecondsRecognition extends NumericMethodsRecognitionHandler {
+public class GetYearRecognition extends NumericMethodsRecognitionHandler {
 
-	public GetSecondsRecognition(NumericMethodsRecognitionHandler next, SymbolicExecution se) {
+	public GetYearRecognition(NumericMethodsRecognitionHandler next, SymbolicExecution se) {
 		super(next, se);
 	}
 
-	//TODO factorize this method in all numeric methods subclasses
 	@Override
 	public boolean processNumericMethod(SootMethod method, Value base, SymbolicValue sv) {
 		SootClass declaringClass = method.getDeclaringClass();
 		String methodName = method.getName();
-		if (declaringClass.getName().equals(Constants.JAVA_UTIL_DATE) && methodName.equals(Constants.GET_SECONDS)) {
+		if(declaringClass.getName().equals(Constants.JAVA_UTIL_DATE) && methodName.equals(Constants.GET_YEAR)) {
 			if(Utils.containsTag(base, Constants.NOW_TAG, this.se)) {
-				sv.addTag(new StringConstantValueTag(Constants.SECONDS_TAG));
+				sv.addTag(new StringConstantValueTag(Constants.YEAR_TAG));
 				return true;
 			}
 		}

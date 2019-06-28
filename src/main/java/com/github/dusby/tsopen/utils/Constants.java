@@ -19,6 +19,8 @@ public class Constants {
 	public static final String SET_TO_NOW = "setToNow";
 	public static final String GET_MINUTES = "getMinutes";
 	public static final String GET_SECONDS = "getSeconds";
+	public static final String GET_HOURS = "getHours";
+	public static final String GET_YEAR = "getYear";
 	public static final String GET_MONTH = "getMonth";
 	public static final String APPEND = "append";
 	public static final String VALUEOF = "valueOf";
@@ -46,6 +48,8 @@ public class Constants {
 	public static final String LATITUDE_TAG = "#here/#latitude";
 	public static final String SECONDS_TAG = "#now/#seconds";
 	public static final String MINUTES_TAG = "#now/#minutes";
+	public static final String HOUR_TAG = "#now/#hour";
+	public static final String YEAR_TAG = "#now/#year";
 	public static final String MONTH_TAG = "#now/#month";
 	public static final String SMS_BODY_TAG = "#sms/#body";
 	public static final String SMS_SENDER_TAG = "#sms/#sender";

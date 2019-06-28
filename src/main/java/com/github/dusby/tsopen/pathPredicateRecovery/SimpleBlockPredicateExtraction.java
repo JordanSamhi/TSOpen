@@ -31,7 +31,7 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 	private final FormulaFactory formulaFactory;
 
 	public SimpleBlockPredicateExtraction(InfoflowCFG icfg, SootMethod mainMethod) {
-		super(icfg, "Simple Block Extraction", mainMethod);
+		super(icfg, "Simple Block Predicate Extraction", mainMethod);
 		this.literalToCondition = new HashMap<Literal, IfStmt>();
 		this.annotatedEdges = new ArrayList<Edge>();
 		this.formulaFactory = new FormulaFactory();

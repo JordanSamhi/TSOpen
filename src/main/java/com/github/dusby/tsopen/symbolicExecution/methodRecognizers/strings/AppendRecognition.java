@@ -32,7 +32,7 @@ public class AppendRecognition extends StringMethodsRecognitionHandler {
 			if(contextualValuesOfBase == null) {
 				results.addAll(this.computeValue(new UnknownValue(), args, base, method));
 			}else {
-				values = contextualValuesOfBase.getLastCoherentValues();
+				values = contextualValuesOfBase.getLastCoherentValues(null);
 				for(SymbolicValue sv : values) {
 					results.addAll(this.computeValue(sv, args, base, method));
 				}
@@ -62,7 +62,7 @@ public class AppendRecognition extends StringMethodsRecognitionHandler {
 					results.add(new MethodRepresentationValue(base, args, method, this.se));
 				}
 			}else {
-				values = contextualValuesOfBase.getLastCoherentValues();
+				values = contextualValuesOfBase.getLastCoherentValues(null);
 				for(SymbolicValue sv : values) {
 					if(symVal.isConstant() && sv.isConstant()) {
 						results.add(new ConstantValue(StringConstant.v(String.format("%s%s", symVal, sv))));

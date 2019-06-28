@@ -16,7 +16,6 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.TimeOut;
 
 import soot.SootMethod;
-import soot.jimple.ConditionExpr;
 import soot.jimple.IfStmt;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
 import soot.jimple.infoflow.android.SetupApplication;

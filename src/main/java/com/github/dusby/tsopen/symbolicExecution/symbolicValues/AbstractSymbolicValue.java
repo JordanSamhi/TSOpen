@@ -27,7 +27,7 @@ public abstract class AbstractSymbolicValue implements SymbolicValue {
 	protected List<SymbolicValue> getSymbolicValues(Value v) {
 		Map<Value, ContextualValues> context = this.se.getContext();
 		if(context.containsKey(v)) {
-			return context.get(v).getLastCoherentValues();
+			return context.get(v).getLastCoherentValues(null);
 		}
 		return null;
 	}

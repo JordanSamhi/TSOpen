@@ -47,7 +47,7 @@ public abstract class StringMethodsRecognitionHandler implements StringMethodsRe
 		if(contextualValues == null) {
 			results.add(new UnknownValue());
 		}else {
-			values = contextualValues.getLastCoherentValues();
+			values = contextualValues.getLastCoherentValues(null);
 			for(SymbolicValue sv : values) {
 				Utils.propagateTags(v, sv, this.se);
 				results.add(sv);

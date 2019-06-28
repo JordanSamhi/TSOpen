@@ -93,10 +93,10 @@ public class PotentialLogicBombsRecovery implements Runnable {
 			contextualValuesOp2 = this.se.getContextualValues(op2);
 		}
 		if(contextualValuesOp1 != null) {
-			valuesOp1 = contextualValuesOp1.getAllValues();
+			valuesOp1 = contextualValuesOp1.getLastCoherentValues(ifStmt);
 		}
 		if(contextualValuesOp2 != null) {
-			valuesOp2 = contextualValuesOp2.getAllValues();
+			valuesOp2 = contextualValuesOp2.getLastCoherentValues(ifStmt);
 		}
 		if(valuesOp1 != null && (op2 instanceof Constant)) {
 			values = valuesOp1;
@@ -247,10 +247,10 @@ public class PotentialLogicBombsRecovery implements Runnable {
 			contextualValuesOp2 = this.se.getContextualValues(op2);
 		}
 		if(contextualValuesOp1 != null) {
-			valuesOp1 = contextualValuesOp1.getAllValues();
+			valuesOp1 = contextualValuesOp1.getLastCoherentValues(ifStmt);
 		}
 		if(contextualValuesOp2 != null) {
-			valuesOp2 = contextualValuesOp2.getAllValues();
+			valuesOp2 = contextualValuesOp2.getLastCoherentValues(ifStmt);
 		}
 		if(valuesOp1 != null && (op2 instanceof Constant)) {
 			values = valuesOp1;

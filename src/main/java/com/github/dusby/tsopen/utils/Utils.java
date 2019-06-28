@@ -65,7 +65,7 @@ public class Utils {
 		if(v != null) {
 			contextualValues = se.getContext().get(v);
 			if(contextualValues != null) {
-				values = contextualValues.getLastCoherentValues();
+				values = contextualValues.getLastCoherentValues(null);
 			}
 		}
 		return values;

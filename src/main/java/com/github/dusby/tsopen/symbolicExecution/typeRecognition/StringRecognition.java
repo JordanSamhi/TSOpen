@@ -53,13 +53,13 @@ public class StringRecognition extends TypeRecognitionHandler{
 		this.authorizedTypes.add(Constants.JAVA_LANG_STRING_BUILDER);
 	}
 
-	private void checkAndProcessContextValues(Value v, List<Pair<Value, SymbolicValue>> results, Value leftOp) {
+	private void checkAndProcessContextValues(Value v, List<Pair<Value, SymbolicValue>> results, Value leftOp, Unit node) {
 		ContextualValues contextualValues = this.se.getContext().get(v);
 		List<SymbolicValue> values = null;
 		if(contextualValues == null) {
 			results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue(StringConstant.v(Constants.UNKNOWN_STRING))));
 		}else {
-			values = contextualValues.getLastCoherentValues();
+			values = contextualValues.getLastCoherentValues(node);
 			for(SymbolicValue sv : values) {
 				Utils.propagateTags(v, sv, this.se);
 				results.add(new Pair<Value, SymbolicValue>(leftOp, sv));
@@ -101,13 +101,13 @@ public class StringRecognition extends TypeRecognitionHandler{
 						invExprCaller = ((InvokeStmt)callerRightOp).getInvokeExpr();
 					}
 				}
-				this.checkAndProcessContextValues(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()), results, leftOp);
+				this.checkAndProcessContextValues(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()), results, leftOp, caller);
 			}
 		}else if(rightOp instanceof Local) {
-			this.checkAndProcessContextValues(rightOp, results, leftOp);
+			this.checkAndProcessContextValues(rightOp, results, leftOp, null);
 		}else if (rightOp instanceof CastExpr) {
 			rightOpExpr = (CastExpr) rightOp;
-			this.checkAndProcessContextValues(rightOpExpr.getOp(), results, leftOp);
+			this.checkAndProcessContextValues(rightOpExpr.getOp(), results, leftOp, null);
 		}else if(rightOp instanceof InvokeExpr) {
 			rightOpInvokeExpr = (InvokeExpr) rightOp;
 			method = rightOpInvokeExpr.getMethod();
@@ -135,7 +135,7 @@ public class StringRecognition extends TypeRecognitionHandler{
 		}else {
 			arg = args.get(0);
 			if(arg instanceof Local) {
-				this.checkAndProcessContextValues(arg, results, base);
+				this.checkAndProcessContextValues(arg, results, base, null);
 			}else {
 				if(arg instanceof StringConstant) {
 					cv = new ConstantValue((StringConstant)arg);

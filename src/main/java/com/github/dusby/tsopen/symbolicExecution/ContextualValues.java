@@ -10,22 +10,25 @@ import java.util.Map.Entry;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
 import soot.Unit;
+import soot.Value;
 
 public class ContextualValues {
 
-	private LinkedHashMap<Unit, LinkedList<SymbolicValue>> values;
+	private Value receiver;
+	private LinkedHashMap<Unit, LinkedList<SymbolicValue>> nodesToSymbolicValues;
 	private SymbolicExecution se;
 
-	public ContextualValues(SymbolicExecution se) {
-		this.values = new LinkedHashMap<Unit, LinkedList<SymbolicValue>>();
+	public ContextualValues(SymbolicExecution se, Value receiver) {
+		this.nodesToSymbolicValues = new LinkedHashMap<Unit, LinkedList<SymbolicValue>>();
 		this.se = se;
+		this.receiver = receiver;
 	}
 
 	public void addValue(Unit node, SymbolicValue sv) {
-		LinkedList<SymbolicValue> valuesOfNode = this.values.get(node);
+		LinkedList<SymbolicValue> valuesOfNode = this.nodesToSymbolicValues.get(node);
 		if(valuesOfNode == null) {
 			valuesOfNode = new LinkedList<SymbolicValue>();
-			this.values.put(node, valuesOfNode);
+			this.nodesToSymbolicValues.put(node, valuesOfNode);
 		}
 		valuesOfNode.add(sv);
 	}
@@ -35,27 +38,27 @@ public class ContextualValues {
 	 * Otherwise the last computed values
 	 * @return a list of symbolic values
 	 */
-	public List<SymbolicValue> getLastCoherentValues() {
+	public List<SymbolicValue> getLastCoherentValues(Unit node) {
 		Iterator<Unit> it = this.se.getCurrentPath().descendingIterator();
-		Unit node = null;
-		LinkedList<SymbolicValue> lasts = null;
 		LinkedList<SymbolicValue> values = null;
-		while(it.hasNext()) {
-			node = it.next();
-			values = this.values.get(node);
-			if(values != null) {
-				return values;
+		Unit n = null;
+		if(node == null) {
+			while(it.hasNext()) {
+				n = it.next();
+				values = this.nodesToSymbolicValues.get(n);
+				if(values != null) {
+					return values;
+				}
 			}
+		}else {
+			return this.se.getValuesAtNode(node).get(this.receiver);
 		}
-		for(Entry<Unit, LinkedList<SymbolicValue>> e : this.values.entrySet()) {
-			lasts = e.getValue();
-		}
-		return lasts;
+		return null;
 	}
 
 	public List<SymbolicValue> getAllValues() {
 		List<SymbolicValue> values = new ArrayList<SymbolicValue>();
-		for(Entry<Unit, LinkedList<SymbolicValue>> e : this.values.entrySet()) {
+		for(Entry<Unit, LinkedList<SymbolicValue>> e : this.nodesToSymbolicValues.entrySet()) {
 			values.addAll(e.getValue());
 		}
 		return values;

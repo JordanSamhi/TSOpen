@@ -35,6 +35,7 @@ public class Constants {
 	public static final String EQUALS = "equals";
 	public static final String CONTAINS = "contains";
 	public static final String STARTS_WITH = "startsWith";
+	public static final String ENDS_WITH = "endsWith";
 	public static final String MATCHES = "matches";
 	public static final String FORMAT = "format";
 

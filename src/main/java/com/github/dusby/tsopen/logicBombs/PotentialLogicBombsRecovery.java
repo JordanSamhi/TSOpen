@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.javatuples.Sextet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,15 +59,17 @@ public class PotentialLogicBombsRecovery implements Runnable {
 
 	private void retrievePotentialLogicBombs() {
 		for(IfStmt ifStmt : this.sbpe.getConditions()) {
-			this.isTrigger(ifStmt);
+			if(!this.isTrigger(ifStmt)) {
+				this.potentialLogicBombs.remove(ifStmt);
+			}
 		}
 	}
 
 	private boolean isTrigger(IfStmt ifStmt) {
+		this.visitedMethods.clear();
 		if(!this.isSuspicious(ifStmt)) {
 			return false;
 		}
-		//		System.out.println(ifStmt);
 		if(!this.isSuspiciousAfterPostFilters(ifStmt)) {
 			return false;
 		}
@@ -75,37 +78,11 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		}
 		return false;
 	}
-	//TODO factorize
-	private boolean isSuspiciousAfterPostFilters(IfStmt ifStmt) {
-		ConditionExpr conditionExpr = (ConditionExpr) ifStmt.getCondition();
-		Value op1 = conditionExpr.getOp1(),
-				op2 = conditionExpr.getOp2();
-		ContextualValues contextualValuesOp1 = null,
-				contextualValuesOp2 = null;
-		List<SymbolicValue> valuesOp1 = null,
-				valuesOp2 = null,
-				values = null;
-		Constant constant = null;
 
-		if(!(op1 instanceof Constant)) {
-			contextualValuesOp1 = this.se.getContextualValues(op1);
-		}
-		if(!(op2 instanceof Constant)) {
-			contextualValuesOp2 = this.se.getContextualValues(op2);
-		}
-		if(contextualValuesOp1 != null) {
-			valuesOp1 = contextualValuesOp1.getLastCoherentValues(ifStmt);
-		}
-		if(contextualValuesOp2 != null) {
-			valuesOp2 = contextualValuesOp2.getLastCoherentValues(ifStmt);
-		}
-		if(valuesOp1 != null && (op2 instanceof Constant)) {
-			values = valuesOp1;
-			constant = (Constant) op2;
-		}else if (valuesOp2 != null && (op1 instanceof Constant)) {
-			values = valuesOp2;
-			constant = (Constant) op1;
-		}
+	private boolean isSuspiciousAfterPostFilters(IfStmt ifStmt) {
+		Sextet<List<SymbolicValue>, List<SymbolicValue>, List<SymbolicValue>, Value, Value, Constant> contextualValues = this.getContextualValues(ifStmt);
+		List<SymbolicValue> values = contextualValues.getValue0();
+		Constant constant = contextualValues.getValue5();
 
 		if(values != null) {
 			for(SymbolicValue sv : values) {
@@ -233,31 +210,12 @@ public class PotentialLogicBombsRecovery implements Runnable {
 	}
 
 	private boolean isSuspicious(IfStmt ifStmt) {
-		ConditionExpr conditionExpr = (ConditionExpr) ifStmt.getCondition();
-		Value op1 = conditionExpr.getOp1(),
-				op2 = conditionExpr.getOp2();
-		ContextualValues contextualValuesOp1 = null,
-				contextualValuesOp2 = null;
-		List<SymbolicValue> valuesOp1 = null,
-				valuesOp2 = null,
-				values = null;
-		if(!(op1 instanceof Constant)) {
-			contextualValuesOp1 = this.se.getContextualValues(op1);
-		}
-		if(!(op2 instanceof Constant)) {
-			contextualValuesOp2 = this.se.getContextualValues(op2);
-		}
-		if(contextualValuesOp1 != null) {
-			valuesOp1 = contextualValuesOp1.getLastCoherentValues(ifStmt);
-		}
-		if(contextualValuesOp2 != null) {
-			valuesOp2 = contextualValuesOp2.getLastCoherentValues(ifStmt);
-		}
-		if(valuesOp1 != null && (op2 instanceof Constant)) {
-			values = valuesOp1;
-		}else if (valuesOp2 != null && (op1 instanceof Constant)) {
-			values = valuesOp2;
-		}
+		Sextet<List<SymbolicValue>, List<SymbolicValue>, List<SymbolicValue>, Value, Value, Constant> contextualValues = this.getContextualValues(ifStmt);
+		List<SymbolicValue> values = contextualValues.getValue0(),
+				valuesOp1 = contextualValues.getValue1(),
+				valuesOp2 = contextualValues.getValue2();
+		Value op1 = contextualValues.getValue3(),
+				op2 = contextualValues.getValue4();
 
 		if(values != null) {
 			for(SymbolicValue sv : values) {
@@ -308,6 +266,38 @@ public class PotentialLogicBombsRecovery implements Runnable {
 			}
 		}
 		return false;
+	}
+
+	private Sextet<List<SymbolicValue>, List<SymbolicValue>, List<SymbolicValue>, Value, Value, Constant> getContextualValues(IfStmt ifStmt) {
+		ConditionExpr conditionExpr = (ConditionExpr) ifStmt.getCondition();
+		Value op1 = conditionExpr.getOp1(),
+				op2 = conditionExpr.getOp2();
+		ContextualValues contextualValuesOp1 = null,
+				contextualValuesOp2 = null;
+		List<SymbolicValue> valuesOp1 = null,
+				valuesOp2 = null,
+				values = null;
+		Constant constant = null;
+		if(!(op1 instanceof Constant)) {
+			contextualValuesOp1 = this.se.getContextualValues(op1);
+		}
+		if(!(op2 instanceof Constant)) {
+			contextualValuesOp2 = this.se.getContextualValues(op2);
+		}
+		if(contextualValuesOp1 != null) {
+			valuesOp1 = contextualValuesOp1.getLastCoherentValues(ifStmt);
+		}
+		if(contextualValuesOp2 != null) {
+			valuesOp2 = contextualValuesOp2.getLastCoherentValues(ifStmt);
+		}
+		if(valuesOp1 != null && (op2 instanceof Constant)) {
+			values = valuesOp1;
+			constant = (Constant) op2;
+		}else if (valuesOp2 != null && (op1 instanceof Constant)) {
+			values = valuesOp2;
+			constant = (Constant) op1;
+		}
+		return new Sextet<List<SymbolicValue>, List<SymbolicValue>, List<SymbolicValue>, Value, Value, Constant>(values, valuesOp1, valuesOp2, op1, op2, constant);
 	}
 
 	public Map<IfStmt, List<SymbolicValue>> getPotentialLogicBombs(){

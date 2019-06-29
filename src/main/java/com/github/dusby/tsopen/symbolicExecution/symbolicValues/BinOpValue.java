@@ -21,7 +21,7 @@ public class BinOpValue extends AbstractSymbolicValue {
 
 	@Override
 	public String getValue() {
-		return String.format("%s%s%s", this.computeValue(this.op1), this.symbol, this.computeValue(this.op2));
+		return String.format("%s%s%s", this.op1, this.symbol, this.op2);
 	}
 
 	@Override

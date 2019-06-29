@@ -103,7 +103,7 @@ public class Main {
 			for(Entry<IfStmt, List<SymbolicValue>> e : plbr.getPotentialLogicBombs().entrySet()) {
 				logger.info("- {}", e.getKey());
 				for(SymbolicValue sv : e.getValue()) {
-					logger.info("-- {}", sv.getValue());
+					logger.info("-- {} || {}", sv, sv.getValue());
 				}
 			}
 		}else {

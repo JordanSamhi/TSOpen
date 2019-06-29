@@ -48,9 +48,11 @@ public abstract class StringMethodsRecognitionHandler implements StringMethodsRe
 			results.add(new UnknownValue(this.se));
 		}else {
 			values = contextualValues.getLastCoherentValues(null);
-			for(SymbolicValue sv : values) {
-				Utils.propagateTags(v, sv, this.se);
-				results.add(sv);
+			if(values != null) {
+				for(SymbolicValue sv : values) {
+					Utils.propagateTags(v, sv, this.se);
+					results.add(sv);
+				}
 			}
 		}
 	}

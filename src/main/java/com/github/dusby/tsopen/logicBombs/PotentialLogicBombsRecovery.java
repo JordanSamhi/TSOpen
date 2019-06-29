@@ -66,6 +66,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		if(!this.isSuspicious(ifStmt)) {
 			return false;
 		}
+		//		System.out.println(ifStmt);
 		if(!this.isSuspiciousAfterPostFilters(ifStmt)) {
 			return false;
 		}
@@ -74,7 +75,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		}
 		return false;
 	}
-
+	//TODO factorize
 	private boolean isSuspiciousAfterPostFilters(IfStmt ifStmt) {
 		ConditionExpr conditionExpr = (ConditionExpr) ifStmt.getCondition();
 		Value op1 = conditionExpr.getOp1(),

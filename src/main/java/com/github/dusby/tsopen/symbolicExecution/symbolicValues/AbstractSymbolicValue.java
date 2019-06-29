@@ -1,6 +1,7 @@
 package com.github.dusby.tsopen.symbolicExecution.symbolicValues;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,20 +9,37 @@ import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 
 import soot.Value;
+import soot.jimple.Constant;
 import soot.tagkit.StringConstantValueTag;
 
 public abstract class AbstractSymbolicValue implements SymbolicValue {
 
 	protected List<StringConstantValueTag> tags;
 	protected SymbolicExecution se;
+	protected Map<Value, List<SymbolicValue>> values;
 
 	public AbstractSymbolicValue(SymbolicExecution se) {
 		this.tags = new ArrayList<StringConstantValueTag>();
 		this.se = se;
+		this.values = new HashMap<Value, List<SymbolicValue>>();
 	}
 
-	public AbstractSymbolicValue() {
-		this.tags = new ArrayList<StringConstantValueTag>();
+	protected String computeValue(Value v) {
+		List<SymbolicValue> values = null;
+		String s = "";
+		values = this.values.get(v);
+		if(values != null) {
+			for(SymbolicValue sv : values) {
+				s += sv;
+				if(sv != values.get(values.size() - 1)) {
+					s += " | ";
+				}
+			}
+			return s;
+		}else if(v instanceof Constant){
+			return ((Constant)v).toString();
+		}
+		return v.getType().toString();
 	}
 
 	protected List<SymbolicValue> getSymbolicValues(Value v) {
@@ -60,7 +78,6 @@ public abstract class AbstractSymbolicValue implements SymbolicValue {
 			}
 			return value;
 		}
-
 		return this.getValue();
 	}
 

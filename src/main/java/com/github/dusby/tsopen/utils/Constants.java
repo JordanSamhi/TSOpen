@@ -82,4 +82,13 @@ public class Constants {
 	 * Files
 	 */
 	public static final String SENSITIVE_METHODS_FILE = "src/main/resources/sensitiveMethods.pscout";
+
+	/**
+	 * Misc
+	 */
+	public static final String SUBSTRACTION = "-";
+	public static final String ADDITION = "+";
+	public static final String MULTIPLICATION = "x";
+	public static final String DIVISION = "/";
+	public static final String  MODULO = "%";
 }

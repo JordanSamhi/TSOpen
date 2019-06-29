@@ -57,7 +57,7 @@ public class StringRecognition extends TypeRecognitionHandler{
 		ContextualValues contextualValues = this.se.getContext().get(v);
 		List<SymbolicValue> values = null;
 		if(contextualValues == null) {
-			results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue(StringConstant.v(Constants.UNKNOWN_STRING))));
+			results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue(StringConstant.v(Constants.UNKNOWN_STRING), this.se)));
 		}else {
 			values = contextualValues.getLastCoherentValues(node);
 			for(SymbolicValue sv : values) {
@@ -85,7 +85,7 @@ public class StringRecognition extends TypeRecognitionHandler{
 		List<SymbolicValue> recognizedValues = null;
 
 		if(rightOp instanceof StringConstant) {
-			results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue((StringConstant)rightOp)));
+			results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue((StringConstant)rightOp, this.se)));
 		}else if(rightOp instanceof ParameterRef) {
 			callers = this.icfg.getCallersOf(this.icfg.getMethodOf(defUnit));
 			for(Unit caller : callers) {
@@ -131,17 +131,17 @@ public class StringRecognition extends TypeRecognitionHandler{
 		List<Value> args = invExprUnit.getArgs();
 		ConstantValue cv = null;
 		if(args.size() == 0) {
-			results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue(StringConstant.v(Constants.EMPTY_STRING))));
+			results.add(new Pair<Value, SymbolicValue>(base, new ConstantValue(StringConstant.v(Constants.EMPTY_STRING), this.se)));
 		}else {
 			arg = args.get(0);
 			if(arg instanceof Local) {
 				this.checkAndProcessContextValues(arg, results, base, null);
 			}else {
 				if(arg instanceof StringConstant) {
-					cv = new ConstantValue((StringConstant)arg);
+					cv = new ConstantValue((StringConstant)arg, this.se);
 				}
 				else {
-					cv = new ConstantValue(StringConstant.v(Constants.EMPTY_STRING));
+					cv = new ConstantValue(StringConstant.v(Constants.EMPTY_STRING), this.se);
 				}
 				results.add(new Pair<Value, SymbolicValue>(base, cv));
 			}

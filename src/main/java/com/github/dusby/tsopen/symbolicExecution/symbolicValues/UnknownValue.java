@@ -1,11 +1,14 @@
 package com.github.dusby.tsopen.symbolicExecution.symbolicValues;
 
+import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
+
 public class UnknownValue extends AbstractSymbolicValue {
 
 	private static final String UNKNOWN_VALUE = "{#}";
 	private String additionalValues;
 
-	public UnknownValue() {
+	public UnknownValue(SymbolicExecution se) {
+		super(se);
 		this.additionalValues = "";
 	}
 

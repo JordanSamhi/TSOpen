@@ -7,6 +7,7 @@ import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.numeric.NumericMethodsRecognitionHandler;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.BinOpValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.FieldValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
@@ -15,6 +16,7 @@ import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
 import soot.Value;
+import soot.jimple.BinopExpr;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.InstanceInvokeExpr;
@@ -36,13 +38,16 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 	public List<Pair<Value, SymbolicValue>> handleDefinitionStmt(DefinitionStmt defUnit) {
 		Value leftOp = defUnit.getLeftOp(),
 				rightOp = defUnit.getRightOp(),
-				base = null;
+				base = null,
+				binOp1 = null,
+				binOp2 = null;
 		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
 		InvokeExpr rightOpInvExpr = null;
 		SootMethod method = null;
 		List<Value> args = null;
 		SymbolicValue object = null;
 		InstanceFieldRef field = null;
+		BinopExpr BinOpRightOp = null;
 
 		if(rightOp instanceof InvokeExpr) {
 			rightOpInvExpr = (InvokeExpr) rightOp;
@@ -58,6 +63,13 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 			base = field.getBase();
 			object = new FieldValue(base, field.getField().getName(), this.se);
 			Utils.propagateTags(base, object, this.se);
+		}else if(rightOp instanceof BinopExpr){
+			BinOpRightOp = (BinopExpr) rightOp;
+			binOp1 = BinOpRightOp.getOp1();
+			binOp2 = BinOpRightOp.getOp2();
+			object = new BinOpValue(this.se, binOp1, binOp2, BinOpRightOp.getSymbol());
+			Utils.propagateTags(binOp1, object, this.se);
+			Utils.propagateTags(binOp2, object, this.se);
 		}else {
 			return results;
 		}

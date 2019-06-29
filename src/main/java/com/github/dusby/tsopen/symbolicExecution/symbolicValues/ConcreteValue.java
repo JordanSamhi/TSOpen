@@ -4,10 +4,6 @@ import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 
 public abstract class ConcreteValue extends AbstractSymbolicValue {
 
-	public ConcreteValue() {
-		super();
-	}
-
 	public ConcreteValue(SymbolicExecution se) {
 		super(se);
 	}

@@ -45,7 +45,7 @@ public abstract class StringMethodsRecognitionHandler implements StringMethodsRe
 		ContextualValues contextualValues = this.se.getContext().get(v);
 		List<SymbolicValue> values = null;
 		if(contextualValues == null) {
-			results.add(new UnknownValue());
+			results.add(new UnknownValue(this.se));
 		}else {
 			values = contextualValues.getLastCoherentValues(null);
 			for(SymbolicValue sv : values) {

@@ -25,7 +25,7 @@ public class ValueOfRecognition extends StringMethodsRecognitionHandler {
 		if(method.getName().equals(Constants.VALUEOF)) {
 			effectiveArg = args.get(0);
 			if(effectiveArg instanceof Constant) {
-				results.add(new ConstantValue((Constant)effectiveArg));
+				results.add(new ConstantValue((Constant)effectiveArg, this.se));
 			}else {
 				this.addSimpleResult(effectiveArg, results);
 			}

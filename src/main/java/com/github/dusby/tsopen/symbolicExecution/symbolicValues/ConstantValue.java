@@ -1,13 +1,15 @@
 package com.github.dusby.tsopen.symbolicExecution.symbolicValues;
 
+import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
+
 import soot.jimple.Constant;
 
 public class ConstantValue extends ConcreteValue {
 
 	private Constant constant;
 
-	public ConstantValue(Constant c) {
-		super();
+	public ConstantValue(Constant c, SymbolicExecution se) {
+		super(se);
 		this.constant = c;
 	}
 

@@ -63,11 +63,13 @@ public class AppendRecognition extends StringMethodsRecognitionHandler {
 				}
 			}else {
 				values = contextualValuesOfBase.getLastCoherentValues(null);
-				for(SymbolicValue sv : values) {
-					if(symVal.isConstant() && sv.isConstant()) {
-						results.add(new ConstantValue(StringConstant.v(String.format("%s%s", symVal, sv)), this.se));
-					}else {
-						results.add(new MethodRepresentationValue(base, args, method, this.se));
+				if(values != null) {
+					for(SymbolicValue sv : values) {
+						if(symVal.isConstant() && sv.isConstant()) {
+							results.add(new ConstantValue(StringConstant.v(String.format("%s%s", symVal, sv)), this.se));
+						}else {
+							results.add(new MethodRepresentationValue(base, args, method, this.se));
+						}
 					}
 				}
 			}

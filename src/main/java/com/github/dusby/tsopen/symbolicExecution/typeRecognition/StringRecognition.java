@@ -60,9 +60,11 @@ public class StringRecognition extends TypeRecognitionHandler{
 			results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue(StringConstant.v(Constants.UNKNOWN_STRING), this.se)));
 		}else {
 			values = contextualValues.getLastCoherentValues(node);
-			for(SymbolicValue sv : values) {
-				Utils.propagateTags(v, sv, this.se);
-				results.add(new Pair<Value, SymbolicValue>(leftOp, sv));
+			if(values != null) {
+				for(SymbolicValue sv : values) {
+					Utils.propagateTags(v, sv, this.se);
+					results.add(new Pair<Value, SymbolicValue>(leftOp, sv));
+				}
 			}
 		}
 	}

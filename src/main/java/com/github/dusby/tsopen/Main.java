@@ -101,9 +101,9 @@ public class Main {
 		if(plbr.hasPotentialLogicBombs()) {
 			logger.info("Potential Logic bombs found : ");
 			for(Entry<IfStmt, List<SymbolicValue>> e : plbr.getPotentialLogicBombs().entrySet()) {
-				logger.info("- {}", e.getKey());
+				logger.info("- if {}", e.getKey().getCondition());
 				for(SymbolicValue sv : e.getValue()) {
-					logger.info("-- {} || {}", sv, sv.getValue());
+					logger.info("-- if {} ({})", sv.getValue(), sv);
 				}
 			}
 		}else {

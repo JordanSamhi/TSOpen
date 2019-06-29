@@ -14,11 +14,14 @@ git clone https://github.com/dusby/TSOpen.git
 
 ### Installing the tool
 
-To install the tool, one just has to go into cloned repository and run mvn install command as follow :
+To install the tool, one just has to go into cloned repository and run these maven commands :
 
 <pre>
 cd TSOpen
-mvn install
+mvn clean install:install-file -Dfile=libs/soot-infoflow-android-classes.jar -DgroupId=de.tud.sse -DartifactId=soot-infoflow-android -Dversion=2.7.1 -Dpackaging=jar
+mvn clean install:install-file -Dfile=libs/soot-infoflow-trunk.jar -DgroupId=de.tud.sse -DartifactId=soot-infoflow -Dversion=2.7.1 -Dpackaging=jar
+mvn clean install:install-file -Dfile=libs/sootclasses-trunk.jar -DgroupId=ca.mcgill.sable -DartifactId=soot -Dversion=3.3.0 -Dpackaging=jar
+mvn clean install
 </pre>
 
 The built JAR will be in "target" folder with the following name : 

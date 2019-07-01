@@ -88,7 +88,7 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-ext</artifactId>
 			<version>1.7.26</version>
-</dependency>
+		</dependency>
 		<dependency>
 			<groupId>org.logicng</groupId>
 			<artifactId>logicng</artifactId>

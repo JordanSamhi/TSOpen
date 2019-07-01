@@ -11,10 +11,11 @@ public class TimeOut {
 
 	private Timer timer;
 	private TimerTask exitTask = null;
+	private int timeout;
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public TimeOut() {
+	public TimeOut(int n) {
 		this.timer = new Timer();
 		this.exitTask = new TimerTask() {
 			@Override
@@ -22,17 +23,21 @@ public class TimeOut {
 				System.exit(0);
 			}
 		};
+		this.timeout = n != 0 ? n : 60;
 	}
 
-	public void trigger(int n) {
-		int timeout = n != 0 ? n : 60;
-		this.logger.info("Timeout : {} minutes", timeout);
+	public void trigger() {
 		Calendar c = Calendar.getInstance();
-		c.add(Calendar.MINUTE, timeout);
+		c.add(Calendar.MINUTE, this.timeout);
 		this.timer.schedule(this.exitTask, c.getTime());
 	}
 
 	public void cancel() {
 		this.timer.cancel();
 	}
+
+	public int getTimeout() {
+		return this.timeout;
+	}
+
 }

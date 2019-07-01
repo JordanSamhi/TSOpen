@@ -41,8 +41,9 @@ public class Main {
 				pprThread = null,
 				seThread = null,
 				plbrThread = null;
-		TimeOut timeOut = new TimeOut();
-		timeOut.trigger(options.getTimeout());
+		TimeOut timeOut = new TimeOut(options.getTimeout());
+		timeOut.trigger();
+		logger.info("Timeout : {} minutes", timeOut.getTimeout());
 
 		mainProfiler.start("CallGraph");
 		ifac.getAnalysisFileConfig().setAndroidPlatformDir(options.getPlatforms());

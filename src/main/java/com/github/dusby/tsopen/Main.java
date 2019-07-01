@@ -32,6 +32,7 @@ public class Main {
 		ifac.setIgnoreFlowsInSystemPackages(false);
 		SetupApplication sa = null;
 		InfoflowCFG icfg = null;
+		String fileName = options.getFile();
 		SootMethod dummyMainMethod = null;
 		SimpleBlockPredicateExtraction sbpe = null;
 		PathPredicateRecovery ppr = null;
@@ -43,11 +44,13 @@ public class Main {
 				plbrThread = null;
 		TimeOut timeOut = new TimeOut(options.getTimeout());
 		timeOut.trigger();
+
+		logger.info("File : {}", fileName);
 		logger.info("Timeout : {} minutes", timeOut.getTimeout());
 
 		mainProfiler.start("CallGraph");
 		ifac.getAnalysisFileConfig().setAndroidPlatformDir(options.getPlatforms());
-		ifac.getAnalysisFileConfig().setTargetAPKFile(options.getFile());
+		ifac.getAnalysisFileConfig().setTargetAPKFile(fileName);
 
 		sa = new SetupApplication(ifac);
 		sa.constructCallgraph();

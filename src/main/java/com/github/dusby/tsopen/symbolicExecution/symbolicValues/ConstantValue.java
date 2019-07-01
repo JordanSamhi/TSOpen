@@ -15,7 +15,7 @@ public class ConstantValue extends ConcreteValue {
 
 	@Override
 	public String getValue() {
-		return this.constant.toString();
+		return this.constant.toString().replace("\"", "").replace("\\", "");
 	}
 
 	@Override

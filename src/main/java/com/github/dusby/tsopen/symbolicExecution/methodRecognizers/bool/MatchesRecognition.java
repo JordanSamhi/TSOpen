@@ -23,13 +23,15 @@ public class MatchesRecognition extends BooleanMethodsRecognitionHandler {
 		Value firstArg = null;
 		String methodName = method.getName();
 		if(methodName.equals(Constants.MATCHES)) {
-			firstArg = args.get(0);
-			if(Utils.containsTag(base, Constants.SMS_BODY_TAG, this.se)
-					|| Utils.containsTag(base, Constants.SMS_SENDER_TAG, this.se)
-					|| Utils.containsTag(base, Constants.NOW_TAG, this.se)) {
-				if(firstArg instanceof Constant) {
-					sv.addTag(new StringConstantValueTag(Constants.SUSPICIOUS));
-					return true;
+			if(args.size() > 0) {
+				firstArg = args.get(0);
+				if(Utils.containsTag(base, Constants.SMS_BODY_TAG, this.se)
+						|| Utils.containsTag(base, Constants.SMS_SENDER_TAG, this.se)
+						|| Utils.containsTag(base, Constants.NOW_TAG, this.se)) {
+					if(firstArg instanceof Constant) {
+						sv.addTag(new StringConstantValueTag(Constants.SUSPICIOUS));
+						return true;
+					}
 				}
 			}
 		}

@@ -33,8 +33,10 @@ public class AppendRecognition extends StringMethodsRecognitionHandler {
 				results.addAll(this.computeValue(new UnknownValue(this.se), args, base, method));
 			}else {
 				values = contextualValuesOfBase.getLastCoherentValues(null);
-				for(SymbolicValue sv : values) {
-					results.addAll(this.computeValue(sv, args, base, method));
+				if(values != null) {
+					for(SymbolicValue sv : values) {
+						results.addAll(this.computeValue(sv, args, base, method));
+					}
 				}
 			}
 			return results;

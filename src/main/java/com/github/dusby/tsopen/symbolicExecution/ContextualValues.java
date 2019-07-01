@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
@@ -42,6 +43,7 @@ public class ContextualValues {
 		Iterator<Unit> it = this.se.getCurrentPath().descendingIterator();
 		LinkedList<SymbolicValue> values = null;
 		Unit n = null;
+		Map<Value, List<SymbolicValue>> valuesAtNode = null;
 		if(node == null) {
 			while(it.hasNext()) {
 				n = it.next();
@@ -51,7 +53,10 @@ public class ContextualValues {
 				}
 			}
 		}else {
-			return this.se.getValuesAtNode(node).get(this.receiver);
+			valuesAtNode = this.se.getValuesAtNode(node);
+			if(valuesAtNode != null) {
+				return valuesAtNode.get(this.receiver);
+			}
 		}
 		return null;
 	}

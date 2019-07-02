@@ -84,15 +84,15 @@ public class Utils {
 				minutes = seconds / 60;
 				if(minutes >=60) {
 					hours = minutes / 60;
-					strTime += String.format("%3s hours", hours);
+					strTime += String.format("%3s %s", hours, hours > 1 ? "hours" : "hour");
 				}else {
-					strTime += String.format("%3s mins", minutes);
+					strTime += String.format("%3s %s", minutes, minutes > 1 ? "mins" : "min");
 				}
 			}else {
-				strTime += String.format("%3s s", seconds);
+				strTime += String.format("%3s %s", seconds, "s");
 			}
 		}else {
-			strTime += String.format("%3s ms", millis);
+			strTime += String.format("%3s %s", millis, "ms");
 		}
 		return strTime;
 	}

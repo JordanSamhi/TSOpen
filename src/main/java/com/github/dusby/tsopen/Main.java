@@ -118,22 +118,27 @@ public class Main {
 		mainProfiler.stop();
 		logger.info(String.format("%-35s : %s", "Application Execution Time", Utils.getFormattedTime(mainProfiler.elapsedTime())));
 
-		printResults(plbr);
+		printResults(plbr, icfg);
 		timeOut.cancel();
 	}
 
-	private static void printResults(PotentialLogicBombsRecovery plbr) {
+	private static void printResults(PotentialLogicBombsRecovery plbr, InfoflowCFG icfg) {
+		SootMethod ifMethod = null;
 		if(plbr.hasPotentialLogicBombs()) {
-			System.out.println("\nPotential Logic bombs found : ");
-			System.out.println("--------------------------------");
+			System.out.println("\nPotential Logic Bombs found : ");
+			System.out.println("----------------------------------------------------------------");
 			for(Entry<IfStmt, List<SymbolicValue>> e : plbr.getPotentialLogicBombs().entrySet()) {
-				System.out.println(String.format("if %s", e.getKey().getCondition()));
+				ifMethod = icfg.getMethodOf(e.getKey());
+				System.out.println(String.format("- %-10s : if %s", "Statement", e.getKey().getCondition()));
+				System.out.println(String.format("- %-10s : %s", "Class", ifMethod.getDeclaringClass()));
+				System.out.println(String.format("- %-10s : %s", "Method", ifMethod.getName()));
 				for(SymbolicValue sv : e.getValue()) {
-					System.out.println(String.format("---> %s (%s)", sv.getValue(), sv));
+					System.out.println(String.format("- %-10s : %s (%s)", "Predicate", sv.getValue(), sv));
 				}
+				System.out.println("----------------------------------------------------------------");
 			}
 		}else {
-			System.out.println("No logic bomb found");
+			System.out.println("No Logic Bomb found");
 		}
 	}
 }

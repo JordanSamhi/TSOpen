@@ -138,7 +138,7 @@ public class Main {
 				System.out.println("----------------------------------------------------------------");
 			}
 		}else {
-			System.out.println("No Logic Bomb found");
+			System.out.println("\nNo Logic Bomb found");
 		}
 	}
 }

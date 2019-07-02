@@ -154,5 +154,5 @@ public class StringRecognition extends TypeRecognitionHandler{
 	public void handleConstructorTag(List<Value> args, ObjectValue object) {}
 
 	@Override
-	protected void handleInvokeTag(List<Value> args, Value base, SymbolicValue object, SootMethod method) {}
+	public void handleInvokeTag(List<Value> args, Value base, SymbolicValue object, SootMethod method) {}
 }

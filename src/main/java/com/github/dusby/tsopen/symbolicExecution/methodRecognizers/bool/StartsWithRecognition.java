@@ -17,7 +17,7 @@ public class StartsWithRecognition extends BooleanMethodsRecognitionHandler {
 	public StartsWithRecognition(BooleanMethodsRecognitionHandler next, SymbolicExecution se) {
 		super(next, se);
 	}
-
+	//TODO toLowerCase and so on...
 	@Override
 	public boolean processBooleanMethod(SootMethod method, Value base, SymbolicValue sv, List<Value> args) {
 		Value firstArg = null;

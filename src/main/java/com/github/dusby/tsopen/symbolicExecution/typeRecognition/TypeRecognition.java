@@ -7,11 +7,13 @@ import org.javatuples.Pair;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
+import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
+import soot.jimple.ReturnStmt;
 
 public interface TypeRecognition {
 	public List<Pair<Value, SymbolicValue>> recognizeType(Unit node);
@@ -20,4 +22,6 @@ public interface TypeRecognition {
 	public void handleConstructor(InvokeExpr invExprUnit, Value base, List<Pair<Value, SymbolicValue>> results);
 	public void handleConstructorTag(List<Value> args, ObjectValue object);
 	public List<Pair<Value, SymbolicValue>> handleDefinitionStmt(DefinitionStmt defUnit);
+	public List<Pair<Value, SymbolicValue>> processReturnStmt(ReturnStmt node);
+	public abstract void handleInvokeTag(List<Value> args, Value base, SymbolicValue object, SootMethod method);
 }

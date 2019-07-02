@@ -53,5 +53,5 @@ public class SmsRecognition extends TypeRecognitionHandler {
 	}
 
 	@Override
-	protected void handleInvokeTag(List<Value> args, Value base, SymbolicValue object, SootMethod method) {}
+	public void handleInvokeTag(List<Value> args, Value base, SymbolicValue object, SootMethod method) {}
 }

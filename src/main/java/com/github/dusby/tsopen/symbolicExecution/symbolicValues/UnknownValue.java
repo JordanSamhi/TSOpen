@@ -1,10 +1,10 @@
 package com.github.dusby.tsopen.symbolicExecution.symbolicValues;
 
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
+import com.github.dusby.tsopen.utils.Constants;
 
 public class UnknownValue extends AbstractSymbolicValue {
 
-	private static final String UNKNOWN_VALUE = "{#}";
 	private String additionalValues;
 
 	public UnknownValue(SymbolicExecution se) {
@@ -20,9 +20,9 @@ public class UnknownValue extends AbstractSymbolicValue {
 	@Override
 	public String getValue() {
 		if(this.additionalValues.isEmpty()) {
-			return UNKNOWN_VALUE;
+			return Constants.UNKNOWN_VALUE;
 		}else {
-			return String.format("%s_%s", UNKNOWN_VALUE, this.additionalValues);
+			return String.format("%s_%s", Constants.UNKNOWN_VALUE, this.additionalValues);
 		}
 	}
 

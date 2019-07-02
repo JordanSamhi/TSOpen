@@ -1,9 +1,6 @@
 package com.github.dusby.tsopen.utils;
 
 public class Constants {
-	public static final String UNKNOWN_STRING = "UNKNOWN_STRING";
-	public static final String EMPTY_STRING = "";
-	public static final String NULL = "null";
 
 	/**
 	 * Methods
@@ -93,5 +90,9 @@ public class Constants {
 	public static final String  MODULO = "%";
 	public static final String  WHITE = "white";
 	public static final String  GREY = "grey";
+	public static final String UNKNOWN_VALUE = "{#}";
 	public static final String  BLACK = "black";
+	public static final String UNKNOWN_STRING = "UNKNOWN_STRING";
+	public static final String EMPTY_STRING = "";
+	public static final String NULL = "null";
 }

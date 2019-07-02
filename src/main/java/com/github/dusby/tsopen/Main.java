@@ -125,10 +125,11 @@ public class Main {
 	private static void printResults(PotentialLogicBombsRecovery plbr) {
 		if(plbr.hasPotentialLogicBombs()) {
 			System.out.println("\nPotential Logic bombs found : ");
+			System.out.println("--------------------------------");
 			for(Entry<IfStmt, List<SymbolicValue>> e : plbr.getPotentialLogicBombs().entrySet()) {
-				System.out.println(String.format("%s", e.getKey().getCondition()));
+				System.out.println(String.format("if %s", e.getKey().getCondition()));
 				for(SymbolicValue sv : e.getValue()) {
-					System.out.println(String.format("if %s (%s)", sv.getValue(), sv));
+					System.out.println(String.format("---> %s (%s)", sv.getValue(), sv));
 				}
 			}
 		}else {

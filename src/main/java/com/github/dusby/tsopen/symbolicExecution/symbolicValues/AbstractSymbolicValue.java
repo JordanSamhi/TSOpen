@@ -30,9 +30,11 @@ public abstract class AbstractSymbolicValue implements SymbolicValue {
 		values = this.values.get(v);
 		if(values != null) {
 			for(SymbolicValue sv : values) {
-				s += sv;
-				if(sv != values.get(values.size() - 1)) {
-					s += " | ";
+				if(!s.contains(sv.toString())) {
+					if(sv != values.get(0)) {
+						s += " | ";
+					}
+					s += sv;
 				}
 			}
 			return s;

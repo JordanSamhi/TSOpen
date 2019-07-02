@@ -1,5 +1,6 @@
 package com.github.dusby.tsopen.symbolicExecution.typeRecognition;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -7,18 +8,23 @@ import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.UnknownValue;
+import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
+import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
+import soot.jimple.ReturnStmt;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public abstract class TypeRecognitionHandler implements TypeRecognition {
@@ -46,6 +52,8 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 			result = this.processDefinitionStmt((DefinitionStmt) node);
 		}else if (node instanceof InvokeStmt) {
 			result = this.processInvokeStmt((InvokeStmt) node);
+		}else if(node instanceof ReturnStmt) {
+			result = this.processReturnStmt((ReturnStmt)node);
 		}
 
 		if(result != null && !result.isEmpty()) {
@@ -57,6 +65,37 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 		else {
 			return null;
 		}
+	}
+
+	@Override
+	public List<Pair<Value, SymbolicValue>> processReturnStmt(ReturnStmt returnStmt) {
+		//TODO Connect with paramters (full context sensitivity)
+		Collection<Unit> callers = this.icfg.getCallersOf(this.icfg.getMethodOf(returnStmt));
+		AssignStmt callerAssign = null;
+		Value leftOp = null,
+				returnOp = returnStmt.getOp();
+		List<SymbolicValue> values = null;
+		ContextualValues contextualValues = this.se.getContext().get(returnOp);
+		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
+
+		for(Unit caller : callers) {
+			if(caller instanceof AssignStmt) {
+				callerAssign = (AssignStmt) caller;
+				leftOp = callerAssign.getLeftOp();
+				if(contextualValues == null) {
+					results.add(new Pair<Value, SymbolicValue>(leftOp, new UnknownValue(this.se)));
+				}else {
+					values = contextualValues.getLastCoherentValues(returnStmt);
+					if(values != null) {
+						for(SymbolicValue sv : values) {
+							Utils.propagateTags(returnOp, sv, this.se);
+							results.add(new Pair<Value, SymbolicValue>(leftOp, sv));
+						}
+					}
+				}
+			}
+		}
+		return results;
 	}
 
 	@Override
@@ -97,7 +136,8 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 		results.add(new Pair<Value, SymbolicValue>(base, object));
 	}
 
-	protected abstract void handleInvokeTag(List<Value> args, Value base, SymbolicValue object, SootMethod method);
+	@Override
+	public abstract void handleInvokeTag(List<Value> args, Value base, SymbolicValue object, SootMethod method);
 
 	@Override
 	public void handleConstructor(InvokeExpr invExprUnit, Value base, List<Pair<Value, SymbolicValue>> results) {

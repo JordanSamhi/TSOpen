@@ -35,6 +35,8 @@ public class Constants {
 	public static final String ENDS_WITH = "endsWith";
 	public static final String MATCHES = "matches";
 	public static final String FORMAT = "format";
+	public static final String TO_LOWER_CASE = "toLowerCase";
+	public static final String TO_UPPER_CASE = "toUpperCase";
 
 	/**
 	 * Tags

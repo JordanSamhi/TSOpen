@@ -1,6 +1,7 @@
 package com.github.dusby.tsopen.utils;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
@@ -69,5 +70,30 @@ public class Utils {
 			}
 		}
 		return values;
+	}
+
+	public static String getFormattedTime(long time) {
+		long millis = TimeUnit.MILLISECONDS.convert(time, TimeUnit.NANOSECONDS),
+				seconds = 0,
+				minutes = 0,
+				hours = 0;
+		String strTime = "";
+		if(millis >= 1000) {
+			seconds = millis / 1000;
+			if(seconds >= 60) {
+				minutes = seconds / 60;
+				if(minutes >=60) {
+					hours = minutes / 60;
+					strTime += String.format("%s hours", hours);
+				}else {
+					strTime += String.format("%s mins", minutes);
+				}
+			}else {
+				strTime += String.format("%s s", seconds);
+			}
+		}else {
+			strTime += String.format("%s ms", millis);
+		}
+		return strTime;
 	}
 }

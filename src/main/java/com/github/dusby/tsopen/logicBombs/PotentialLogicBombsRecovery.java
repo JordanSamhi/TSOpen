@@ -13,7 +13,6 @@ import java.util.Map;
 import org.javatuples.Sextet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.profiler.StopWatch;
 
 import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecovery;
 import com.github.dusby.tsopen.pathPredicateRecovery.SimpleBlockPredicateExtraction;
@@ -21,7 +20,6 @@ import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
-import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
 import soot.Unit;
@@ -56,11 +54,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 
 	@Override
 	public void run() {
-		StopWatch stopWatch = new StopWatch(this.getClass().getName());
-		stopWatch.start("plbr");
 		this.retrievePotentialLogicBombs();
-		stopWatch.stop();
-		this.logger.info("Potential Logic Bombs Recovery : {}", Utils.getFormattedTime(stopWatch.elapsedTime()));
 	}
 
 	private void retrievePotentialLogicBombs() {

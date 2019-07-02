@@ -28,7 +28,11 @@ public class Main {
 	private static Profiler mainProfiler = new Profiler(Main.class.getName());
 
 	public static void main(String[] args) {
-		StopWatch stopWatch = new StopWatch(Main.class.getName());
+		StopWatch stopWatchCG = new StopWatch("cg"),
+				stopWatchSBPE = new StopWatch("sbpe"),
+				stopWatchPPR = new StopWatch("ppr"),
+				stopWatchSE = new StopWatch("se"),
+				stopWatchPLBR = new StopWatch("plbr");
 		mainProfiler.start("overall");
 		CommandLineOptions options = new CommandLineOptions(args);
 		InfoflowAndroidConfiguration ifac = new InfoflowAndroidConfiguration();
@@ -48,19 +52,18 @@ public class Main {
 		TimeOut timeOut = new TimeOut(options.getTimeout());
 		timeOut.trigger();
 
-		logger.info("File : {}", fileName);
-		logger.info("Timeout : {} minutes", timeOut.getTimeout());
+		logger.info(String.format("%-35s : %s", "File", fileName));
+		logger.info(String.format("%-35s : %s", "Timeout", timeOut.getTimeout(), "minutes"));
 
-		stopWatch.start("CallGraph");
+		stopWatchCG.start("CallGraph");
 		ifac.getAnalysisFileConfig().setAndroidPlatformDir(options.getPlatforms());
 		ifac.getAnalysisFileConfig().setTargetAPKFile(fileName);
 
 		sa = new SetupApplication(ifac);
 		sa.constructCallgraph();
 		icfg = new InfoflowCFG();
-
-		stopWatch.stop();
-		logger.info("CallGraph construction : {}", Utils.getFormattedTime(stopWatch.elapsedTime()));
+		stopWatchCG.stop();
+		logger.info(String.format("%-35s : %s", "CallGraph construction", Utils.getFormattedTime(stopWatchCG.elapsedTime())));
 
 		dummyMainMethod = sa.getDummyMainMethod();
 
@@ -74,48 +77,62 @@ public class Main {
 		seThread = new Thread(se, "syex");
 		plbrThread = new Thread(plbr, "plbr");
 
+		stopWatchSBPE.start("sbpe");
 		sbpeThread.start();
+		stopWatchSE.start("se");
 		seThread.start();
 
 		try {
 			sbpeThread.join();
+			stopWatchSBPE.stop();
+			logger.info(String.format("%-35s : %s", "Simple Block Predicate Extraction", Utils.getFormattedTime(stopWatchSBPE.elapsedTime())));
 		} catch (InterruptedException e) {
 			logger.error(e.getMessage());
 		}
 
+		stopWatchPPR.start("ppr");
 		pprThread.start();
 
 		try {
 			pprThread.join();
+			stopWatchPPR.stop();
+			logger.info(String.format("%-35s : %s", "Path Predicate Recovery", Utils.getFormattedTime(stopWatchPPR.elapsedTime())));
 			seThread.join();
+			stopWatchSE.stop();
+			logger.info(String.format("%-35s : %s", "Symbolic Execution", Utils.getFormattedTime(stopWatchSE.elapsedTime())));
 		} catch (InterruptedException e) {
 			logger.error(e.getMessage());
 		}
 
+		stopWatchPLBR.start("plbr");
 		plbrThread.start();
 
 		try {
 			plbrThread.join();
+			stopWatchPLBR.stop();
+			logger.info(String.format("%-35s : %s", "Potential Logic Bombs Recovery", Utils.getFormattedTime(stopWatchPLBR.elapsedTime())));
 		} catch (InterruptedException e) {
 			logger.error(e.getMessage());
 		}
 
 		mainProfiler.stop();
-		logger.info("Overall : {}", Utils.getFormattedTime(mainProfiler.elapsedTime()));
+		logger.info(String.format("%-35s : %s", "Application Execution Time", Utils.getFormattedTime(mainProfiler.elapsedTime())));
 
-		logger.info("-------------------------------------------------------------------");
+		printResults(plbr);
+		timeOut.cancel();
+	}
 
+	private static void printResults(PotentialLogicBombsRecovery plbr) {
 		if(plbr.hasPotentialLogicBombs()) {
-			logger.info("Potential Logic bombs found : ");
+			System.out.println("\nPotential Logic bombs found : ");
 			for(Entry<IfStmt, List<SymbolicValue>> e : plbr.getPotentialLogicBombs().entrySet()) {
-				logger.info("- if {}", e.getKey().getCondition());
+				System.out.println(String.format("%s", e.getKey().getCondition()));
 				for(SymbolicValue sv : e.getValue()) {
-					logger.info("-- if {} ({})", sv.getValue(), sv);
+					System.out.println(String.format("if %s (%s)", sv.getValue(), sv));
 				}
 			}
 		}else {
-			logger.info("No logic bomb found");
+			System.out.println("No logic bomb found");
 		}
-		timeOut.cancel();
 	}
 }

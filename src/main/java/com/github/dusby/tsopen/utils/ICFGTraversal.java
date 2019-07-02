@@ -5,11 +5,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.profiler.Profiler;
+import org.slf4j.profiler.StopWatch;
 
 import soot.SootMethod;
 import soot.Unit;
@@ -34,7 +33,6 @@ public abstract class ICFGTraversal implements Runnable{
 	private LinkedList<Unit> currentPath;
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
-	protected Profiler profiler = new Profiler(this.getClass().getName());
 
 	public ICFGTraversal(InfoflowCFG icfg, String nameOfAnalysis, SootMethod mainMethod) {
 		this.nameOfAnalysis = nameOfAnalysis;
@@ -56,7 +54,8 @@ public abstract class ICFGTraversal implements Runnable{
 	 * the method work-list is not empty.
 	 */
 	public void traverse() {
-		this.profiler.start("traverse");
+		StopWatch stopWatch = new StopWatch(this.getClass().getName());
+		stopWatch.start("traverse");
 		SootMethod methodToAnalyze = null;
 		Collection<Unit> extremities = null;
 		while(!this.methodWorkList.isEmpty()) {
@@ -67,8 +66,8 @@ public abstract class ICFGTraversal implements Runnable{
 				this.traverseNode(extremity);
 			}
 		}
-		this.profiler.stop();
-		this.logger.info("{} : {} ms", this.nameOfAnalysis, TimeUnit.MILLISECONDS.convert(this.profiler.elapsedTime(), TimeUnit.NANOSECONDS));
+		stopWatch.stop();
+		this.logger.info("{} : {}", this.nameOfAnalysis, Utils.getFormattedTime(stopWatch.elapsedTime()));
 	}
 
 	/**

@@ -2,11 +2,11 @@ package com.github.dusby.tsopen;
 
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.profiler.Profiler;
+import org.slf4j.profiler.StopWatch;
 
 import com.github.dusby.tsopen.logicBombs.PotentialLogicBombsRecovery;
 import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecovery;
@@ -14,6 +14,7 @@ import com.github.dusby.tsopen.pathPredicateRecovery.SimpleBlockPredicateExtract
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.TimeOut;
+import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
 import soot.jimple.IfStmt;
@@ -27,6 +28,8 @@ public class Main {
 	private static Profiler mainProfiler = new Profiler(Main.class.getName());
 
 	public static void main(String[] args) {
+		StopWatch stopWatch = new StopWatch(Main.class.getName());
+		mainProfiler.start("overall");
 		CommandLineOptions options = new CommandLineOptions(args);
 		InfoflowAndroidConfiguration ifac = new InfoflowAndroidConfiguration();
 		ifac.setIgnoreFlowsInSystemPackages(false);
@@ -48,7 +51,7 @@ public class Main {
 		logger.info("File : {}", fileName);
 		logger.info("Timeout : {} minutes", timeOut.getTimeout());
 
-		mainProfiler.start("CallGraph");
+		stopWatch.start("CallGraph");
 		ifac.getAnalysisFileConfig().setAndroidPlatformDir(options.getPlatforms());
 		ifac.getAnalysisFileConfig().setTargetAPKFile(fileName);
 
@@ -56,8 +59,8 @@ public class Main {
 		sa.constructCallgraph();
 		icfg = new InfoflowCFG();
 
-		mainProfiler.stop();
-		logger.info("CallGraph construction : {} ms", TimeUnit.MILLISECONDS.convert(mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS));
+		stopWatch.stop();
+		logger.info("CallGraph construction : {}", Utils.getFormattedTime(stopWatch.elapsedTime()));
 
 		dummyMainMethod = sa.getDummyMainMethod();
 
@@ -89,7 +92,6 @@ public class Main {
 			logger.error(e.getMessage());
 		}
 
-		mainProfiler.start("plbr");
 		plbrThread.start();
 
 		try {
@@ -97,8 +99,9 @@ public class Main {
 		} catch (InterruptedException e) {
 			logger.error(e.getMessage());
 		}
+
 		mainProfiler.stop();
-		logger.info("Potential Logic Bombs Recovery : {} ms", TimeUnit.MILLISECONDS.convert(mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS));
+		logger.info("Overall : {}", Utils.getFormattedTime(mainProfiler.elapsedTime()));
 
 		logger.info("-------------------------------------------------------------------");
 
@@ -113,7 +116,6 @@ public class Main {
 		}else {
 			logger.info("No logic bomb found");
 		}
-
 		timeOut.cancel();
 	}
 }

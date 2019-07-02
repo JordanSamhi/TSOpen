@@ -20,6 +20,8 @@ public class TimeOut {
 		this.exitTask = new TimerTask() {
 			@Override
 			public void run() {
+				TimeOut.this.logger.warn("Timeout reached !");
+				TimeOut.this.logger.warn("Ending program...");
 				System.exit(0);
 			}
 		};

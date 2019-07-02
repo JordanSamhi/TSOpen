@@ -1,8 +1,10 @@
 package com.github.dusby.tsopen.utils;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -28,7 +30,7 @@ public abstract class ICFGTraversal implements Runnable{
 	protected final InfoflowCFG icfg;
 	private List<SootMethod> visitedMethods;
 	private LinkedList<SootMethod> methodWorkList;
-	private List<Unit> visitedNodes;
+	private Map<Unit, String> visitedNodes;
 	private LinkedList<Unit> currentPath;
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -39,7 +41,7 @@ public abstract class ICFGTraversal implements Runnable{
 		this.icfg = icfg;
 		this.visitedMethods = new LinkedList<SootMethod>();
 		this.methodWorkList = new LinkedList<SootMethod>();
-		this.visitedNodes = new LinkedList<Unit>();
+		this.visitedNodes = new HashMap<Unit, String>();
 		this.currentPath = new LinkedList<Unit>();
 		this.methodWorkList.add(mainMethod);
 	}
@@ -76,8 +78,7 @@ public abstract class ICFGTraversal implements Runnable{
 	 */
 	private void traverseNode(Unit node) {
 		DefinitionStmt defUnit = null;
-		if(!this.visitedNodes.contains(node)) {
-			this.visitedNodes.add(node);
+		if(this.checkNodeColor(node)) {
 			this.currentPath.add(node);
 			if(node instanceof InvokeStmt) {
 				this.propagateTargetMethod(node);
@@ -95,6 +96,24 @@ public abstract class ICFGTraversal implements Runnable{
 			this.currentPath.removeLast();
 			this.processNodeAfterNeighbors(node);
 		}
+	}
+
+	private boolean checkNodeColor(Unit node) {
+		String nodeColor = this.visitedNodes.get(node);
+		if(nodeColor == null) {
+			nodeColor = Constants.WHITE;
+			this.visitedNodes.put(node, nodeColor);
+		}
+		if(nodeColor != Constants.BLACK) {
+			if(nodeColor.equals(Constants.WHITE)) {
+				nodeColor = Constants.GREY;
+			}else if(nodeColor.equals(Constants.GREY)) {
+				nodeColor = Constants.BLACK;
+			}
+			this.visitedNodes.put(node, nodeColor);
+			return true;
+		}
+		return false;
 	}
 
 	/**

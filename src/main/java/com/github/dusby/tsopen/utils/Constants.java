@@ -91,4 +91,7 @@ public class Constants {
 	public static final String MULTIPLICATION = "x";
 	public static final String DIVISION = "/";
 	public static final String  MODULO = "%";
+	public static final String  WHITE = "white";
+	public static final String  GREY = "grey";
+	public static final String  BLACK = "black";
 }

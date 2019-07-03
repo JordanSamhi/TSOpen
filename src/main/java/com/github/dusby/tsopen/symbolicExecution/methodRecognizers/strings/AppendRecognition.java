@@ -10,6 +10,7 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresenta
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.UnknownValue;
 import com.github.dusby.tsopen.utils.Constants;
+import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
 import soot.Value;
@@ -74,6 +75,11 @@ public class AppendRecognition extends StringMethodsRecognitionHandler {
 						}
 					}
 				}
+			}
+		}
+		for(SymbolicValue sv : results) {
+			for(Value arg : args) {
+				Utils.propagateTags(arg, sv, this.se);
 			}
 		}
 		return results;

@@ -10,6 +10,7 @@ import org.javatuples.Pair;
 
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.BooleanRecognition;
+import com.github.dusby.tsopen.symbolicExecution.typeRecognition.ByteRecognition;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.DateTimeRecognition;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.IntRecognition;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.LocationRecognition;
@@ -48,6 +49,7 @@ public class SymbolicExecution extends ICFGForwardTraversal {
 		this.trh = new LongRecognition(this.trh, this, this.icfg);
 		this.trh = new IntRecognition(this.trh, this, this.icfg);
 		this.trh = new BooleanRecognition(this.trh, this, icfg);
+		this.trh = new ByteRecognition(this.trh, this, icfg);
 	}
 
 	/**

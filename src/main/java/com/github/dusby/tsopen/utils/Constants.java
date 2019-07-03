@@ -77,6 +77,7 @@ public class Constants {
 	public static final String INT = "int";
 	public static final String LONG = "long";
 	public static final String BOOLEAN = "boolean";
+	public static final String BYTE = "byte";
 
 	/**
 	 * Files

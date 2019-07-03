@@ -14,6 +14,7 @@ import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.bool.EndsWith
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.bool.EqualsRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.bool.MatchesRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.bool.StartsWithRecognition;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.FieldValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
@@ -22,6 +23,7 @@ import com.github.dusby.tsopen.utils.Constants;
 import soot.SootMethod;
 import soot.Value;
 import soot.jimple.DefinitionStmt;
+import soot.jimple.InstanceFieldRef;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
@@ -51,21 +53,25 @@ public class BooleanRecognition extends TypeRecognitionHandler {
 				base = null;
 		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
 		InstanceInvokeExpr rightOpInvExpr = null;
+		InstanceFieldRef field = null;
 		SootMethod method = null;
 		List<Value> args = null;
-		MethodRepresentationValue object = null;
+		SymbolicValue object = null;
 
 		if(rightOp instanceof InstanceInvokeExpr) {
 			rightOpInvExpr = (InstanceInvokeExpr) rightOp;
 			method = rightOpInvExpr.getMethod();
 			args = rightOpInvExpr.getArgs();
 			base = rightOpInvExpr.getBase();
-
+			object = new MethodRepresentationValue(base, args, method, this.se);
+			this.bmrh.recognizeBooleanMethod(method, base, object, args);
+		}else if(rightOp instanceof InstanceFieldRef){
+			field = (InstanceFieldRef) rightOp;
+			base = field.getBase();
+			object = new FieldValue(base, field.getField().getName(), this.se);
 		}else {
 			return results;
 		}
-		object = new MethodRepresentationValue(base, args, method, this.se);
-		this.bmrh.recognizeBooleanMethod(method, base, object, args);
 		results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		return results;
 	}

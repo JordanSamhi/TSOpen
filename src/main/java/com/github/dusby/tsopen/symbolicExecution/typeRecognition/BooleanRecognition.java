@@ -10,6 +10,7 @@ import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.bool.AfterRec
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.bool.BeforeRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.bool.BooleanMethodsRecognitionHandler;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.bool.ContainsRecognition;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.bool.EndsWithRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.bool.EqualsRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.bool.MatchesRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.bool.StartsWithRecognition;
@@ -36,6 +37,7 @@ public class BooleanRecognition extends TypeRecognitionHandler {
 		this.bmrh = new EqualsRecognition(this.bmrh, se);
 		this.bmrh = new ContainsRecognition(this.bmrh, se);
 		this.bmrh = new StartsWithRecognition(this.bmrh, se);
+		this.bmrh = new EndsWithRecognition(this.bmrh, se);
 		this.bmrh = new MatchesRecognition(this.bmrh, se);
 	}
 

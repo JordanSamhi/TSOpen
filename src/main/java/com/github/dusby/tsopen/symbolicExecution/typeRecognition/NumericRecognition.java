@@ -48,7 +48,6 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 		SymbolicValue object = null;
 		InstanceFieldRef field = null;
 		BinopExpr BinOpRightOp = null;
-
 		if(rightOp instanceof InvokeExpr) {
 			rightOpInvExpr = (InvokeExpr) rightOp;
 			method = rightOpInvExpr.getMethod();

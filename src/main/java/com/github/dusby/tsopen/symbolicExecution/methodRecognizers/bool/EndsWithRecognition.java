@@ -12,9 +12,9 @@ import soot.Value;
 import soot.jimple.Constant;
 import soot.tagkit.StringConstantValueTag;
 
-public class EndsWith extends BooleanMethodsRecognitionHandler {
+public class EndsWithRecognition extends BooleanMethodsRecognitionHandler {
 
-	public EndsWith(BooleanMethodsRecognitionHandler next, SymbolicExecution se) {
+	public EndsWithRecognition(BooleanMethodsRecognitionHandler next, SymbolicExecution se) {
 		super(next, se);
 	}
 

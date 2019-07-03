@@ -1,6 +1,7 @@
 package com.github.dusby.tsopen.symbolicExecution.typeRecognition;
 
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.numeric.CurrentTimeMillisRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.numeric.GetLatitudeRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.numeric.GetLongitudeRecognition;
 import com.github.dusby.tsopen.utils.Constants;
@@ -14,5 +15,6 @@ public class LongRecognition extends NumericRecognition {
 		this.authorizedTypes.add(Constants.LONG);
 		this.nmrh = new GetLongitudeRecognition(null, se);
 		this.nmrh = new GetLatitudeRecognition(this.nmrh, se);
+		this.nmrh = new CurrentTimeMillisRecognition(this.nmrh, se);
 	}
 }

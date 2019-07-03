@@ -29,14 +29,7 @@ public abstract class AbstractSymbolicValue implements SymbolicValue {
 		String s = "";
 		values = this.values.get(v);
 		if(values != null) {
-			for(SymbolicValue sv : values) {
-				if(!s.contains(sv.toString())) {
-					if(sv != values.get(0)) {
-						s += " | ";
-					}
-					s += sv;
-				}
-			}
+			s += values.get(0);
 			return s;
 		}else if(v instanceof Constant){
 			return ((Constant)v).toString();

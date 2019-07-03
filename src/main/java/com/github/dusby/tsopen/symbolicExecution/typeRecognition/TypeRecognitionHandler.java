@@ -77,18 +77,20 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 		List<SymbolicValue> values = null;
 		ContextualValues contextualValues = this.se.getContext().get(returnOp);
 		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
+		SymbolicValue object = null;
 
 		for(Unit caller : callers) {
 			if(caller instanceof AssignStmt) {
 				callerAssign = (AssignStmt) caller;
 				leftOp = callerAssign.getLeftOp();
 				if(contextualValues == null) {
-					results.add(new Pair<Value, SymbolicValue>(leftOp, new UnknownValue(this.se)));
+					object = new UnknownValue(this.se);
+					Utils.propagateTags(returnOp, object, this.se);
+					results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 				}else {
 					values = contextualValues.getLastCoherentValues(returnStmt);
 					if(values != null) {
 						for(SymbolicValue sv : values) {
-							Utils.propagateTags(returnOp, sv, this.se);
 							results.add(new Pair<Value, SymbolicValue>(leftOp, sv));
 						}
 					}

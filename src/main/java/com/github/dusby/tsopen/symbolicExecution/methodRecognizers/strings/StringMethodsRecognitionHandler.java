@@ -9,7 +9,6 @@ import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.UnknownValue;
-import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
 import soot.Value;
@@ -50,7 +49,6 @@ public abstract class StringMethodsRecognitionHandler implements StringMethodsRe
 			values = contextualValues.getLastCoherentValues(null);
 			if(values != null) {
 				for(SymbolicValue sv : values) {
-					Utils.propagateTags(v, sv, this.se);
 					results.add(sv);
 				}
 			}

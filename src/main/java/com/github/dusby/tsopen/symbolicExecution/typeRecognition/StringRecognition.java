@@ -13,14 +13,15 @@ import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.Forma
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.GetMessageBodyRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.StringMethodsRecognitionHandler;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.SubStringRecognition;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ToLowerCaseRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ToStringRecognition;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ToUpperCaseRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ValueOfRecognition;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
-import com.github.dusby.tsopen.utils.Utils;
 
 import soot.Local;
 import soot.SootMethod;
@@ -48,6 +49,8 @@ public class StringRecognition extends TypeRecognitionHandler{
 		this.smrh = new SubStringRecognition(this.smrh, se);
 		this.smrh = new GetMessageBodyRecognition(this.smrh, se);
 		this.smrh = new FormatRecognition(this.smrh, se);
+		this.smrh = new ToLowerCaseRecognition(this.smrh, se);
+		this.smrh = new ToUpperCaseRecognition(this.smrh, se);
 		this.authorizedTypes.add(Constants.JAVA_LANG_STRING);
 		this.authorizedTypes.add(Constants.JAVA_LANG_STRING_BUFFER);
 		this.authorizedTypes.add(Constants.JAVA_LANG_STRING_BUILDER);
@@ -62,7 +65,6 @@ public class StringRecognition extends TypeRecognitionHandler{
 			values = contextualValues.getLastCoherentValues(node);
 			if(values != null) {
 				for(SymbolicValue sv : values) {
-					Utils.propagateTags(v, sv, this.se);
 					results.add(new Pair<Value, SymbolicValue>(leftOp, sv));
 				}
 			}

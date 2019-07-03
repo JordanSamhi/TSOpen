@@ -45,7 +45,6 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 
 	@Override
 	public List<Pair<Value, SymbolicValue>> recognizeType(Unit node) {
-
 		List<Pair<Value, SymbolicValue>> result = null;
 
 		if(node instanceof DefinitionStmt) {
@@ -69,7 +68,6 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 
 	@Override
 	public List<Pair<Value, SymbolicValue>> processReturnStmt(ReturnStmt returnStmt) {
-		//TODO Connect with paramters (full context sensitivity)
 		Collection<Unit> callers = this.icfg.getCallersOf(this.icfg.getMethodOf(returnStmt));
 		AssignStmt callerAssign = null;
 		Value leftOp = null,

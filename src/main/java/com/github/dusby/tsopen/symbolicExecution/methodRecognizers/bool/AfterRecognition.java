@@ -24,7 +24,12 @@ public class AfterRecognition extends BooleanMethodsRecognitionHandler {
 		if(methodName.equals(Constants.AFTER)) {
 			firstArg = args.get(0);
 			if(Utils.containsTag(base, Constants.NOW_TAG, this.se)) {
-				if(firstArg.getType().toString().equals(Constants.JAVA_UTIL_DATE)) {
+				if(firstArg.getType().toString().equals(Constants.JAVA_UTIL_DATE)
+						|| firstArg.getType().toString().equals(Constants.JAVA_UTIL_CALENDAR)
+						|| firstArg.getType().toString().equals(Constants.JAVA_UTIL_GREGORIAN_CALENDAR)
+						|| firstArg.getType().toString().equals(Constants.JAVA_TEXT_SIMPLE_DATE_FORMAT)
+						|| firstArg.getType().toString().equals(Constants.JAVA_TIME_LOCAL_DATE_TIME)
+						|| firstArg.getType().toString().equals(Constants.JAVA_TIME_LOCAL_DATE)) {
 					sv.addTag(new StringConstantValueTag(Constants.SUSPICIOUS));
 					return true;
 				}

@@ -62,7 +62,7 @@ public class Constants {
 	public static final String JAVA_UTIL_CALENDAR = "java.util.Calendar";
 	public static final String JAVA_TEXT_SIMPLE_DATE_FORMAT = "java.text.SimpleDateFormat";
 	public static final String JAVA_UTIL_DATE = "java.util.Date";
-	public static final String JAVA_UTIL_GREGORIAN_CALENDAR = "java.util.Calendar";
+	public static final String JAVA_UTIL_GREGORIAN_CALENDAR = "java.util.GregorianCalendar";
 	public static final String JAVA_TIME_LOCAL_DATE_TIME = "java.time.LocalDateTime";
 	public static final String JAVA_TIME_LOCAL_DATE = "java.time.LocalDate";
 	public static final String ANDROID_TEXT_FORMAT_TIME = "android.text.format.Time";

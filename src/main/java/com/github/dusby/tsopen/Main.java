@@ -70,7 +70,7 @@ public class Main {
 		sbpe = new SimpleBlockPredicateExtraction(icfg, dummyMainMethod);
 		ppr = new PathPredicateRecovery(icfg, sbpe, dummyMainMethod, options.hasExceptions());
 		se = new SymbolicExecution(icfg, dummyMainMethod);
-		plbr = new PotentialLogicBombsRecovery(sbpe, se, ppr);
+		plbr = new PotentialLogicBombsRecovery(sbpe, se, ppr, icfg);
 
 		sbpeThread = new Thread(sbpe, "sbpe");
 		pprThread = new Thread(ppr, "pprr");

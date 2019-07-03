@@ -45,6 +45,8 @@ public class ByteRecognition extends TypeRecognitionHandler {
 			object = new BinOpValue(this.se, binOp1, binOp2, BinOpRightOp.getSymbol());
 			Utils.propagateTags(binOp1, object, this.se);
 			Utils.propagateTags(binOp2, object, this.se);
+		}else {
+			return results;
 		}
 		results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		return results;

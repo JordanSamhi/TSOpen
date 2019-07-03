@@ -6,6 +6,7 @@ public class Constants {
 	 * Methods
 	 */
 	public static final String GET_INSTANCE = "getInstance";
+	public static final String GET = "get";
 	public static final String NOW = "now";
 	public static final String GET_LAST_KNOW_LOCATION = "getLastKnownLocation";
 	public static final String GET_LAST_LOCATION = "getLastLocation";

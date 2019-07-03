@@ -31344,3 +31344,7 @@
 <android.nfc.NdefRecord: int getByteLength()>
 <com.android.contacts.util.StreamItemEntry: void decodeHtml(android.content.Context)>
 <com.android.contacts.list.ContactTileListFragment: android.widget.ListView access$400(com.android.contacts.list.ContactTileListFragment)>
+<java.io.File: boolean mkdirs()>
+<java.io.File: boolean createNewFile()>
+<java.io.File: void <init>(java.io.File,java.lang.String)>
+<java.io.File: boolean createNewFile()>

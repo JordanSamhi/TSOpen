@@ -76,6 +76,7 @@ public class Constants {
 	public static final String JAVA_LANG_SYSTEM = "java.lang.System";
 	public static final String INT = "int";
 	public static final String LONG = "long";
+	public static final String DOUBLE = "double";
 	public static final String BOOLEAN = "boolean";
 	public static final String BYTE = "byte";
 

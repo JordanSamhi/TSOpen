@@ -31348,3 +31348,6 @@
 <java.io.File: boolean createNewFile()>
 <java.io.File: void <init>(java.io.File,java.lang.String)>
 <java.io.File: boolean createNewFile()>
+<java.io.DataOutputStream: void <init>(java.io.OutputStream)>
+<java.io.DataOutputStream: void writeBytes(java.lang.String)>
+<java.io.ObjectOutputStream: void writeObject(java.lang.Object)>

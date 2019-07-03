@@ -1,8 +1,8 @@
 package com.github.dusby.tsopen.logicBombs;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -184,27 +184,27 @@ public class PotentialLogicBombsRecovery implements Runnable {
 	}
 
 	private boolean isSensitiveMethod(SootMethod m) {
-		FileInputStream fis = null;
+		InputStream fis = null;
 		BufferedReader br = null;
 		String line = null;
 		try {
-			fis = new FileInputStream(Constants.SENSITIVE_METHODS_FILE);
+			fis = this.getClass().getResourceAsStream(Constants.SENSITIVE_METHODS_FILE);
 			br = new BufferedReader(new InputStreamReader(fis));
 			while ((line = br.readLine()) != null)   {
 				if(m.getSignature().equals(line)) {
+					br.close();
+					fis.close();
 					return true;
 				}
 			}
 		} catch (IOException e) {
 			this.logger.error(e.getMessage());
-		} finally {
-			try {
-				br.close();
-				fis.close();
-			} catch (IOException e) {
-				this.logger.error(e.getMessage());
-			} finally {
-			}
+		}
+		try {
+			br.close();
+			fis.close();
+		} catch (IOException e) {
+			this.logger.error(e.getMessage());
 		}
 		return false;
 	}

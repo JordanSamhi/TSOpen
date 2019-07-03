@@ -80,7 +80,7 @@ public class Constants {
 	/**
 	 * Files
 	 */
-	public static final String SENSITIVE_METHODS_FILE = "src/main/resources/sensitiveMethods.pscout";
+	public static final String SENSITIVE_METHODS_FILE = "/sensitiveMethods.pscout";
 
 	/**
 	 * Misc

@@ -42,7 +42,7 @@
         </filter>
     </appender>
     <logger name="com.github.dusby" additivity="false">
-        <level value="DEBUg"/>
+        <level value="INFO"/>
         <appender-ref ref="STDOUT_DEBUG"/>
         <appender-ref ref="STDOUT_INFO"/>
         <appender-ref ref="STDOUT_WARN"/>

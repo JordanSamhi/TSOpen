@@ -6,6 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.DefinitionStmt;
@@ -27,6 +30,8 @@ public abstract class ICFGTraversal implements Runnable{
 	private LinkedList<SootMethod> methodWorkList;
 	private Map<Unit, String> visitedNodes;
 	private LinkedList<Unit> currentPath;
+
+	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public ICFGTraversal(InfoflowCFG icfg, String nameOfAnalysis, SootMethod mainMethod) {
 		this.nameOfAnalysis = nameOfAnalysis;

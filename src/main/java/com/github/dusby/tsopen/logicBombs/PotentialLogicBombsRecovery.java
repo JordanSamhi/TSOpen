@@ -75,11 +75,20 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		if(!this.isSuspicious(ifStmt)) {
 			return false;
 		}
+		if(this.logger.isDebugEnabled()) {
+			this.logger.debug("Predicate is suspicious : {}", ifStmt);
+		}
 		if(!this.isSuspiciousAfterPostFilters(ifStmt)) {
 			return false;
 		}
+		if(this.logger.isDebugEnabled()) {
+			this.logger.debug("Predicate is suspicious after post filters : {}", ifStmt);
+		}
 		if(this.controlSensitiveAction(ifStmt)) {
 			return true;
+		}
+		if(this.logger.isDebugEnabled()) {
+			this.logger.debug("Predicate does not control sensitive action : {}", ifStmt);
 		}
 		return false;
 	}

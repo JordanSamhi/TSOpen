@@ -123,6 +123,7 @@ public class Main {
 	}
 
 	private static void printResults(PotentialLogicBombsRecovery plbr, InfoflowCFG icfg) {
+		//TODO print object symbolic values
 		SootMethod ifMethod = null;
 		if(plbr.hasPotentialLogicBombs()) {
 			System.out.println("\nPotential Logic Bombs found : ");

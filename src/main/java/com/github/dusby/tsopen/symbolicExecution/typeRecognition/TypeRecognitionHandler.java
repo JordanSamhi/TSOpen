@@ -25,6 +25,7 @@ import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.ReturnStmt;
+import soot.jimple.StaticInvokeExpr;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public abstract class TypeRecognitionHandler implements TypeRecognition {
@@ -124,6 +125,8 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 					}
 				}
 			}
+		}else if (invExprUnit instanceof StaticInvokeExpr) {
+			this.handleInvokeStmt(invExprUnit, base, results);
 		}
 		return results;
 	}

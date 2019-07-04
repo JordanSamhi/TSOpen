@@ -11,7 +11,6 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 public class LongRecognition extends NumericRecognition {
 
 	public LongRecognition(TypeRecognitionHandler next, SymbolicExecution se, InfoflowCFG icfg) {
-		//TODO check to take off latitude and longitude (double instead)
 		super(next, se, icfg);
 		this.authorizedTypes.add(Constants.LONG);
 		this.nmrh = new GetLongitudeRecognition(null, se);

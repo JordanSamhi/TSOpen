@@ -117,7 +117,7 @@ public abstract class ICFGTraversal implements Runnable{
 	 * @param invocation the basic block representing a method invocation
 	 */
 	private void propagateTargetMethod(Unit invocation) {
-		Collection<SootMethod> pointsTo = this.icfg.getCalleesOfCallAt(invocation);
+		Collection<SootMethod> pointsTo = Utils.getInvokedMethods(invocation, this.icfg);
 		for(SootMethod callee : pointsTo) {
 			if(callee.getDeclaringClass().isApplicationClass()) {
 				if(!this.methodWorkList.contains(callee)) {

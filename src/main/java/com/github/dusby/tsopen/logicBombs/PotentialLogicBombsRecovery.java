@@ -20,6 +20,7 @@ import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
+import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
 import soot.Unit;
@@ -27,11 +28,8 @@ import soot.Value;
 import soot.ValueBox;
 import soot.jimple.ConditionExpr;
 import soot.jimple.Constant;
-import soot.jimple.DefinitionStmt;
 import soot.jimple.IfStmt;
 import soot.jimple.IntConstant;
-import soot.jimple.InvokeExpr;
-import soot.jimple.InvokeStmt;
 import soot.jimple.NullConstant;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
@@ -170,7 +168,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 
 	private boolean isSensitive(Collection<Unit> guardedBlocks) {
 		for(Unit block : guardedBlocks) {
-			for(SootMethod m : this.getInvokedMethods(block)) {
+			for(SootMethod m : Utils.getInvokedMethods(block, this.icfg)) {
 				if(!this.visitedMethods.contains(m)) {
 					this.visitedMethods.add(m);
 					if(this.isSensitiveMethod(m)) {
@@ -183,29 +181,6 @@ public class PotentialLogicBombsRecovery implements Runnable {
 			}
 		}
 		return false;
-	}
-
-	private Collection<SootMethod> getInvokedMethods(Unit block) {
-		Collection<SootMethod> methods = new ArrayList<SootMethod>();
-		DefinitionStmt defUnit = null;
-		Value value = null;
-		if(block instanceof InvokeStmt) {
-			methods.addAll(this.icfg.getCalleesOfCallAt(block));
-		}else if(block instanceof DefinitionStmt) {
-			defUnit = (DefinitionStmt) block;
-			if(defUnit.getRightOp() instanceof InvokeExpr) {
-				methods.addAll(this.icfg.getCalleesOfCallAt(defUnit));
-			}
-		}
-		if(methods.isEmpty()) {
-			for(ValueBox v : block.getUseAndDefBoxes()) {
-				value = v.getValue();
-				if(value instanceof InvokeExpr) {
-					methods.add(((InvokeExpr)value).getMethod());
-				}
-			}
-		}
-		return methods;
 	}
 
 	private boolean isSensitiveMethod(SootMethod m) {

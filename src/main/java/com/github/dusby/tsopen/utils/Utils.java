@@ -1,5 +1,7 @@
 package com.github.dusby.tsopen.utils;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -7,10 +9,17 @@ import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
+import soot.FastHierarchy;
+import soot.SootClass;
+import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
 import soot.ValueBox;
 import soot.jimple.CaughtExceptionRef;
+import soot.jimple.DefinitionStmt;
+import soot.jimple.InvokeExpr;
+import soot.jimple.InvokeStmt;
+import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 import soot.jimple.internal.IdentityRefBox;
 import soot.tagkit.StringConstantValueTag;
 
@@ -95,5 +104,45 @@ public class Utils {
 			strTime += String.format("%3s %s", millis, "ms");
 		}
 		return strTime;
+	}
+
+	public static Collection<SootMethod> getInvokedMethods(Unit block, InfoflowCFG icfg) {
+		FastHierarchy fh = new FastHierarchy();
+		Collection<SootClass> classes = null;
+		Collection<SootMethod> methods = new ArrayList<SootMethod>();
+		SootMethod method = null;
+		DefinitionStmt defUnit = null;
+		Value value = null;
+		if(block instanceof InvokeStmt) {
+			methods.addAll(icfg.getCalleesOfCallAt(block));
+		}else if(block instanceof DefinitionStmt) {
+			defUnit = (DefinitionStmt) block;
+			if(defUnit.getRightOp() instanceof InvokeExpr) {
+				methods.addAll(icfg.getCalleesOfCallAt(defUnit));
+			}
+		}
+		if(methods.isEmpty()) {
+			for(ValueBox v : block.getUseAndDefBoxes()) {
+				value = v.getValue();
+				if(value instanceof InvokeExpr) {
+					method = ((InvokeExpr)value).getMethod();
+					if(method.isAbstract()) {
+						classes = fh.getSubclassesOf(method.getDeclaringClass());
+						for(SootClass c : classes) {
+							for(SootMethod m : c.getMethods()) {
+								if(m.getSubSignature().equals(method.getSubSignature())) {
+									if(!methods.contains(m)) {
+										methods.add(m);
+									}
+								}
+							}
+						}
+					}else {
+						methods.add(method);
+					}
+				}
+			}
+		}
+		return methods;
 	}
 }

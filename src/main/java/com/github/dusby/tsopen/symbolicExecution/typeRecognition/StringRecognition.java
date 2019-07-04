@@ -11,6 +11,7 @@ import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.AppendRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.FormatRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.GetMessageBodyRecognition;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.GetOriginatingAddressRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.StringMethodsRecognitionHandler;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.SubStringRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ToLowerCaseRecognition;
@@ -51,6 +52,7 @@ public class StringRecognition extends TypeRecognitionHandler{
 		this.smrh = new FormatRecognition(this.smrh, se);
 		this.smrh = new ToLowerCaseRecognition(this.smrh, se);
 		this.smrh = new ToUpperCaseRecognition(this.smrh, se);
+		this.smrh = new GetOriginatingAddressRecognition(this.smrh, se);
 		this.authorizedTypes.add(Constants.JAVA_LANG_STRING);
 		this.authorizedTypes.add(Constants.JAVA_LANG_STRING_BUFFER);
 		this.authorizedTypes.add(Constants.JAVA_LANG_STRING_BUILDER);

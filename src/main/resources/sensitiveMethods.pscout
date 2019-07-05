@@ -31352,3 +31352,4 @@
 <java.io.DataOutputStream: void writeBytes(java.lang.String)>
 <java.io.ObjectOutputStream: void writeObject(java.lang.Object)>
 <android.content.Context: void startActivity(android.content.Intent)>
+<android.content.ContextWrapper: void startActivity(android.content.Intent)>

@@ -59,6 +59,7 @@ public class SymbolicExecution extends ICFGForwardTraversal {
 	 */
 	@Override
 	protected void processNodeBeforeNeighbors(Unit node) {
+		this.logger.debug("[Symbolic Execution] node : " + node);
 		ContextualValues contextualValues = null;
 		List<Pair<Value, SymbolicValue>> results = this.trh.recognizeType(node);
 		Value value = null;

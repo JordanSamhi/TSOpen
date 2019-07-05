@@ -26,11 +26,13 @@ import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
 import soot.ValueBox;
+import soot.jimple.AssignStmt;
 import soot.jimple.ConditionExpr;
 import soot.jimple.Constant;
 import soot.jimple.IfStmt;
 import soot.jimple.IntConstant;
 import soot.jimple.NullConstant;
+import soot.jimple.ReturnStmt;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public class PotentialLogicBombsRecovery implements Runnable {
@@ -151,7 +153,52 @@ public class PotentialLogicBombsRecovery implements Runnable {
 				}
 			}
 		}
+		if(this.ifControlBoolReturn(ifStmt)) {
+			SootMethod methodOfIf = this.icfg.getMethodOf(ifStmt);
+			AssignStmt callerAssign = null;
+			Value leftOp = null;
+			for(Unit caller : this.icfg.getCallersOf(methodOfIf)) {
+				if(caller instanceof AssignStmt) {
+					callerAssign = (AssignStmt) caller;
+					leftOp = callerAssign.getLeftOp();
+					for(Unit u : this.icfg.getSuccsOf(callerAssign)) {
+						if(u instanceof IfStmt) {
+							for(ValueBox vb : u.getUseBoxes()) {
+								if(vb.getValue() == leftOp) {
+									guardedBlocks = this.ppr.getGuardedBlocks((IfStmt)u);
+									if(this.isSensitive(guardedBlocks)) {
+										return true;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 		return false;
+	}
+
+	private boolean ifControlBoolReturn(IfStmt ifStmt) {
+		ReturnStmt ret = null;
+		Value retOp = null;
+		IntConstant retCons = null;
+		boolean controlBoolReturn = false;
+		for(Unit u : this.icfg.getSuccsOf(ifStmt)) {
+			if(u instanceof ReturnStmt) {
+				ret = (ReturnStmt)u;
+				retOp = ret.getOp();
+				if(retOp instanceof IntConstant) {
+					retCons = (IntConstant) retOp;
+					if(retCons.value == 1 || retCons.value == 0) {
+						controlBoolReturn = true;
+					}else {
+						controlBoolReturn = false;
+					}
+				}
+			}
+		}
+		return controlBoolReturn;
 	}
 
 	private List<IfStmt> getRelatedPredicates(Value value) {

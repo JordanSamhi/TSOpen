@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
@@ -20,6 +21,7 @@ import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
 import soot.jimple.AssignStmt;
+import soot.jimple.Constant;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
@@ -83,7 +85,11 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 				callerAssign = (AssignStmt) caller;
 				leftOp = callerAssign.getLeftOp();
 				if(contextualValues == null) {
-					object = new UnknownValue(this.se);
+					if(returnOp instanceof Constant) {
+						object = new ConstantValue((Constant)returnOp, this.se);
+					}else {
+						object = new UnknownValue(this.se);
+					}
 					Utils.propagateTags(returnOp, object, this.se);
 					results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 				}else {

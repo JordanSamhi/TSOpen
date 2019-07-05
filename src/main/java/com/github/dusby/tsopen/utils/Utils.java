@@ -10,6 +10,7 @@ import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
 import soot.FastHierarchy;
+import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Unit;
@@ -107,7 +108,7 @@ public class Utils {
 	}
 
 	public static Collection<SootMethod> getInvokedMethods(Unit block, InfoflowCFG icfg) {
-		FastHierarchy fh = new FastHierarchy();
+		FastHierarchy fh = Scene.v().getOrMakeFastHierarchy();
 		Collection<SootClass> classes = null;
 		Collection<SootMethod> methods = new ArrayList<SootMethod>();
 		SootMethod method = null;

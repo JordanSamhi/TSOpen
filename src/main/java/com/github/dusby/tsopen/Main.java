@@ -66,7 +66,6 @@ public class Main {
 		logger.info(String.format("%-35s : %s", "CallGraph construction", Utils.getFormattedTime(stopWatchCG.elapsedTime())));
 
 		dummyMainMethod = sa.getDummyMainMethod();
-
 		sbpe = new SimpleBlockPredicateExtraction(icfg, dummyMainMethod);
 		ppr = new PathPredicateRecovery(icfg, sbpe, dummyMainMethod, options.hasExceptions());
 		se = new SymbolicExecution(icfg, dummyMainMethod);
@@ -136,10 +135,10 @@ public class Main {
 				for(SymbolicValue sv : e.getValue()) {
 					System.out.println(String.format("- %-10s : %s (%s)", "Predicate", sv.getValue(), sv));
 				}
-				System.out.println("----------------------------------------------------------------");
+				System.out.println("----------------------------------------------------------------\n");
 			}
 		}else {
-			System.out.println("\nNo Logic Bomb found");
+			System.out.println("\nNo Logic Bomb found\n");
 		}
 	}
 }

@@ -24,7 +24,7 @@
     <appender name="STDOUT_WARN" class="org.apache.log4j.ConsoleAppender">
         <param name="threshold" value="warn"/>
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="[!] %5p %m%n"/>
+            <param name="ConversionPattern" value="[!] %m%n"/>
         </layout>
         <filter class="org.apache.log4j.varia.LevelRangeFilter">
        		<param name="levelMin" value="warn" />

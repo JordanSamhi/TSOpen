@@ -17,7 +17,7 @@ public class FieldValue extends AbstractSymbolicValue {
 
 	@Override
 	public String getValue() {
-		return String.format("%s.%s", this.base, this.field);
+		return String.format("%s.%s", this.base == null ? "" : this.base, this.field);
 	}
 
 	@Override

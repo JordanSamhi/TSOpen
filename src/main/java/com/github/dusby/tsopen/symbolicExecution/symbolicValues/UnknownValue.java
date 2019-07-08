@@ -13,11 +13,6 @@ public class UnknownValue extends AbstractSymbolicValue {
 	}
 
 	@Override
-	public String toString() {
-		return this.getValue();
-	}
-
-	@Override
 	public String getValue() {
 		if(this.additionalValues.isEmpty()) {
 			return Constants.UNKNOWN_VALUE;

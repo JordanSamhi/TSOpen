@@ -40,6 +40,9 @@ public class AppendRecognition extends StringMethodsRecognitionHandler {
 					}
 				}
 			}
+			for(SymbolicValue sv : results) {
+				Utils.propagateTags(base, sv, this.se);
+			}
 			return results;
 		}
 		return null;
@@ -50,29 +53,33 @@ public class AppendRecognition extends StringMethodsRecognitionHandler {
 		Value effectiveArg = args.get(0);
 		ContextualValues contextualValuesOfBase = null;
 		List<SymbolicValue> values = null;
+		SymbolicValue object = null;
 		if(effectiveArg instanceof Constant) {
 			if(symVal.isConstant()) {
-				results.add(new ConstantValue(StringConstant.v(String.format("%s%s", symVal, effectiveArg)), this.se));
+				object = new ConstantValue(StringConstant.v(String.format("%s%s", symVal, effectiveArg)), this.se);
 			}else {
-				results.add(new MethodRepresentationValue(base, args, method, this.se));
+				object = new MethodRepresentationValue(base, args, method, this.se);
 			}
+			this.addResult(results, object);
 		}else {
 			contextualValuesOfBase = this.se.getContext().get(effectiveArg);
 			if(contextualValuesOfBase == null) {
 				if(symVal.isConstant()) {
-					results.add(new ConstantValue(StringConstant.v(String.format("%s%s", symVal, Constants.UNKNOWN_STRING)), this.se));
+					object = new ConstantValue(StringConstant.v(String.format("%s%s", symVal, Constants.UNKNOWN_STRING)), this.se);
 				}else {
-					results.add(new MethodRepresentationValue(base, args, method, this.se));
+					object = new MethodRepresentationValue(base, args, method, this.se);
 				}
+				this.addResult(results, object);
 			}else {
 				values = contextualValuesOfBase.getLastCoherentValues(null);
 				if(values != null) {
 					for(SymbolicValue sv : values) {
 						if(symVal.isConstant() && sv.isConstant()) {
-							results.add(new ConstantValue(StringConstant.v(String.format("%s%s", symVal, sv)), this.se));
+							object = new ConstantValue(StringConstant.v(String.format("%s%s", symVal, sv)), this.se);
 						}else {
-							results.add(new MethodRepresentationValue(base, args, method, this.se));
+							object = new MethodRepresentationValue(base, args, method, this.se);
 						}
+						this.addResult(results, object);
 					}
 				}
 			}

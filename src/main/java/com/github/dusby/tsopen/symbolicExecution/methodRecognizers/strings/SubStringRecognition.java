@@ -28,28 +28,32 @@ public class SubStringRecognition extends StringMethodsRecognitionHandler {
 				arg2 = null;
 		int v1 = 0,
 				v2 = 0;
+		SymbolicValue object = null;
 		if(method.getName().equals(Constants.SUBSTRING)) {
 			if(base instanceof StringConstant) {
 				baseStr = (StringConstant) base;
 				if(baseStr.value.contains(Constants.UNKNOWN_STRING)){
-					results.add(new MethodRepresentationValue(base, args, method, this.se));
+					object = new MethodRepresentationValue(base, args, method, this.se);
 				}else {
 					arg1 = args.get(0);
 					if(arg1 instanceof IntConstant) {
 						v1 = ((IntConstant)arg1).value;
 						if(args.size() == 1) {
-							results.add(new ConstantValue(StringConstant.v(baseStr.value.substring(v1)), this.se));
+							object = new ConstantValue(StringConstant.v(baseStr.value.substring(v1)), this.se);
 						}else {
 							arg2 = args.get(1);
 							if(arg2 instanceof IntConstant) {
 								v2 = ((IntConstant)arg2).value;
-								results.add(new ConstantValue(StringConstant.v(baseStr.value.substring(v1, v2)), this.se));
+								object = new ConstantValue(StringConstant.v(baseStr.value.substring(v1, v2)), this.se);
 							}
 						}
 					}
 				}
 			}else {
-				results.add(new MethodRepresentationValue(base, args, method, this.se));
+				object = new MethodRepresentationValue(base, args, method, this.se);
+			}
+			if(object != null) {
+				this.addResult(results, object);
 			}
 			return results;
 		}

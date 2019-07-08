@@ -24,7 +24,7 @@ public class GetMessageBodyRecognition extends StringMethodsRecognitionHandler {
 		MethodRepresentationValue mrv = new MethodRepresentationValue(base, args, method, this.se);
 		if(method.getName().equals(Constants.GET_MESSAGE_BODY) || method.getName().equals(Constants.GET_DISPLAY_MESSAGE_BODY)) {
 			mrv.addTag(new StringConstantValueTag(Constants.SMS_BODY_TAG));
-			results.add(mrv);
+			this.addResult(results, mrv);
 		}
 		return results;
 	}

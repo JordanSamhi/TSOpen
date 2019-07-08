@@ -49,9 +49,18 @@ public abstract class StringMethodsRecognitionHandler implements StringMethodsRe
 			values = contextualValues.getLastCoherentValues(null);
 			if(values != null) {
 				for(SymbolicValue sv : values) {
-					results.add(sv);
+					this.addResult(results, sv);
 				}
 			}
 		}
+	}
+
+	protected void addResult(List<SymbolicValue> results, SymbolicValue object) {
+		for(SymbolicValue sv : results) {
+			if(sv.toString().equals(object.toString())) {
+				return;
+			}
+		}
+		results.add(object);
 	}
 }

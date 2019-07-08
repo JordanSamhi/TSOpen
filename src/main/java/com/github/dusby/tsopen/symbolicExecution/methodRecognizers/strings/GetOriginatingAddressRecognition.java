@@ -24,7 +24,7 @@ public class GetOriginatingAddressRecognition extends StringMethodsRecognitionHa
 		MethodRepresentationValue mrv = new MethodRepresentationValue(base, args, method, this.se);
 		if(method.getName().equals(Constants.GET_ORIGINATING_ADDRESS) || method.getName().equals(Constants.GET_DISPLAY_ORIGINATING_ADDRESS)) {
 			mrv.addTag(new StringConstantValueTag(Constants.SMS_SENDER_TAG));
-			results.add(mrv);
+			this.addResult(results, mrv);
 		}
 		return results;
 	}

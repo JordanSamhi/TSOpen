@@ -121,7 +121,9 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 		}else {
 			return results;
 		}
-		results.add(new Pair<Value, SymbolicValue>(leftOp, object));
+		if(object != null) {
+			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
+		}
 		return results;
 	}
 

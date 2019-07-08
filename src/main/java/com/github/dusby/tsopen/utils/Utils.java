@@ -59,10 +59,12 @@ public class Utils {
 		List<SymbolicValue> values = getSymbolicValues(src, se);
 		if(values != null) {
 			for(SymbolicValue sv : values) {
-				if(sv.hasTag()) {
-					for(StringConstantValueTag t : sv.getTags()) {
-						if(!dst.containsTag(t.getStringValue())) {
-							dst.addTag(new StringConstantValueTag(t.getStringValue()));
+				if(sv != null) {
+					if(sv.hasTag()) {
+						for(StringConstantValueTag t : sv.getTags()) {
+							if(!dst.containsTag(t.getStringValue())) {
+								dst.addTag(new StringConstantValueTag(t.getStringValue()));
+							}
 						}
 					}
 				}

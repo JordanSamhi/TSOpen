@@ -11,6 +11,7 @@ import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.location.GetL
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.location.LocationMethodsRecognitionHandler;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.UnknownValue;
 import com.github.dusby.tsopen.utils.Constants;
 
 import soot.SootClass;
@@ -20,8 +21,10 @@ import soot.Value;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
+import soot.jimple.ParameterRef;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
+import soot.tagkit.StringConstantValueTag;
 
 public class LocationRecognition extends TypeRecognitionHandler {
 
@@ -47,7 +50,7 @@ public class LocationRecognition extends TypeRecognitionHandler {
 		SootMethod method = null;
 		SootClass declaringClass = null;
 		List<Value> args = null;
-		ObjectValue object = null;
+		SymbolicValue object = null;
 		Type type = null;
 
 		if(rightOp instanceof InvokeExpr) {
@@ -66,8 +69,19 @@ public class LocationRecognition extends TypeRecognitionHandler {
 
 			object = new ObjectValue(type, args, this.se);
 			this.lmrh.recognizeLocationMethod(method, object);
-			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
+		}else if(rightOp instanceof ParameterRef) {
+			method = this.icfg.getMethodOf(defUnit);
+			declaringClass = method.getDeclaringClass();
+			if(method.getName().equals(Constants.ON_LOCATION_CHANGED)) {
+				for(SootClass sc : declaringClass.getInterfaces()) {
+					if(sc.getName().equals(Constants.ANDROID_LOCATION_LOCATION_LISTENER)) {
+						object = new UnknownValue(this.se);
+						object.addTag(new StringConstantValueTag(Constants.HERE_TAG));
+					}
+				}
+			}
 		}
+		results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		return results;
 	}
 

@@ -8,8 +8,8 @@ import java.util.Map;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 
+import com.github.dusby.tsopen.graphTraversal.ICFGForwardTraversal;
 import com.github.dusby.tsopen.utils.Edge;
-import com.github.dusby.tsopen.utils.ICFGForwardTraversal;
 import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;

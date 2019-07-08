@@ -1,4 +1,4 @@
-package com.github.dusby.tsopen.utils;
+package com.github.dusby.tsopen.graphTraversal;
 
 import java.util.Collection;
 import java.util.List;

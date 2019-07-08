@@ -1,4 +1,4 @@
-package com.github.dusby.tsopen.utils;
+package com.github.dusby.tsopen.graphTraversal;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,6 +8,9 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.dusby.tsopen.utils.Constants;
+import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
 import soot.Unit;

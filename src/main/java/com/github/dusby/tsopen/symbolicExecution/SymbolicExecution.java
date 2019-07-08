@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import org.javatuples.Pair;
 
+import com.github.dusby.tsopen.graphTraversal.ICFGForwardTraversal;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.BooleanRecognition;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.ByteRecognition;
@@ -19,7 +20,6 @@ import com.github.dusby.tsopen.symbolicExecution.typeRecognition.LongRecognition
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.SmsRecognition;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.StringRecognition;
 import com.github.dusby.tsopen.symbolicExecution.typeRecognition.TypeRecognitionHandler;
-import com.github.dusby.tsopen.utils.ICFGForwardTraversal;
 
 import soot.SootMethod;
 import soot.Unit;
@@ -59,7 +59,6 @@ public class SymbolicExecution extends ICFGForwardTraversal {
 	 */
 	@Override
 	protected void processNodeBeforeNeighbors(Unit node) {
-		this.logger.debug("[Symbolic Execution] node : " + node);
 		ContextualValues contextualValues = null;
 		List<Pair<Value, SymbolicValue>> results = this.trh.recognizeType(node);
 		Value value = null;

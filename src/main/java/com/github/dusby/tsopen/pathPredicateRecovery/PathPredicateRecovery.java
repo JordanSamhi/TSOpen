@@ -10,8 +10,8 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.transformations.DistributiveSimplifier;
 
+import com.github.dusby.tsopen.graphTraversal.ICFGBackwardTraversal;
 import com.github.dusby.tsopen.utils.Edge;
-import com.github.dusby.tsopen.utils.ICFGBackwardTraversal;
 import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
@@ -87,13 +87,7 @@ public class PathPredicateRecovery extends ICFGBackwardTraversal {
 				or = null;
 		if(nodePredicates != null) {
 			or = this.formulaFactory.or(nodePredicates);
-			if(this.logger.isDebugEnabled()) {
-				this.logger.debug("Simplifying formula");
-			}
 			simplifiedPredicate = this.simplifier.apply(or, true);
-			if(this.logger.isDebugEnabled()) {
-				this.logger.debug("Simplification done");
-			}
 			this.nodeToFullPathPredicate.put(node, simplifiedPredicate);
 			if(!(node instanceof IfStmt)) {
 				this.computeGuardedBlocks(node);

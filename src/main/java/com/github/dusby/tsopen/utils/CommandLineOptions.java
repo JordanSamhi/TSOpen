@@ -1,4 +1,4 @@
-package com.github.dusby.tsopen;
+package com.github.dusby.tsopen.utils;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;

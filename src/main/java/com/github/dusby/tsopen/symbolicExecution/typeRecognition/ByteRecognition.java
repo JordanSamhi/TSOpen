@@ -37,7 +37,6 @@ public class ByteRecognition extends TypeRecognitionHandler {
 		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
 		SymbolicValue object = null;
 		BinopExpr BinOpRightOp = null;
-
 		if(rightOp instanceof BinopExpr){
 			BinOpRightOp = (BinopExpr) rightOp;
 			binOp1 = BinOpRightOp.getOp1();

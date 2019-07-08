@@ -49,7 +49,6 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 	@Override
 	public List<Pair<Value, SymbolicValue>> recognizeType(Unit node) {
 		List<Pair<Value, SymbolicValue>> result = null;
-
 		if(node instanceof DefinitionStmt) {
 			result = this.processDefinitionStmt((DefinitionStmt) node);
 		}else if (node instanceof InvokeStmt) {

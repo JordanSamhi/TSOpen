@@ -20,6 +20,7 @@ import com.github.dusby.tsopen.pathPredicateRecovery.SimpleBlockPredicateExtract
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.CommandLineOptions;
+import com.github.dusby.tsopen.utils.Constants;
 import com.github.dusby.tsopen.utils.TimeOut;
 import com.github.dusby.tsopen.utils.Utils;
 
@@ -34,7 +35,9 @@ public class Analysis {
 
 	private String pkgName;
 	private CommandLineOptions options;
-	String fileName;
+	private String fileName;
+	private PotentialLogicBombsRecovery plbr;
+	private InfoflowCFG icfg;
 
 	private Logger logger = LoggerFactory.getLogger(Main.class);
 	private Profiler mainProfiler = new Profiler(Main.class.getName());
@@ -55,22 +58,21 @@ public class Analysis {
 		InfoflowAndroidConfiguration ifac = new InfoflowAndroidConfiguration();
 		ifac.setIgnoreFlowsInSystemPackages(false);
 		SetupApplication sa = null;
-		InfoflowCFG icfg = null;
 		SootMethod dummyMainMethod = null;
 		SimpleBlockPredicateExtraction sbpe = null;
 		PathPredicateRecovery ppr = null;
 		SymbolicExecution se = null;
-		PotentialLogicBombsRecovery plbr = null;
 		Thread sbpeThread = null,
 				pprThread = null,
 				seThread = null,
 				plbrThread = null;
-		TimeOut timeOut = new TimeOut(this.options.getTimeout());
+		TimeOut timeOut = new TimeOut(this.options.getTimeout(), this);
+		int timeout = timeOut.getTimeout();
 		timeOut.trigger();
 
 		if(!this.options.hasQuiet()) {
 			this.logger.info(String.format("%-35s : %s", "Package", this.getPackageName(this.fileName)));
-			this.logger.info(String.format("%-35s : %3s %s", "Timeout", timeOut.getTimeout(), "mins"));
+			this.logger.info(String.format("%-35s : %3s %s", "Timeout", timeout, timeout > 1 ? "mins" : "min"));
 		}
 
 		stopWatchCG.start("CallGraph");
@@ -79,7 +81,7 @@ public class Analysis {
 
 		sa = new SetupApplication(ifac);
 		sa.constructCallgraph();
-		icfg = new InfoflowCFG();
+		this.icfg = new InfoflowCFG();
 		stopWatchCG.stop();
 
 		if(!this.options.hasQuiet()) {
@@ -87,15 +89,15 @@ public class Analysis {
 		}
 
 		dummyMainMethod = sa.getDummyMainMethod();
-		sbpe = new SimpleBlockPredicateExtraction(icfg, dummyMainMethod);
-		ppr = new PathPredicateRecovery(icfg, sbpe, dummyMainMethod, this.options.hasExceptions());
-		se = new SymbolicExecution(icfg, dummyMainMethod);
-		plbr = new PotentialLogicBombsRecovery(sbpe, se, ppr, icfg);
+		sbpe = new SimpleBlockPredicateExtraction(this.icfg, dummyMainMethod);
+		ppr = new PathPredicateRecovery(this.icfg, sbpe, dummyMainMethod, this.options.hasExceptions());
+		se = new SymbolicExecution(this.icfg, dummyMainMethod);
+		this.plbr = new PotentialLogicBombsRecovery(sbpe, se, ppr, this.icfg);
 
 		sbpeThread = new Thread(sbpe, "sbpe");
 		pprThread = new Thread(ppr, "pprr");
 		seThread = new Thread(se, "syex");
-		plbrThread = new Thread(plbr, "plbr");
+		plbrThread = new Thread(this.plbr, "plbr");
 
 		stopWatchSBPE.start("sbpe");
 		sbpeThread.start();
@@ -151,17 +153,16 @@ public class Analysis {
 
 
 		if(this.options.hasOutput()) {
-			this.printResultsInFile(plbr, icfg, this.options.getOutput());
+			this.printResultsInFile(this.plbr, this.icfg, this.options.getOutput(), false);
 		}
 		if (!this.options.hasQuiet()){
-			this.printResults(plbr, icfg);
+			this.printResults(this.plbr, this.icfg);
 		}
 
 		timeOut.cancel();
 	}
 
 	private void printResults(PotentialLogicBombsRecovery plbr, InfoflowCFG icfg) {
-		//TODO print object symbolic values
 		SootMethod ifMethod = null;
 		if(plbr.hasPotentialLogicBombs()) {
 			System.out.println("\nPotential Logic Bombs found : ");
@@ -189,17 +190,40 @@ public class Analysis {
 	 * @param icfg
 	 * @param outputFile
 	 */
-	private void printResultsInFile(PotentialLogicBombsRecovery plbr, InfoflowCFG icfg, String outputFile) {
+	private void printResultsInFile(PotentialLogicBombsRecovery plbr, InfoflowCFG icfg, String outputFile, boolean timeoutReached) {
 		PrintWriter writer = null;
-		String result = String.format("%s,%s,%s,%s\n", this.getFileSha256(this.fileName), this.pkgName,
-				plbr.getPotentialLogicBombs().size(), TimeUnit.SECONDS.convert(this.mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS));
+		SootMethod ifMethod = null;
+		String ifStmt = null;
+		String fileSha256 = this.getFileSha256(this.fileName);
+		String result = String.format("%s,%s,%s,%s\n", fileSha256, this.pkgName,
+				timeoutReached ? 0 : plbr.getPotentialLogicBombs().size(), timeoutReached ? -1 : TimeUnit.SECONDS.convert(this.mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS));
+		String symbolicValues = null;
 		try {
 			writer = new PrintWriter(new FileOutputStream(new File(outputFile), true));
 			writer.append(result);
+			for(Entry<IfStmt, List<SymbolicValue>> e : plbr.getPotentialLogicBombs().entrySet()) {
+				symbolicValues = "";
+				ifMethod = icfg.getMethodOf(e.getKey());
+				ifStmt = String.format("if %s", e.getKey().getCondition());
+				symbolicValues += String.format("%s%s,%s,%s:", Constants.FILE_LOGIC_BOMBS_DELIMITER, ifStmt, ifMethod.getDeclaringClass(), ifMethod.getName());
+				for(SymbolicValue sv : e.getValue()) {
+					symbolicValues += String.format("%s (%s)", sv.getValue(), sv);
+					if(sv != e.getValue().get(e.getValue().size() - 1)) {
+						symbolicValues += ", ";
+					}else {
+						symbolicValues += "\n";
+					}
+				}
+				writer.append(symbolicValues);
+			}
 			writer.close();
 		} catch (Exception e) {
 			this.logger.error(e.getMessage());
 		}
+	}
+
+	public void timeoutReachedPrintResults() {
+		this.printResultsInFile(this.plbr, this.icfg, this.options.getOutput(), true);
 	}
 
 	private String getPackageName(String fileName) {

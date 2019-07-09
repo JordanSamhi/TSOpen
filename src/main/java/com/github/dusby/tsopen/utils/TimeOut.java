@@ -7,6 +7,8 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.dusby.tsopen.Analysis;
+
 public class TimeOut {
 
 	private Timer timer;
@@ -15,13 +17,14 @@ public class TimeOut {
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public TimeOut(int n) {
+	public TimeOut(int n, Analysis analysis) {
 		this.timer = new Timer();
 		this.exitTask = new TimerTask() {
 			@Override
 			public void run() {
 				TimeOut.this.logger.warn("Timeout reached !");
 				TimeOut.this.logger.warn("Ending program...");
+				analysis.timeoutReachedPrintResults();
 				System.exit(0);
 			}
 		};

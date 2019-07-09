@@ -102,4 +102,5 @@ public class Constants {
 	public static final String UNKNOWN_STRING = "UNKNOWN_STRING";
 	public static final String EMPTY_STRING = "";
 	public static final String NULL = "null";
+	public static final String FILE_LOGIC_BOMBS_DELIMITER = "%";
 }

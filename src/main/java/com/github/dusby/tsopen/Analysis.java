@@ -1,5 +1,8 @@
 package com.github.dusby.tsopen;
 
+import java.io.FileInputStream;
+import java.io.PrintWriter;
+import java.security.MessageDigest;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -26,22 +29,30 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public class Analysis {
 
+	private String pkgName;
+	private CommandLineOptions options;
+	String fileName;
+
 	private Logger logger = LoggerFactory.getLogger(Main.class);
 	private Profiler mainProfiler = new Profiler(Main.class.getName());
 
-	public void run(String[] args) {
+	public Analysis(String[] args) {
+		this.options = new CommandLineOptions(args);
+		this.fileName = this.options.getFile();
+		this.pkgName = this.getPackageName(this.fileName);
+	}
+
+	public void run() {
 		StopWatch stopWatchCG = new StopWatch("cg"),
 				stopWatchSBPE = new StopWatch("sbpe"),
 				stopWatchPPR = new StopWatch("ppr"),
 				stopWatchSE = new StopWatch("se"),
 				stopWatchPLBR = new StopWatch("plbr");
 		this.mainProfiler.start("overall");
-		CommandLineOptions options = new CommandLineOptions(args);
 		InfoflowAndroidConfiguration ifac = new InfoflowAndroidConfiguration();
 		ifac.setIgnoreFlowsInSystemPackages(false);
 		SetupApplication sa = null;
 		InfoflowCFG icfg = null;
-		String fileName = options.getFile();
 		SootMethod dummyMainMethod = null;
 		SimpleBlockPredicateExtraction sbpe = null;
 		PathPredicateRecovery ppr = null;
@@ -51,15 +62,15 @@ public class Analysis {
 				pprThread = null,
 				seThread = null,
 				plbrThread = null;
-		TimeOut timeOut = new TimeOut(options.getTimeout());
+		TimeOut timeOut = new TimeOut(this.options.getTimeout());
 		timeOut.trigger();
 
-		this.logger.info(String.format("%-35s : %s", "Package", this.getPackageName(fileName)));
+		this.logger.info(String.format("%-35s : %s", "Package", this.getPackageName(this.fileName)));
 		this.logger.info(String.format("%-35s : %3s %s", "Timeout", timeOut.getTimeout(), "mins"));
 
 		stopWatchCG.start("CallGraph");
-		ifac.getAnalysisFileConfig().setAndroidPlatformDir(options.getPlatforms());
-		ifac.getAnalysisFileConfig().setTargetAPKFile(fileName);
+		ifac.getAnalysisFileConfig().setAndroidPlatformDir(this.options.getPlatforms());
+		ifac.getAnalysisFileConfig().setTargetAPKFile(this.fileName);
 
 		sa = new SetupApplication(ifac);
 		sa.constructCallgraph();
@@ -69,7 +80,7 @@ public class Analysis {
 
 		dummyMainMethod = sa.getDummyMainMethod();
 		sbpe = new SimpleBlockPredicateExtraction(icfg, dummyMainMethod);
-		ppr = new PathPredicateRecovery(icfg, sbpe, dummyMainMethod, options.hasExceptions());
+		ppr = new PathPredicateRecovery(icfg, sbpe, dummyMainMethod, this.options.hasExceptions());
 		se = new SymbolicExecution(icfg, dummyMainMethod);
 		plbr = new PotentialLogicBombsRecovery(sbpe, se, ppr, icfg);
 
@@ -119,11 +130,11 @@ public class Analysis {
 		this.mainProfiler.stop();
 		this.logger.info(String.format("%-35s : %s", "Application Execution Time", Utils.getFormattedTime(this.mainProfiler.elapsedTime())));
 
-		printResults(plbr, icfg);
+		this.printResults(plbr, icfg);
 		timeOut.cancel();
 	}
 
-	private static void printResults(PotentialLogicBombsRecovery plbr, InfoflowCFG icfg) {
+	private void printResults(PotentialLogicBombsRecovery plbr, InfoflowCFG icfg) {
 		//TODO print object symbolic values
 		SootMethod ifMethod = null;
 		if(plbr.hasPotentialLogicBombs()) {
@@ -144,6 +155,18 @@ public class Analysis {
 		}
 	}
 
+	private void printResultsInFile(PotentialLogicBombsRecovery plbr, InfoflowCFG icfg, String outputFile) {
+		PrintWriter writer = null;
+		String result = String.format("{},{},{},{}", this.pkgName, this.getFileSha256(this.fileName), plbr.getPotentialLogicBombs().size(), this.mainProfiler.elapsedTime());
+		try {
+			writer = new PrintWriter(outputFile, "UTF-8");
+			writer.write(result);
+			writer.close();
+		} catch (Exception e) {
+			this.logger.error(e.getMessage());
+		}
+	}
+
 	private String getPackageName(String fileName) {
 		String pkgName = null;
 		ProcessManifest pm = null;
@@ -155,5 +178,35 @@ public class Analysis {
 			this.logger.error(e.getMessage());
 		}
 		return pkgName;
+	}
+
+	private String getFileSha256(String file) {
+		MessageDigest sha256 = null;
+		FileInputStream fis = null;
+		StringBuffer sb = null;
+		byte[] data = null;
+		int read = 0;
+		byte[] hashBytes = null;
+		try {
+
+			sha256 = MessageDigest.getInstance("SHA-256");
+			fis = new FileInputStream(file);
+
+			data = new byte[1024];
+			read = 0;
+			while ((read = fis.read(data)) != -1) {
+				sha256.update(data, 0, read);
+			};
+			hashBytes = sha256.digest();
+
+			sb = new StringBuffer();
+			for (int i = 0; i < hashBytes.length; i++) {
+				sb.append(Integer.toString((hashBytes[i] & 0xff) + 0x100, 16).substring(1));
+			}
+			fis.close();
+		} catch (Exception e) {
+			this.logger.error(e.getMessage());
+		}
+		return sb.toString();
 	}
 }

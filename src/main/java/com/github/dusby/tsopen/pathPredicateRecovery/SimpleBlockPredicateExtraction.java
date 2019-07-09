@@ -50,7 +50,7 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 		Literal simplePredicate = null;
 
 		if(!Utils.isCaughtException(successor)) {
-			if(node instanceof IfStmt) {
+			if(node instanceof IfStmt && !Utils.isDummy(this.icfg.getMethodOf(node))) {
 				edge = new Edge(node, successor);
 				this.annotatedEdges.add(edge);
 				ifStmt = (IfStmt) node;

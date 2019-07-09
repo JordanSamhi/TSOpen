@@ -148,4 +148,8 @@ public class Utils {
 		}
 		return methods;
 	}
+
+	public static boolean isDummy(SootMethod m) {
+		return m.getName().startsWith("dummyMainMethod");
+	}
 }

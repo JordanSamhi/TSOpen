@@ -26,6 +26,10 @@ public class CommandLineOptions {
 			new Triplet<String, String, String>("platforms", "p", "Android platforms folder");
 	private static final Triplet<String, String, String> EXCEPTIONS =
 			new Triplet<String, String, String>("exceptions", "e", "Take exceptions into account during full path predicate recovery");
+	private static final Triplet<String, String, String> OUTPUT =
+			new Triplet<String, String, String>("output", "o", "Output results in given file");
+	private static final Triplet<String, String, String> QUIET =
+			new Triplet<String, String, String>("quiet", "q", "Do not output results in console");
 	private static final String TSOPEN = "TSOpen";
 
 	private Options options, firstOptions;
@@ -104,12 +108,28 @@ public class CommandLineOptions {
 		timeout.setOptionalArg(true);
 		timeout.setType(Number.class);
 
+
+		final Option output = Option.builder(OUTPUT.getValue1())
+				.longOpt(OUTPUT.getValue0())
+				.desc(OUTPUT.getValue2())
+				.hasArg(true)
+				.argName(OUTPUT.getValue0())
+				.build();
+
+		final Option quiet = Option.builder(QUIET.getValue1())
+				.longOpt(QUIET.getValue0())
+				.desc(QUIET.getValue2())
+				.argName(QUIET.getValue0())
+				.build();
+
 		this.firstOptions.addOption(help);
 
 		this.options.addOption(file);
 		this.options.addOption(platforms);
 		this.options.addOption(exceptions);
 		this.options.addOption(timeout);
+		this.options.addOption(output);
+		this.options.addOption(quiet);
 		for(Option o : this.firstOptions.getOptions()) {
 			this.options.addOption(o);
 		}
@@ -125,6 +145,18 @@ public class CommandLineOptions {
 
 	public boolean hasExceptions() {
 		return this.cmdLine.hasOption(EXCEPTIONS.getValue1());
+	}
+
+	public boolean hasOutput() {
+		return this.cmdLine.hasOption(OUTPUT.getValue1());
+	}
+
+	public String getOutput() {
+		return this.cmdLine.getOptionValue(OUTPUT.getValue0());
+	}
+
+	public boolean hasQuiet() {
+		return this.cmdLine.hasOption(QUIET.getValue1());
 	}
 
 	public int getTimeout() {

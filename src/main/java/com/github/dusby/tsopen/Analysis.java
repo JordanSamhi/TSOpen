@@ -1,10 +1,13 @@
 package com.github.dusby.tsopen;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +68,10 @@ public class Analysis {
 		TimeOut timeOut = new TimeOut(this.options.getTimeout());
 		timeOut.trigger();
 
-		this.logger.info(String.format("%-35s : %s", "Package", this.getPackageName(this.fileName)));
-		this.logger.info(String.format("%-35s : %3s %s", "Timeout", timeOut.getTimeout(), "mins"));
+		if(!this.options.hasQuiet()) {
+			this.logger.info(String.format("%-35s : %s", "Package", this.getPackageName(this.fileName)));
+			this.logger.info(String.format("%-35s : %3s %s", "Timeout", timeOut.getTimeout(), "mins"));
+		}
 
 		stopWatchCG.start("CallGraph");
 		ifac.getAnalysisFileConfig().setAndroidPlatformDir(this.options.getPlatforms());
@@ -76,7 +81,10 @@ public class Analysis {
 		sa.constructCallgraph();
 		icfg = new InfoflowCFG();
 		stopWatchCG.stop();
-		this.logger.info(String.format("%-35s : %s", "CallGraph construction", Utils.getFormattedTime(stopWatchCG.elapsedTime())));
+
+		if(!this.options.hasQuiet()) {
+			this.logger.info(String.format("%-35s : %s", "CallGraph construction", Utils.getFormattedTime(stopWatchCG.elapsedTime())));
+		}
 
 		dummyMainMethod = sa.getDummyMainMethod();
 		sbpe = new SimpleBlockPredicateExtraction(icfg, dummyMainMethod);
@@ -97,7 +105,9 @@ public class Analysis {
 		try {
 			sbpeThread.join();
 			stopWatchSBPE.stop();
-			this.logger.info(String.format("%-35s : %s", "Simple Block Predicate Extraction", Utils.getFormattedTime(stopWatchSBPE.elapsedTime())));
+			if(!this.options.hasQuiet()) {
+				this.logger.info(String.format("%-35s : %s", "Simple Block Predicate Extraction", Utils.getFormattedTime(stopWatchSBPE.elapsedTime())));
+			}
 		} catch (InterruptedException e) {
 			this.logger.error(e.getMessage());
 		}
@@ -108,10 +118,14 @@ public class Analysis {
 		try {
 			pprThread.join();
 			stopWatchPPR.stop();
-			this.logger.info(String.format("%-35s : %s", "Path Predicate Recovery", Utils.getFormattedTime(stopWatchPPR.elapsedTime())));
+			if(!this.options.hasQuiet()) {
+				this.logger.info(String.format("%-35s : %s", "Path Predicate Recovery", Utils.getFormattedTime(stopWatchPPR.elapsedTime())));
+			}
 			seThread.join();
 			stopWatchSE.stop();
-			this.logger.info(String.format("%-35s : %s", "Symbolic Execution", Utils.getFormattedTime(stopWatchSE.elapsedTime())));
+			if(!this.options.hasQuiet()) {
+				this.logger.info(String.format("%-35s : %s", "Symbolic Execution", Utils.getFormattedTime(stopWatchSE.elapsedTime())));
+			}
 		} catch (InterruptedException e) {
 			this.logger.error(e.getMessage());
 		}
@@ -122,15 +136,27 @@ public class Analysis {
 		try {
 			plbrThread.join();
 			stopWatchPLBR.stop();
-			this.logger.info(String.format("%-35s : %s", "Potential Logic Bombs Recovery", Utils.getFormattedTime(stopWatchPLBR.elapsedTime())));
+			if(!this.options.hasQuiet()) {
+				this.logger.info(String.format("%-35s : %s", "Potential Logic Bombs Recovery", Utils.getFormattedTime(stopWatchPLBR.elapsedTime())));
+			}
 		} catch (InterruptedException e) {
 			this.logger.error(e.getMessage());
 		}
 
 		this.mainProfiler.stop();
-		this.logger.info(String.format("%-35s : %s", "Application Execution Time", Utils.getFormattedTime(this.mainProfiler.elapsedTime())));
 
-		this.printResults(plbr, icfg);
+		if(!this.options.hasQuiet()) {
+			this.logger.info(String.format("%-35s : %s", "Application Execution Time", Utils.getFormattedTime(this.mainProfiler.elapsedTime())));
+		}
+
+
+		if(this.options.hasOutput()) {
+			this.printResultsInFile(plbr, icfg, this.options.getOutput());
+		}
+		if (!this.options.hasQuiet()){
+			this.printResults(plbr, icfg);
+		}
+
 		timeOut.cancel();
 	}
 
@@ -155,12 +181,21 @@ public class Analysis {
 		}
 	}
 
+	/**
+	 * Print analysis results in the given file
+	 * Format :
+	 * file sha256, package name, number of logic bombs, analysis time
+	 * @param plbr
+	 * @param icfg
+	 * @param outputFile
+	 */
 	private void printResultsInFile(PotentialLogicBombsRecovery plbr, InfoflowCFG icfg, String outputFile) {
 		PrintWriter writer = null;
-		String result = String.format("{},{},{},{}", this.pkgName, this.getFileSha256(this.fileName), plbr.getPotentialLogicBombs().size(), this.mainProfiler.elapsedTime());
+		String result = String.format("%s,%s,%s,%s\n", this.getFileSha256(this.fileName), this.pkgName,
+				plbr.getPotentialLogicBombs().size(), TimeUnit.SECONDS.convert(this.mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS));
 		try {
-			writer = new PrintWriter(outputFile, "UTF-8");
-			writer.write(result);
+			writer = new PrintWriter(new FileOutputStream(new File(outputFile), true));
+			writer.append(result);
 			writer.close();
 		} catch (Exception e) {
 			this.logger.error(e.getMessage());

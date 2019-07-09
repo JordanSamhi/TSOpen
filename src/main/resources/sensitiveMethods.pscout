@@ -31353,3 +31353,7 @@
 <java.io.ObjectOutputStream: void writeObject(java.lang.Object)>
 <android.content.Context: void startActivity(android.content.Intent)>
 <android.content.ContextWrapper: void startActivity(android.content.Intent)>
+<android.os.Handler: boolean sendEmptyMessageDelayed(int,long)>
+<android.os.Handler: boolean sendMessageAtTime(android.os.Message,long)>
+<android.os.Handler: boolean sendMessage(android.os.Message)>
+<android.os.Handler: boolean sendEmptyMessage(int)>

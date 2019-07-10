@@ -25,7 +25,8 @@ public class EndsWithRecognition extends BooleanMethodsRecognitionHandler {
 		if(methodName.equals(Constants.ENDS_WITH)) {
 			firstArg = args.get(0);
 			if(Utils.containsTag(base, Constants.SMS_BODY_TAG, this.se) || Utils.containsTag(base, Constants.SMS_SENDER_TAG, this.se)) {
-				if(firstArg instanceof Constant) {
+				if(firstArg instanceof Constant
+						|| Utils.containsTags(firstArg, this.se)) {
 					sv.addTag(new StringConstantValueTag(Constants.SUSPICIOUS));
 					return true;
 				}

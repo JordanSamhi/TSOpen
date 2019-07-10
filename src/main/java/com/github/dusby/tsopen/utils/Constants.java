@@ -39,6 +39,7 @@ public class Constants {
 	public static final String TO_LOWER_CASE = "toLowerCase";
 	public static final String TO_UPPER_CASE = "toUpperCase";
 	public static final String ON_LOCATION_CHANGED = "onLocationChanged";
+	public static final String DISTANCE_BETWEEN = "distanceBetween";
 
 	/**
 	 * Tags
@@ -78,6 +79,8 @@ public class Constants {
 	public static final String INT = "int";
 	public static final String LONG = "long";
 	public static final String DOUBLE = "double";
+	public static final String FLOAT_ARRAY = "float[]";
+	public static final String FLOAT = "float";
 	public static final String BOOLEAN = "boolean";
 	public static final String BYTE = "byte";
 	public static final String ANDROID_LOCATION_LOCATION_LISTENER = "android.location.LocationListener";

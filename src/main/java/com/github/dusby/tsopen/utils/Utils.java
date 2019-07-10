@@ -99,7 +99,7 @@ public class Utils {
 				}
 			}
 			if(contextualValues != null) {
-				values = contextualValues.getLastCoherentValues(null);
+				values = contextualValues.getAllValues();
 				if(values == null) {
 					values = contextualValues.getAllValues();
 				}

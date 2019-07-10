@@ -56,7 +56,8 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 		SootMethod method = null;
 		List<Value> args = null;
 		SymbolicValue object = null;
-		InstanceFieldRef instanceField = null;
+		InstanceFieldRef instanceField = null,
+				leftOpInstanceField = null;
 		StaticFieldRef staticField = null;
 		BinopExpr BinOpRightOp = null;
 		Value callerRightOp = null;
@@ -83,7 +84,11 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 			instanceField = (InstanceFieldRef) rightOp;
 			base = instanceField.getBase();
 			object = new FieldValue(base, instanceField.getField().getName(), this.se);
-			Utils.propagateTags(base, object, this.se);
+			Utils.propagateTags(rightOp, object, this.se);
+		}else if(rightOp instanceof StaticFieldRef) {
+			staticField = (StaticFieldRef) rightOp;
+			object = new FieldValue(base, staticField.getField().getName(), this.se);
+			Utils.propagateTags(rightOp, object, this.se);
 		}else if(rightOp instanceof BinopExpr){
 			BinOpRightOp = (BinopExpr) rightOp;
 			binOp1 = BinOpRightOp.getOp1();
@@ -124,11 +129,17 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 		}else if(rightOp instanceof ArrayRef) {
 			rightOpArrayRef = (ArrayRef)rightOp;
 			object = new UnknownValue(this.se);
-			Utils.propagateTags(rightOpArrayRef.getBase(), object, this.se);
+			base = rightOpArrayRef.getBase();
+			Utils.propagateTags(base, object, this.se);
 		}else if(leftOp instanceof StaticFieldRef) {
 			staticField = (StaticFieldRef) leftOp;
 			object = new FieldValue(base, staticField.getField().getName(), this.se);
 			Utils.propagateTags(rightOp, object, this.se);
+		}else if(leftOp instanceof InstanceFieldRef) {
+			leftOpInstanceField = (InstanceFieldRef) leftOp;
+			object = new FieldValue(base, leftOpInstanceField.getField().getName(), this.se);
+			Utils.propagateTags(rightOp, object, this.se);
+			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		}else {
 			return results;
 		}

@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.location.DistanceBetweenRecognition;
+import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.location.LocationMethodsRecognitionHandler;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
@@ -36,6 +38,7 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 	protected SymbolicExecution se;
 	protected InfoflowCFG icfg;
 	protected List<String> authorizedTypes;
+	private LocationMethodsRecognitionHandler lmrh;
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -44,6 +47,7 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 		this.se = se;
 		this.icfg = icfg;
 		this.authorizedTypes = new LinkedList<String>();
+		this.lmrh = new DistanceBetweenRecognition(null, se);
 	}
 
 	@Override
@@ -145,6 +149,7 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 		SootMethod method = invExprUnit.getMethod();
 		List<Value> args = invExprUnit.getArgs();
 		SymbolicValue object = new MethodRepresentationValue(base, args, method, this.se);
+		this.lmrh.recognizeLocationMethod(method, object);
 		this.handleInvokeTag(args, base, object, method);
 		results.add(new Pair<Value, SymbolicValue>(base, object));
 	}

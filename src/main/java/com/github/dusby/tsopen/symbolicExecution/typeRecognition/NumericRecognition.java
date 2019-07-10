@@ -20,6 +20,7 @@ import com.github.dusby.tsopen.utils.Utils;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
+import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
 import soot.jimple.BinopExpr;
 import soot.jimple.DefinitionStmt;
@@ -27,6 +28,7 @@ import soot.jimple.InstanceFieldRef;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
+import soot.jimple.NewArrayExpr;
 import soot.jimple.ParameterRef;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
@@ -64,6 +66,7 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 		AssignStmt assignCaller = null;
 		ContextualValues contextualValues = null;
 		List<SymbolicValue> values = null;
+		ArrayRef rightOpArrayRef = null;
 
 		if(rightOp instanceof InvokeExpr) {
 			rightOpInvExpr = (InvokeExpr) rightOp;
@@ -73,7 +76,9 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 				base = ((InstanceInvokeExpr)rightOpInvExpr).getBase();
 			}
 			object = new MethodRepresentationValue(base, args, method, this.se);
-			this.nmrh.recognizeNumericMethod(method, base, object);
+			if(this.nmrh != null) {
+				this.nmrh.recognizeNumericMethod(method, base, object);
+			}
 		}else if(rightOp instanceof InstanceFieldRef) {
 			instanceField = (InstanceFieldRef) rightOp;
 			base = instanceField.getBase();
@@ -114,6 +119,12 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 					}
 				}
 			}
+		}else if (rightOp instanceof NewArrayExpr){
+			object = new ObjectValue(leftOp.getType(), null, this.se);
+		}else if(rightOp instanceof ArrayRef) {
+			rightOpArrayRef = (ArrayRef)rightOp;
+			object = new UnknownValue(this.se);
+			Utils.propagateTags(rightOpArrayRef.getBase(), object, this.se);
 		}else if(leftOp instanceof StaticFieldRef) {
 			staticField = (StaticFieldRef) leftOp;
 			object = new FieldValue(base, staticField.getField().getName(), this.se);

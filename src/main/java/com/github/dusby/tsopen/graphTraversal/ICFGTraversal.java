@@ -130,6 +130,21 @@ public abstract class ICFGTraversal implements Runnable{
 		}
 	}
 
+	public void addMethodToWorkList(SootMethod m) {
+		if(!this.methodWorkList.contains(m)) {
+			this.methodWorkList.add(m);
+		}else {
+			while(this.methodWorkList.contains(m)) {
+				this.methodWorkList.remove(m);
+			}
+			this.methodWorkList.add(m);
+		}
+	}
+
+	public boolean isMethodVisited(SootMethod m) {
+		return this.visitedMethods.contains(m);
+	}
+
 	public LinkedList<Unit> getCurrentPath() {
 		return this.currentPath;
 	}

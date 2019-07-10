@@ -78,8 +78,10 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 		ContextualValues contextualValues = this.se.getContext().get(returnOp);
 		List<Pair<Value, SymbolicValue>> results = new LinkedList<Pair<Value,SymbolicValue>>();
 		SymbolicValue object = null;
+		SootMethod callerMethod = null;
 
 		for(Unit caller : callers) {
+			callerMethod = this.icfg.getMethodOf(caller);
 			if(caller instanceof AssignStmt) {
 				callerAssign = (AssignStmt) caller;
 				leftOp = callerAssign.getLeftOp();
@@ -99,6 +101,9 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 						}
 					}
 				}
+			}
+			if(this.se.isMethodVisited(callerMethod)) {
+				this.se.addMethodToWorkList(callerMethod);
 			}
 		}
 		return results;

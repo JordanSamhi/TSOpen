@@ -38,6 +38,7 @@ import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.ParameterRef;
+import soot.jimple.ReturnStmt;
 import soot.jimple.StringConstant;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
@@ -130,7 +131,19 @@ public class StringRecognition extends TypeRecognitionHandler{
 					results.add(new Pair<Value, SymbolicValue>(leftOp, recognizedValue));
 				}
 			}else {
-				results.add(new Pair<Value, SymbolicValue>(leftOp, new MethodRepresentationValue(base, args, method, this.se)));
+				object = new MethodRepresentationValue(base, args, method, this.se);
+				results.add(new Pair<Value, SymbolicValue>(leftOp, object));
+			}
+			if(!this.se.isMethodVisited(method)) {
+				this.se.addMethodToWorkList(this.icfg.getMethodOf(defUnit));
+			}else {
+				for(Unit u : method.retrieveActiveBody().getUnits()) {
+					if(u instanceof ReturnStmt) {
+						if(object != null) {
+							Utils.propagateTags(((ReturnStmt)u).getOp(), object, this.se);
+						}
+					}
+				}
 			}
 		}else if(rightOp instanceof InstanceFieldRef){
 			field = (InstanceFieldRef) rightOp;

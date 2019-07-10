@@ -47,9 +47,11 @@ public class ContextualValues {
 		if(node == null) {
 			while(it.hasNext()) {
 				n = it.next();
-				values = this.nodesToSymbolicValues.get(n);
-				if(values != null) {
-					return values;
+				if(n != this.se.getCurrentPath().getLast()) {
+					values = this.nodesToSymbolicValues.get(n);
+					if(values != null) {
+						return values;
+					}
 				}
 			}
 		}else {

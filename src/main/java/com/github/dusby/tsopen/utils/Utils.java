@@ -57,6 +57,18 @@ public class Utils {
 		return false;
 	}
 
+	public static boolean containsTags(Value v, SymbolicExecution se) {
+		List<SymbolicValue> values = getSymbolicValues(v, se);
+		if(values != null) {
+			for(SymbolicValue sv : values) {
+				if(sv.hasTag()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public static void propagateTags(Value src, SymbolicValue dst, SymbolicExecution se) {
 		List<SymbolicValue> values = getSymbolicValues(src, se);
 		if(values != null) {

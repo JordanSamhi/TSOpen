@@ -60,7 +60,7 @@ public class ContextualValues {
 				return valuesAtNode.get(this.receiver);
 			}
 		}
-		return null;
+		return this.getAllValues();
 	}
 
 	public List<SymbolicValue> getAllValues() {

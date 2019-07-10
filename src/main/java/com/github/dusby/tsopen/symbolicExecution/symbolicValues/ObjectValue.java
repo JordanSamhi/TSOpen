@@ -1,5 +1,6 @@
 package com.github.dusby.tsopen.symbolicExecution.symbolicValues;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
@@ -15,7 +16,7 @@ public class ObjectValue extends ConcreteValue {
 	public ObjectValue(Type t, List<Value> args, SymbolicExecution se) {
 		super(se);
 		this.type = t;
-		this.args = args;
+		this.args = args == null ? new ArrayList<Value>() : args;
 	}
 
 	@Override

@@ -221,7 +221,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 					if(this.isSensitiveMethod(m)) {
 						return true;
 					}
-					if(m.getDeclaringClass().isApplicationClass() && this.isSensitive(m.retrieveActiveBody().getUnits())) {
+					if(m.getDeclaringClass().isApplicationClass() && m.isConcrete() && this.isSensitive(m.retrieveActiveBody().getUnits())) {
 						return true;
 					}
 				}

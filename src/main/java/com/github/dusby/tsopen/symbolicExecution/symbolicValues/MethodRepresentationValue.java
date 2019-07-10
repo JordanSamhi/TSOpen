@@ -73,4 +73,8 @@ public class MethodRepresentationValue extends AbstractSymbolicValue {
 	public Value getBase() {
 		return this.base;
 	}
+
+	public List<Value> getArgs() {
+		return this.args;
+	}
 }

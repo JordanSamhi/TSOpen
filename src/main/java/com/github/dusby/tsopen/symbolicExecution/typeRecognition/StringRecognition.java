@@ -137,10 +137,12 @@ public class StringRecognition extends TypeRecognitionHandler{
 			if(!this.se.isMethodVisited(method)) {
 				this.se.addMethodToWorkList(this.icfg.getMethodOf(defUnit));
 			}else {
-				for(Unit u : method.retrieveActiveBody().getUnits()) {
-					if(u instanceof ReturnStmt) {
-						if(object != null) {
-							Utils.propagateTags(((ReturnStmt)u).getOp(), object, this.se);
+				if(method.isConcrete()) {
+					for(Unit u : method.retrieveActiveBody().getUnits()) {
+						if(u instanceof ReturnStmt) {
+							if(object != null) {
+								Utils.propagateTags(((ReturnStmt)u).getOp(), object, this.se);
+							}
 						}
 					}
 				}

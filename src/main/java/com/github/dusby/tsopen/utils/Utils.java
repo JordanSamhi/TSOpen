@@ -3,6 +3,7 @@ package com.github.dusby.tsopen.utils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
@@ -18,6 +19,7 @@ import soot.Value;
 import soot.ValueBox;
 import soot.jimple.CaughtExceptionRef;
 import soot.jimple.DefinitionStmt;
+import soot.jimple.InstanceFieldRef;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
@@ -77,8 +79,18 @@ public class Utils {
 		ContextualValues contextualValues = null;
 		if(v != null) {
 			contextualValues = se.getContext().get(v);
+			if(contextualValues == null && v instanceof InstanceFieldRef) {
+				for(Entry<Value, ContextualValues> e : se.getContext().entrySet()) {
+					if(e.getKey().toString().contains(v.toString())) {
+						contextualValues = se.getContext().get(e.getKey());
+					}
+				}
+			}
 			if(contextualValues != null) {
 				values = contextualValues.getLastCoherentValues(null);
+				if(values == null) {
+					values = contextualValues.getAllValues();
+				}
 			}
 		}
 		return values;

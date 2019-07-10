@@ -92,7 +92,7 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 					Utils.propagateTags(returnOp, object, this.se);
 					results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 				}else {
-					values = contextualValues.getLastCoherentValues(returnStmt);
+					values = contextualValues.getLastCoherentValues(null);
 					if(values != null) {
 						for(SymbolicValue sv : values) {
 							results.add(new Pair<Value, SymbolicValue>(leftOp, sv));

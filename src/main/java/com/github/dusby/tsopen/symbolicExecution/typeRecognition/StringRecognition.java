@@ -19,10 +19,12 @@ import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ToStr
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ToUpperCaseRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ValueOfRecognition;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.FieldValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
+import com.github.dusby.tsopen.utils.Utils;
 
 import soot.Local;
 import soot.SootMethod;
@@ -31,6 +33,7 @@ import soot.Value;
 import soot.jimple.AssignStmt;
 import soot.jimple.CastExpr;
 import soot.jimple.DefinitionStmt;
+import soot.jimple.InstanceFieldRef;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
@@ -89,6 +92,8 @@ public class StringRecognition extends TypeRecognitionHandler{
 		InvokeStmt invStmtCaller = null;
 		AssignStmt assignCaller = null;
 		List<SymbolicValue> recognizedValues = null;
+		InstanceFieldRef field = null;
+		SymbolicValue object = null;
 
 		if(rightOp instanceof StringConstant) {
 			results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue((StringConstant)rightOp, this.se)));
@@ -109,7 +114,7 @@ public class StringRecognition extends TypeRecognitionHandler{
 				}
 				this.checkAndProcessContextValues(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()), results, leftOp, caller);
 			}
-		}else if(rightOp instanceof Local) {
+		}else if(rightOp instanceof Local && !(leftOp instanceof InstanceFieldRef)) {
 			this.checkAndProcessContextValues(rightOp, results, leftOp, null);
 		}else if (rightOp instanceof CastExpr) {
 			rightOpExpr = (CastExpr) rightOp;
@@ -127,6 +132,17 @@ public class StringRecognition extends TypeRecognitionHandler{
 			}else {
 				results.add(new Pair<Value, SymbolicValue>(leftOp, new MethodRepresentationValue(base, args, method, this.se)));
 			}
+		}else if(rightOp instanceof InstanceFieldRef){
+			field = (InstanceFieldRef) rightOp;
+			base = field.getBase();
+			object = new FieldValue(base, field.getField().getName(), this.se);
+			Utils.propagateTags(rightOp, object, this.se);
+			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
+		}else if(leftOp instanceof InstanceFieldRef) {
+			field = (InstanceFieldRef) leftOp;
+			object = new FieldValue(base, field.getField().getName(), this.se);
+			Utils.propagateTags(rightOp, object, this.se);
+			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
 		}
 		return results;
 	}

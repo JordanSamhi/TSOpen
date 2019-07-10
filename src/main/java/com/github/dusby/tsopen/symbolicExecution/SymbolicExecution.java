@@ -71,7 +71,9 @@ public class SymbolicExecution extends ICFGForwardTraversal {
 				contextualValues = this.symbolicExecutionResults.get(value);
 				if(contextualValues == null) {
 					contextualValues = new ContextualValues(this, value);
-					this.symbolicExecutionResults.put(value, contextualValues);
+					if(value != null) {
+						this.symbolicExecutionResults.put(value, contextualValues);
+					}
 				}
 				contextualValues.addValue(node, symbolicValue);
 			}

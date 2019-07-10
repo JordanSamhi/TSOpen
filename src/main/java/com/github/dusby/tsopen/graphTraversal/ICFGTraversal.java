@@ -123,7 +123,7 @@ public abstract class ICFGTraversal implements Runnable{
 		Collection<SootMethod> pointsTo = Utils.getInvokedMethods(invocation, this.icfg);
 		for(SootMethod callee : pointsTo) {
 			if(callee.getDeclaringClass().isApplicationClass()) {
-				if(!this.methodWorkList.contains(callee)) {
+				if(!this.visitedMethods.contains(callee)) {
 					this.methodWorkList.add(callee);
 				}
 			}

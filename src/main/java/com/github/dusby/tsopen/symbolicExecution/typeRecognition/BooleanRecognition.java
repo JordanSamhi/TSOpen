@@ -19,6 +19,7 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresenta
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
+import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
 import soot.Value;
@@ -69,6 +70,7 @@ public class BooleanRecognition extends TypeRecognitionHandler {
 			field = (InstanceFieldRef) rightOp;
 			base = field.getBase();
 			object = new FieldValue(base, field.getField().getName(), this.se);
+			Utils.propagateTags(rightOp, object, this.se);
 		}else {
 			return results;
 		}

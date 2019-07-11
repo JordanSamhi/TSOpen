@@ -31359,3 +31359,6 @@
 <android.os.Handler: boolean sendEmptyMessage(int)>
 <android.content.BroadcastReceiver: void abortBroadcast()>
 <android.widget.TextView: void setText(java.lang.CharSequence)>
+<java.io.OutputStreamWriter: void write(java.lang.String)>
+<android.os.Environment: java.lang.String getExternalStorageState()>
+<android.os.Environment: java.io.File getExternalStorageDirectory()>

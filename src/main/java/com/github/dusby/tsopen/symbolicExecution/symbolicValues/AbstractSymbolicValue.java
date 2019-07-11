@@ -70,6 +70,9 @@ public abstract class AbstractSymbolicValue implements SymbolicValue {
 		if(!this.tags.isEmpty()) {
 			for(StringConstantValueTag tag : this.tags) {
 				value += tag.getStringValue();
+				if(tag != this.tags.get(this.tags.size() - 1)) {
+					value += " | ";
+				}
 			}
 			return value;
 		}

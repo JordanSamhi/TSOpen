@@ -17,6 +17,7 @@ import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresenta
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.UnknownValue;
+import com.github.dusby.tsopen.utils.Constants;
 import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
@@ -30,6 +31,7 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.ReturnStmt;
 import soot.jimple.StaticInvokeExpr;
+import soot.jimple.StringConstant;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 
 public abstract class TypeRecognitionHandler implements TypeRecognition {
@@ -167,5 +169,20 @@ public abstract class TypeRecognitionHandler implements TypeRecognition {
 
 	protected boolean isAuthorizedType(String type) {
 		return this.authorizedTypes.contains(type);
+	}
+
+	protected void checkAndProcessContextValues(Value v, List<Pair<Value, SymbolicValue>> results, Value leftOp, Unit node) {
+		ContextualValues contextualValues = this.se.getContext().get(v);
+		List<SymbolicValue> values = null;
+		if(contextualValues == null) {
+			results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue(StringConstant.v(Constants.UNKNOWN_STRING), this.se)));
+		}else {
+			values = contextualValues.getLastCoherentValues(node);
+			if(values != null) {
+				for(SymbolicValue sv : values) {
+					results.add(new Pair<Value, SymbolicValue>(leftOp, sv));
+				}
+			}
+		}
 	}
 }

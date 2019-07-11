@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.javatuples.Pair;
 
-import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.AppendRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.FormatRecognition;
@@ -60,21 +59,6 @@ public class StringRecognition extends TypeRecognitionHandler{
 		this.authorizedTypes.add(Constants.JAVA_LANG_STRING);
 		this.authorizedTypes.add(Constants.JAVA_LANG_STRING_BUFFER);
 		this.authorizedTypes.add(Constants.JAVA_LANG_STRING_BUILDER);
-	}
-
-	private void checkAndProcessContextValues(Value v, List<Pair<Value, SymbolicValue>> results, Value leftOp, Unit node) {
-		ContextualValues contextualValues = this.se.getContext().get(v);
-		List<SymbolicValue> values = null;
-		if(contextualValues == null) {
-			results.add(new Pair<Value, SymbolicValue>(leftOp, new ConstantValue(StringConstant.v(Constants.UNKNOWN_STRING), this.se)));
-		}else {
-			values = contextualValues.getLastCoherentValues(node);
-			if(values != null) {
-				for(SymbolicValue sv : values) {
-					results.add(new Pair<Value, SymbolicValue>(leftOp, sv));
-				}
-			}
-		}
 	}
 
 	@Override

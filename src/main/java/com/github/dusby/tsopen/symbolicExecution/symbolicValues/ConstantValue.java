@@ -27,4 +27,8 @@ public class ConstantValue extends ConcreteValue {
 	public boolean isObject() {
 		return false;
 	}
+
+	public Constant getConstant() {
+		return this.constant;
+	}
 }

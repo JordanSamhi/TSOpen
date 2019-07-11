@@ -10,6 +10,7 @@ import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.numeric.NumericMethodsRecognitionHandler;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.BinOpValue;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.FieldValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
@@ -23,6 +24,8 @@ import soot.Value;
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
 import soot.jimple.BinopExpr;
+import soot.jimple.CastExpr;
+import soot.jimple.Constant;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.InstanceInvokeExpr;
@@ -68,6 +71,7 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 		ContextualValues contextualValues = null;
 		List<SymbolicValue> values = null;
 		ArrayRef rightOpArrayRef = null;
+		CastExpr rightOpExpr = null;
 
 		if(rightOp instanceof InvokeExpr) {
 			rightOpInvExpr = (InvokeExpr) rightOp;
@@ -83,8 +87,7 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 		}else if(rightOp instanceof InstanceFieldRef) {
 			instanceField = (InstanceFieldRef) rightOp;
 			base = instanceField.getBase();
-			object = new FieldValue(base, instanceField.getField().getName(), this.se);
-			Utils.propagateTags(rightOp, object, this.se);
+			this.checkAndProcessContextValues(rightOp, results, leftOp, null);
 		}else if(rightOp instanceof StaticFieldRef) {
 			staticField = (StaticFieldRef) rightOp;
 			object = new FieldValue(base, staticField.getField().getName(), this.se);
@@ -135,11 +138,19 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 			staticField = (StaticFieldRef) leftOp;
 			object = new FieldValue(base, staticField.getField().getName(), this.se);
 			Utils.propagateTags(rightOp, object, this.se);
-		}else if(leftOp instanceof InstanceFieldRef) {
+		}else if(leftOp instanceof InstanceFieldRef && !(rightOp instanceof Constant)) {
 			leftOpInstanceField = (InstanceFieldRef) leftOp;
 			object = new FieldValue(base, leftOpInstanceField.getField().getName(), this.se);
 			Utils.propagateTags(rightOp, object, this.se);
 			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
+		}else if(leftOp instanceof InstanceFieldRef && rightOp instanceof Constant) {
+			leftOpInstanceField = (InstanceFieldRef) leftOp;
+			object = new ConstantValue(((Constant)rightOp), this.se);
+			Utils.propagateTags(rightOp, object, this.se);
+			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
+		}else if(rightOp instanceof CastExpr) {
+			rightOpExpr = (CastExpr) rightOp;
+			this.checkAndProcessContextValues(rightOpExpr.getOp(), results, leftOp, null);
 		}else {
 			return results;
 		}

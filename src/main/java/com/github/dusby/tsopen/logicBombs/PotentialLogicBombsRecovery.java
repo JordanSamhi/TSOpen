@@ -45,6 +45,9 @@ public class PotentialLogicBombsRecovery implements Runnable {
 	private List<SootMethod> visitedMethods;
 	private List<IfStmt> visitedIfs;
 	private InfoflowCFG icfg;
+	private boolean containsSuspiciousCheck;
+	private boolean containsSuspiciousCheckAfterControlDependency;
+	private boolean containsSuspiciousCheckAfterPostFilterStep;
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -56,6 +59,9 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		this.visitedIfs = new ArrayList<IfStmt>();
 		this.potentialLogicBombs = new HashMap<IfStmt, List<SymbolicValue>>();
 		this.icfg = icfg;
+		this.containsSuspiciousCheck = false;
+		this.containsSuspiciousCheckAfterControlDependency = false;
+		this.containsSuspiciousCheckAfterPostFilterStep = false;
 	}
 
 	@Override
@@ -76,16 +82,19 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		if(!this.isSuspicious(ifStmt)) {
 			return false;
 		}
+		this.containsSuspiciousCheck = true;
 		if(this.logger.isDebugEnabled()) {
 			this.logger.debug("Predicate is suspicious : {}", ifStmt);
 		}
-		if(!this.isSuspiciousAfterPostFilters(ifStmt)) {
+		if(!this.controlSensitiveAction(ifStmt)) {
 			return false;
 		}
+		this.containsSuspiciousCheckAfterControlDependency = true;
 		if(this.logger.isDebugEnabled()) {
 			this.logger.debug("Predicate is suspicious after post filters : {}", ifStmt);
 		}
-		if(this.controlSensitiveAction(ifStmt)) {
+		if(this.isSuspiciousAfterPostFilters(ifStmt)) {
+			this.containsSuspiciousCheckAfterPostFilterStep = true;
 			return true;
 		}
 		if(this.logger.isDebugEnabled()) {
@@ -412,5 +421,17 @@ public class PotentialLogicBombsRecovery implements Runnable {
 
 	public boolean hasPotentialLogicBombs() {
 		return !this.potentialLogicBombs.isEmpty();
+	}
+
+	public boolean ContainsSuspiciousCheck() {
+		return this.containsSuspiciousCheck;
+	}
+
+	public boolean ContainsSuspiciousCheckAfterControlDependency() {
+		return this.containsSuspiciousCheckAfterControlDependency;
+	}
+
+	public boolean ContainsSuspiciousCheckAfterPostFilterStep() {
+		return this.containsSuspiciousCheckAfterPostFilterStep;
 	}
 }

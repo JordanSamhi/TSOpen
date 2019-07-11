@@ -18,6 +18,7 @@ import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecovery;
 import com.github.dusby.tsopen.pathPredicateRecovery.SimpleBlockPredicateExtraction;
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
 import com.github.dusby.tsopen.utils.Utils;
@@ -214,6 +215,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 	}
 
 	private boolean isSensitive(Collection<Unit> guardedBlocks) {
+		Collection<Unit> units = null;
 		for(Unit block : guardedBlocks) {
 			for(SootMethod m : Utils.getInvokedMethods(block, this.icfg)) {
 				if(!this.visitedMethods.contains(m)) {
@@ -221,8 +223,13 @@ public class PotentialLogicBombsRecovery implements Runnable {
 					if(this.isSensitiveMethod(m)) {
 						return true;
 					}
-					if(m.getDeclaringClass().isApplicationClass() && m.isConcrete() && this.isSensitive(m.retrieveActiveBody().getUnits())) {
-						return true;
+					if(m.getDeclaringClass().isApplicationClass() && m.isConcrete()) {
+						units = m.retrieveActiveBody().getUnits();
+						if(units != null) {
+							if(this.isSensitive(units)) {
+								return true;
+							}
+						}
 					}
 				}
 			}
@@ -337,14 +344,66 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		if(contextualValuesOp2 != null) {
 			valuesOp2 = contextualValuesOp2.getLastCoherentValues(ifStmt);
 		}
-		if(valuesOp1 != null && (op2 instanceof Constant)) {
+		if(valuesOp1 != null) {
 			values = valuesOp1;
-			constant = (Constant) op2;
-		}else if (valuesOp2 != null && (op1 instanceof Constant)) {
+			if(op2 instanceof Constant) {
+				constant = (Constant) op2;
+			}else if(this.containConstantSymbolicValue(op2)) {
+				constant = this.getConstantValue(op2);
+			}
+		}else if (valuesOp2 != null) {
 			values = valuesOp2;
-			constant = (Constant) op1;
+			if(op1 instanceof Constant) {
+				constant = (Constant) op1;
+			}else if(this.containConstantSymbolicValue(op1)) {
+				constant = this.getConstantValue(op1);
+			}
 		}
 		return new Sextet<List<SymbolicValue>, List<SymbolicValue>, List<SymbolicValue>, Value, Value, Constant>(values, valuesOp1, valuesOp2, op1, op2, constant);
+	}
+
+	private boolean containConstantSymbolicValue(Value v) {
+		List<SymbolicValue> values = null;
+		ContextualValues contextualValues = null;
+		if(v != null) {
+			contextualValues = this.se.getContext().get(v);
+			if(contextualValues != null) {
+				values = contextualValues.getAllValues();
+				if(values != null) {
+					for(SymbolicValue sv: values) {
+						if(sv instanceof ConstantValue) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private Constant getConstantValue(Value v) {
+		List<SymbolicValue> values = null;
+		ContextualValues contextualValues = null;
+		ConstantValue cv = null;
+		Constant c = null;
+		if(v != null) {
+			contextualValues = this.se.getContext().get(v);
+			if(contextualValues != null) {
+				values = contextualValues.getAllValues();
+				if(values != null) {
+					for(SymbolicValue sv: values) {
+						if(sv instanceof ConstantValue) {
+							cv = (ConstantValue)sv;
+							c = cv.getConstant();
+							if(c instanceof IntConstant) {
+								return IntConstant.v(((IntConstant) c).value);
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	public Map<IfStmt, List<SymbolicValue>> getPotentialLogicBombs(){

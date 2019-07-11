@@ -1,5 +1,6 @@
 package com.github.dusby.tsopen.symbolicExecution.typeRecognition;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,10 +18,13 @@ import com.github.dusby.tsopen.utils.Constants;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
+import soot.Unit;
 import soot.Value;
+import soot.jimple.AssignStmt;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
+import soot.jimple.InvokeStmt;
 import soot.jimple.ParameterRef;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
@@ -53,6 +57,12 @@ public class LocationRecognition extends TypeRecognitionHandler {
 		SymbolicValue object = null;
 		Type type = null;
 
+		Value callerRightOp = null;
+		InvokeExpr invExprCaller = null;
+		Collection<Unit> callers = null;
+		InvokeStmt invStmtCaller = null;
+		AssignStmt assignCaller = null;
+
 		if(rightOp instanceof InvokeExpr) {
 			rightOpInvExpr = (InvokeExpr) rightOp;
 
@@ -78,6 +88,24 @@ public class LocationRecognition extends TypeRecognitionHandler {
 						object = new UnknownValue(this.se);
 						object.addTag(new StringConstantValueTag(Constants.HERE_TAG));
 					}
+				}
+			}else {
+				callers = this.icfg.getCallersOf(this.icfg.getMethodOf(defUnit));
+				for(Unit caller : callers) {
+					if(caller instanceof InvokeStmt) {
+						invStmtCaller = (InvokeStmt) caller;
+						invExprCaller = invStmtCaller.getInvokeExpr();
+					}else if(caller instanceof AssignStmt) {
+						assignCaller = (AssignStmt) caller;
+						callerRightOp = assignCaller.getRightOp();
+						if(callerRightOp instanceof InvokeExpr) {
+							invExprCaller = (InvokeExpr)callerRightOp;
+						}else if(callerRightOp instanceof InvokeStmt) {
+							invExprCaller = ((InvokeStmt)callerRightOp).getInvokeExpr();
+						}
+					}
+
+					this.checkAndProcessContextValues(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()), results, leftOp, caller);
 				}
 			}
 		}

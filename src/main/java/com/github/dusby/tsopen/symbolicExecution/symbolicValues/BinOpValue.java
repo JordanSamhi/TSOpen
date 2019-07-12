@@ -43,4 +43,12 @@ public class BinOpValue extends AbstractSymbolicValue {
 	public boolean isObject() {
 		return false;
 	}
+
+	public Value getOp1() {
+		return this.op1;
+	}
+
+	public Value getOp2() {
+		return this.op2;
+	}
 }

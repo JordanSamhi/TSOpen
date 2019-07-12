@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.javatuples.Sextet;
+import org.javatuples.Septet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +18,7 @@ import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecovery;
 import com.github.dusby.tsopen.pathPredicateRecovery.SimpleBlockPredicateExtraction;
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
+import com.github.dusby.tsopen.symbolicExecution.symbolicValues.BinOpValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import com.github.dusby.tsopen.utils.Constants;
@@ -30,8 +31,11 @@ import soot.ValueBox;
 import soot.jimple.AssignStmt;
 import soot.jimple.ConditionExpr;
 import soot.jimple.Constant;
+import soot.jimple.DoubleConstant;
+import soot.jimple.FloatConstant;
 import soot.jimple.IfStmt;
 import soot.jimple.IntConstant;
+import soot.jimple.LongConstant;
 import soot.jimple.NullConstant;
 import soot.jimple.ReturnStmt;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
@@ -104,9 +108,10 @@ public class PotentialLogicBombsRecovery implements Runnable {
 	}
 
 	private boolean isSuspiciousAfterPostFilters(IfStmt ifStmt) {
-		Sextet<List<SymbolicValue>, List<SymbolicValue>, List<SymbolicValue>, Value, Value, Constant> contextualValues = this.getContextualValues(ifStmt);
+		Septet<List<SymbolicValue>, List<SymbolicValue>, List<SymbolicValue>, Value, Value, Constant, Boolean> contextualValues = this.getContextualValues(ifStmt);
 		List<SymbolicValue> values = contextualValues.getValue0();
 		Constant constant = contextualValues.getValue5();
+		boolean isNullCheck = contextualValues.getValue6();
 
 		if(values != null) {
 			for(SymbolicValue sv : values) {
@@ -124,9 +129,10 @@ public class PotentialLogicBombsRecovery implements Runnable {
 						|| sv.containsTag(Constants.SMS_SENDER_TAG)
 						|| sv.containsTag(Constants.SMS_BODY_TAG)
 						|| sv.containsTag(Constants.SUSPICIOUS))
-						&& (constant != null)
-						&& (constant instanceof IntConstant && ((IntConstant)constant).value == -1
-						|| (constant instanceof NullConstant))) {
+						&& ((constant != null)
+								&& (constant instanceof IntConstant && ((IntConstant)constant).value == -1
+								|| (constant instanceof NullConstant)))
+						|| isNullCheck) {
 					continue;
 				}else if(!sv.hasTag()) {
 					continue;
@@ -273,7 +279,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 	}
 
 	private boolean isSuspicious(IfStmt ifStmt) {
-		Sextet<List<SymbolicValue>, List<SymbolicValue>, List<SymbolicValue>, Value, Value, Constant> contextualValues = this.getContextualValues(ifStmt);
+		Septet<List<SymbolicValue>, List<SymbolicValue>, List<SymbolicValue>, Value, Value, Constant, Boolean> contextualValues = this.getContextualValues(ifStmt);
 		List<SymbolicValue> values = contextualValues.getValue0(),
 				valuesOp1 = contextualValues.getValue1(),
 				valuesOp2 = contextualValues.getValue2();
@@ -331,7 +337,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		return false;
 	}
 
-	private Sextet<List<SymbolicValue>, List<SymbolicValue>, List<SymbolicValue>, Value, Value, Constant> getContextualValues(IfStmt ifStmt) {
+	private Septet<List<SymbolicValue>, List<SymbolicValue>, List<SymbolicValue>, Value, Value, Constant, Boolean> getContextualValues(IfStmt ifStmt) {
 		ConditionExpr conditionExpr = (ConditionExpr) ifStmt.getCondition();
 		Value op1 = conditionExpr.getOp1(),
 				op2 = conditionExpr.getOp2();
@@ -341,6 +347,8 @@ public class PotentialLogicBombsRecovery implements Runnable {
 				valuesOp2 = null,
 				values = null;
 		Constant constant = null;
+		boolean isNullCheck = false;
+
 		if(!(op1 instanceof Constant)) {
 			contextualValuesOp1 = this.se.getContextualValues(op1);
 		}
@@ -360,6 +368,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 			}else if(this.containConstantSymbolicValue(op2)) {
 				constant = this.getConstantValue(op2);
 			}
+			isNullCheck = this.isNullCheck(valuesOp1);
 		}else if (valuesOp2 != null) {
 			values = valuesOp2;
 			if(op1 instanceof Constant) {
@@ -367,8 +376,40 @@ public class PotentialLogicBombsRecovery implements Runnable {
 			}else if(this.containConstantSymbolicValue(op1)) {
 				constant = this.getConstantValue(op1);
 			}
+			isNullCheck = this.isNullCheck(valuesOp2);
 		}
-		return new Sextet<List<SymbolicValue>, List<SymbolicValue>, List<SymbolicValue>, Value, Value, Constant>(values, valuesOp1, valuesOp2, op1, op2, constant);
+
+		return new Septet<List<SymbolicValue>, List<SymbolicValue>, List<SymbolicValue>, Value, Value, Constant, Boolean>(values, valuesOp1, valuesOp2, op1, op2, constant, isNullCheck);
+	}
+
+
+	private boolean isNullCheck(List<SymbolicValue> values) {
+		BinOpValue binOpValue = null;
+		Value binOpValueOp = null;
+		for(SymbolicValue sv : values) {
+			if(sv instanceof BinOpValue) {
+				binOpValue = (BinOpValue) sv;
+				binOpValueOp = binOpValue.getOp2();
+				if(binOpValueOp instanceof FloatConstant) {
+					if(((FloatConstant)binOpValueOp).value == 0 || ((FloatConstant)binOpValueOp).value == -1) {
+						return true;
+					}
+				}else if(binOpValueOp instanceof IntConstant) {
+					if(((IntConstant)binOpValueOp).value == 0 || ((IntConstant)binOpValueOp).value == -1) {
+						return true;
+					}
+				}else if(binOpValueOp instanceof DoubleConstant) {
+					if(((DoubleConstant)binOpValueOp).value == 0 || ((DoubleConstant)binOpValueOp).value == -1) {
+						return true;
+					}
+				}else if(binOpValueOp instanceof LongConstant) {
+					if(((LongConstant)binOpValueOp).value == 0 || ((LongConstant)binOpValueOp).value == -1) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	private boolean containConstantSymbolicValue(Value v) {

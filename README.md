@@ -19,7 +19,7 @@ To install the tool, one just has to go into cloned repository and run these mav
 <pre>
 cd TSOpen
 mvn clean install:install-file -Dfile=libs/soot-infoflow-android-classes.jar -DgroupId=de.tud.sse -DartifactId=soot-infoflow-android -Dversion=2.7.1 -Dpackaging=jar
-mvn clean install:install-file -Dfile=libs/soot-infoflow-trunk.jar -DgroupId=de.tud.sse -DartifactId=soot-infoflow -Dversion=2.7.1 -Dpackaging=jar
+mvn clean install:install-file -Dfile=libs/soot-infoflow-classes.jar -DgroupId=de.tud.sse -DartifactId=soot-infoflow -Dversion=2.7.1 -Dpackaging=jar
 mvn clean install:install-file -Dfile=libs/sootclasses-trunk.jar -DgroupId=ca.mcgill.sable -DartifactId=soot -Dversion=3.3.0 -Dpackaging=jar
 mvn clean install
 </pre>

@@ -24,6 +24,7 @@ import com.github.dusby.tsopen.utils.Constants;
 import com.github.dusby.tsopen.utils.TimeOut;
 import com.github.dusby.tsopen.utils.Utils;
 
+import soot.Scene;
 import soot.SootMethod;
 import soot.jimple.IfStmt;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
@@ -38,6 +39,8 @@ public class Analysis {
 	private String fileName;
 	private PotentialLogicBombsRecovery plbr;
 	private InfoflowCFG icfg;
+	private int dexSize;
+	private int nbClasses;
 
 	private Logger logger = LoggerFactory.getLogger(Main.class);
 	private Profiler mainProfiler = new Profiler(Main.class.getName());
@@ -83,6 +86,8 @@ public class Analysis {
 		sa.constructCallgraph();
 		this.icfg = new InfoflowCFG();
 		stopWatchCG.stop();
+
+		this.nbClasses = Scene.v().getApplicationClasses().size();
 
 		if(!this.options.hasQuiet()) {
 			this.logger.info(String.format("%-35s : %s", "CallGraph construction", Utils.getFormattedTime(stopWatchCG.elapsedTime())));
@@ -195,8 +200,9 @@ public class Analysis {
 		SootMethod ifMethod = null;
 		String ifStmt = null;
 		String fileSha256 = this.getFileSha256(this.fileName);
-		String result = String.format("%s,%s,%s,%s\n", fileSha256, this.pkgName,
-				timeoutReached ? 0 : plbr.getPotentialLogicBombs().size(), timeoutReached ? -1 : TimeUnit.SECONDS.convert(this.mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS));
+		String result = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s\n", fileSha256, this.pkgName,
+				timeoutReached ? 0 : plbr.getPotentialLogicBombs().size(), timeoutReached ? -1 : TimeUnit.SECONDS.convert(this.mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS),
+						this.plbr.ContainsSuspiciousCheck() ? 1 : 0, this.plbr.ContainsSuspiciousCheckAfterControlDependency() ? 1 : 0, this.plbr.ContainsSuspiciousCheckAfterPostFilterStep() ? 1 : 0, this.dexSize, this.nbClasses);
 		String symbolicValues = null;
 		try {
 			writer = new PrintWriter(new FileOutputStream(new File(outputFile), true));
@@ -205,11 +211,11 @@ public class Analysis {
 				symbolicValues = "";
 				ifMethod = icfg.getMethodOf(e.getKey());
 				ifStmt = String.format("if %s", e.getKey().getCondition());
-				symbolicValues += String.format("%s%s,%s,%s:", Constants.FILE_LOGIC_BOMBS_DELIMITER, ifStmt, ifMethod.getDeclaringClass(), ifMethod.getName());
+				symbolicValues += String.format("%s%s,%s,%s,", Constants.FILE_LOGIC_BOMBS_DELIMITER, ifStmt, ifMethod.getDeclaringClass(), ifMethod.getName());
 				for(SymbolicValue sv : e.getValue()) {
 					symbolicValues += String.format("%s (%s)", sv.getValue(), sv);
 					if(sv != e.getValue().get(e.getValue().size() - 1)) {
-						symbolicValues += ", ";
+						symbolicValues += ";";
 					}else {
 						symbolicValues += "\n";
 					}
@@ -232,6 +238,7 @@ public class Analysis {
 		try {
 			pm = new ProcessManifest(fileName);
 			pkgName = pm.getPackageName();
+			this.dexSize = pm.getApk().getInputStream(Constants.CLASSES_DEX).available();
 			pm.close();
 		} catch (Exception e) {
 			this.logger.error(e.getMessage());

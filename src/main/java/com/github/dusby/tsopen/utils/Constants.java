@@ -89,6 +89,7 @@ public class Constants {
 	 * Files
 	 */
 	public static final String SENSITIVE_METHODS_FILE = "/sensitiveMethods.pscout";
+	public static final String CLASSES_DEX = "classes.dex";
 
 	/**
 	 * Misc

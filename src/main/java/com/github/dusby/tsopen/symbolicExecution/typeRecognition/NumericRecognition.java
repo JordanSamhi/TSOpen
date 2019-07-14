@@ -6,16 +6,12 @@ import java.util.List;
 
 import org.javatuples.Pair;
 
-import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.numeric.NumericMethodsRecognitionHandler;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.BinOpValue;
-import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
-import com.github.dusby.tsopen.symbolicExecution.symbolicValues.FieldValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
-import com.github.dusby.tsopen.symbolicExecution.symbolicValues.UnknownValue;
 import com.github.dusby.tsopen.utils.Utils;
 
 import soot.SootMethod;
@@ -59,19 +55,13 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 		SootMethod method = null;
 		List<Value> args = null;
 		SymbolicValue object = null;
-		InstanceFieldRef instanceField = null,
-				leftOpInstanceField = null;
-		StaticFieldRef staticField = null;
+		InstanceFieldRef leftOpInstanceField = null;
 		BinopExpr BinOpRightOp = null;
 		Value callerRightOp = null;
 		InvokeExpr invExprCaller = null;
 		Collection<Unit> callers = null;
 		InvokeStmt invStmtCaller = null;
 		AssignStmt assignCaller = null;
-		ContextualValues contextualValues = null;
-		List<SymbolicValue> values = null;
-		ArrayRef rightOpArrayRef = null;
-		CastExpr rightOpExpr = null;
 
 		if(rightOp instanceof InvokeExpr) {
 			rightOpInvExpr = (InvokeExpr) rightOp;
@@ -85,13 +75,9 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 				this.nmrh.recognizeNumericMethod(method, base, object);
 			}
 		}else if(rightOp instanceof InstanceFieldRef) {
-			instanceField = (InstanceFieldRef) rightOp;
-			base = instanceField.getBase();
-			this.checkAndProcessContextValues(rightOp, results, leftOp, null);
+			this.checkAndProcessContextValues(rightOp, results, leftOp, defUnit);
 		}else if(rightOp instanceof StaticFieldRef) {
-			staticField = (StaticFieldRef) rightOp;
-			object = new FieldValue(base, staticField.getField().getName(), this.se);
-			Utils.propagateTags(rightOp, object, this.se);
+			this.checkAndProcessContextValues(rightOp, results, leftOp, defUnit);
 		}else if(rightOp instanceof BinopExpr){
 			BinOpRightOp = (BinopExpr) rightOp;
 			binOp1 = BinOpRightOp.getOp1();
@@ -114,43 +100,20 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 						invExprCaller = ((InvokeStmt)callerRightOp).getInvokeExpr();
 					}
 				}
-				contextualValues = this.se.getContext().get(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()));
-				values = null;
-				if(contextualValues == null) {
-					results.add(new Pair<Value, SymbolicValue>(leftOp, new UnknownValue(this.se)));
-				}else {
-					values = contextualValues.getLastCoherentValues(caller);
-					if(values != null) {
-						for(SymbolicValue sv : values) {
-							results.add(new Pair<Value, SymbolicValue>(leftOp, sv));
-						}
-					}
-				}
+				this.checkAndProcessContextValues(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()), results, leftOpInstanceField, caller);
 			}
 		}else if (rightOp instanceof NewArrayExpr){
 			object = new ObjectValue(leftOp.getType(), null, this.se);
 		}else if(rightOp instanceof ArrayRef) {
-			rightOpArrayRef = (ArrayRef)rightOp;
-			object = new UnknownValue(this.se);
-			base = rightOpArrayRef.getBase();
-			Utils.propagateTags(base, object, this.se);
+			this.checkAndProcessContextValues(((ArrayRef)rightOp).getBase(), results, leftOp, defUnit);
 		}else if(leftOp instanceof StaticFieldRef) {
-			staticField = (StaticFieldRef) leftOp;
-			object = new FieldValue(base, staticField.getField().getName(), this.se);
-			Utils.propagateTags(rightOp, object, this.se);
+			this.checkAndProcessContextValues(rightOp, results, leftOp, defUnit);
 		}else if(leftOp instanceof InstanceFieldRef && !(rightOp instanceof Constant)) {
-			leftOpInstanceField = (InstanceFieldRef) leftOp;
-			object = new FieldValue(base, leftOpInstanceField.getField().getName(), this.se);
-			Utils.propagateTags(rightOp, object, this.se);
-			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
+			this.checkAndProcessContextValues(rightOp, results, leftOp, defUnit);
 		}else if(leftOp instanceof InstanceFieldRef && rightOp instanceof Constant) {
-			leftOpInstanceField = (InstanceFieldRef) leftOp;
-			object = new ConstantValue(((Constant)rightOp), this.se);
-			Utils.propagateTags(rightOp, object, this.se);
-			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
+			this.checkAndProcessContextValues(rightOp, results, leftOp, defUnit);
 		}else if(rightOp instanceof CastExpr) {
-			rightOpExpr = (CastExpr) rightOp;
-			this.checkAndProcessContextValues(rightOpExpr.getOp(), results, leftOp, null);
+			this.checkAndProcessContextValues(((CastExpr) rightOp).getOp(), results, leftOp, defUnit);
 		}else {
 			return results;
 		}

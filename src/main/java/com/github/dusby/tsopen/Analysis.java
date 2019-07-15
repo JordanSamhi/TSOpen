@@ -42,6 +42,7 @@ public class Analysis {
 	private int dexSize;
 	private int nbClasses;
 	private String fileSha256;
+	private SimpleBlockPredicateExtraction sbpe;
 
 	private Logger logger = LoggerFactory.getLogger(Main.class);
 	private Profiler mainProfiler = new Profiler(Main.class.getName());
@@ -51,6 +52,9 @@ public class Analysis {
 		this.fileName = this.options.getFile();
 		this.pkgName = this.getPackageName(this.fileName);
 		this.fileSha256  = this.getFileSha256(this.fileName);
+		this.sbpe = null;
+		this.plbr = null;
+		this.icfg = null;
 	}
 
 	public void run() {
@@ -75,7 +79,6 @@ public class Analysis {
 		ifac.setIgnoreFlowsInSystemPackages(false);
 		SetupApplication sa = null;
 		SootMethod dummyMainMethod = null;
-		SimpleBlockPredicateExtraction sbpe = null;
 		PathPredicateRecovery ppr = null;
 		SymbolicExecution se = null;
 		Thread sbpeThread = null,
@@ -107,12 +110,12 @@ public class Analysis {
 		}
 
 		dummyMainMethod = sa.getDummyMainMethod();
-		sbpe = new SimpleBlockPredicateExtraction(this.icfg, dummyMainMethod);
-		ppr = new PathPredicateRecovery(this.icfg, sbpe, dummyMainMethod, this.options.hasExceptions());
+		this.sbpe = new SimpleBlockPredicateExtraction(this.icfg, dummyMainMethod);
+		ppr = new PathPredicateRecovery(this.icfg, this.sbpe, dummyMainMethod, this.options.hasExceptions());
 		se = new SymbolicExecution(this.icfg, dummyMainMethod);
-		this.plbr = new PotentialLogicBombsRecovery(sbpe, se, ppr, this.icfg);
+		this.plbr = new PotentialLogicBombsRecovery(this.sbpe, se, ppr, this.icfg);
 
-		sbpeThread = new Thread(sbpe, "sbpe");
+		sbpeThread = new Thread(this.sbpe, "sbpe");
 		pprThread = new Thread(ppr, "pprr");
 		seThread = new Thread(se, "syex");
 		plbrThread = new Thread(this.plbr, "plbr");
@@ -204,7 +207,8 @@ public class Analysis {
 	 * Print analysis results in the given file
 	 * Format :
 	 * [sha256], [pkg_name], [count_of_triggers], [elapsed_time], [hasSuspiciousTrigger],
-	 * [hasSuspiciousTriggerAfterControlDependency], [hasSuspiciousTriggerAfterPostFilters]
+	 * [hasSuspiciousTriggerAfterControlDependency], [hasSuspiciousTriggerAfterPostFilters],
+	 * [count_of_if], [max_if_in_methods]
 	 * @param plbr
 	 * @param icfg
 	 * @param outputFile
@@ -213,10 +217,11 @@ public class Analysis {
 		PrintWriter writer = null;
 		SootMethod ifMethod = null;
 		String ifStmt = null;
-		String result = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s\n", this.fileSha256, this.pkgName,
+		String result = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", this.fileSha256, this.pkgName,
 				timeoutReached ? 0 : this.plbr.getPotentialLogicBombs().size(), timeoutReached ? -1 : TimeUnit.SECONDS.convert(this.mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS),
 						this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheck() ? 1 : 0, this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheckAfterControlDependency() ? 1 : 0,
-								this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheckAfterPostFilterStep() ? 1 : 0, this.dexSize, this.nbClasses);
+								this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheckAfterPostFilterStep() ? 1 : 0, this.dexSize, this.nbClasses,
+										this.sbpe.getIfCount(), this.sbpe.getMaxIfInMethods());
 		String symbolicValues = null;
 		try {
 			writer = new PrintWriter(new FileOutputStream(new File(this.options.getOutput()), true));

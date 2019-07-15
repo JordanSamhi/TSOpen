@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
@@ -29,6 +30,8 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 	private List<IfStmt> conditions;
 	private List<Edge> annotatedEdges;
 	private final FormulaFactory formulaFactory;
+	private List<IfStmt> visitedIfs;
+	private Map<SootMethod, Integer> countOfIfByMethod;
 
 	public SimpleBlockPredicateExtraction(InfoflowCFG icfg, SootMethod mainMethod) {
 		super(icfg, "Simple Block Predicate Extraction", mainMethod);
@@ -36,6 +39,8 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 		this.annotatedEdges = new ArrayList<Edge>();
 		this.formulaFactory = new FormulaFactory();
 		this.conditions = new ArrayList<IfStmt>();
+		this.visitedIfs = new ArrayList<IfStmt>();
+		this.countOfIfByMethod = new HashMap<SootMethod, Integer>();
 	}
 
 	/**
@@ -48,6 +53,8 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 		String condition = null;
 		Edge edge = null;
 		Literal simplePredicate = null;
+		SootMethod method = this.icfg.getMethodOf(node);
+		Integer countOfIfByMethod = null;
 
 		if(!Utils.isCaughtException(successor)) {
 			if(node instanceof IfStmt && !Utils.isDummy(this.icfg.getMethodOf(node))) {
@@ -65,6 +72,15 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 					this.conditions.add(ifStmt);
 				}
 				edge.setPredicate(simplePredicate);
+				if(!this.visitedIfs.contains(ifStmt)) {
+					this.visitedIfs.add(ifStmt);
+					countOfIfByMethod = this.countOfIfByMethod.get(method);
+					if(countOfIfByMethod == null) {
+						this.countOfIfByMethod.put(method, 1);
+					}else {
+						this.countOfIfByMethod.put(method, countOfIfByMethod + 1);
+					}
+				}
 			}
 		}
 	}
@@ -94,6 +110,22 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 
 	public List<IfStmt> getConditions(){
 		return this.conditions;
+	}
+
+	public int getIfCount() {
+		return this.visitedIfs.size();
+	}
+
+	public int getMaxIfInMethods() {
+		int max = 0;
+		int countOfIf = 0;
+		for(Entry<SootMethod, Integer> e : this.countOfIfByMethod.entrySet()) {
+			countOfIf = e.getValue();
+			if (countOfIf > max) {
+				max = countOfIf;
+			}
+		}
+		return max;
 	}
 
 	@Override

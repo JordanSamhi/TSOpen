@@ -13,6 +13,8 @@ import com.github.dusby.tsopen.graphTraversal.ICFGForwardTraversal;
 import com.github.dusby.tsopen.utils.Edge;
 import com.github.dusby.tsopen.utils.Utils;
 
+import soot.Local;
+import soot.RefLikeType;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.IfStmt;
@@ -32,6 +34,8 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 	private final FormulaFactory formulaFactory;
 	private List<IfStmt> visitedIfs;
 	private Map<SootMethod, Integer> countOfIfByMethod;
+	private List<SootMethod> visitedMethods;
+	private int countOfObject;
 
 	public SimpleBlockPredicateExtraction(InfoflowCFG icfg, SootMethod mainMethod) {
 		super(icfg, "Simple Block Predicate Extraction", mainMethod);
@@ -41,6 +45,8 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 		this.conditions = new ArrayList<IfStmt>();
 		this.visitedIfs = new ArrayList<IfStmt>();
 		this.countOfIfByMethod = new HashMap<SootMethod, Integer>();
+		this.visitedMethods = new ArrayList<SootMethod>();
+		this.countOfObject = 0;
 	}
 
 	/**
@@ -82,6 +88,14 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 					}
 				}
 			}
+			if(!this.visitedMethods.contains(method)) {
+				this.visitedMethods.add(method);
+				for(Local l : method.retrieveActiveBody().getLocals()) {
+					if(l.getType() instanceof RefLikeType) {
+						this.countOfObject += 1;
+					}
+				}
+			}
 		}
 	}
 
@@ -116,7 +130,7 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 		return this.visitedIfs.size();
 	}
 
-	public int getMaxIfInMethods() {
+	public int getIfDepthInMethods() {
 		int max = 0;
 		int countOfIf = 0;
 		for(Entry<SootMethod, Integer> e : this.countOfIfByMethod.entrySet()) {
@@ -138,4 +152,8 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 
 	@Override
 	protected void processNodeBeforeNeighbors(Unit node) {}
+
+	public int getCountOfObject() {
+		return this.countOfObject;
+	}
 }

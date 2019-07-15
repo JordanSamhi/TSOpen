@@ -208,7 +208,7 @@ public class Analysis {
 	 * Format :
 	 * [sha256], [pkg_name], [count_of_triggers], [elapsed_time], [hasSuspiciousTrigger],
 	 * [hasSuspiciousTriggerAfterControlDependency], [hasSuspiciousTriggerAfterPostFilters],
-	 * [count_of_if], [max_if_in_methods]
+	 * [dex_size], [count_of_classes], [count_of_if], [if_depth], [count_of_objects]
 	 * @param plbr
 	 * @param icfg
 	 * @param outputFile
@@ -217,11 +217,11 @@ public class Analysis {
 		PrintWriter writer = null;
 		SootMethod ifMethod = null;
 		String ifStmt = null;
-		String result = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", this.fileSha256, this.pkgName,
+		String result = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", this.fileSha256, this.pkgName,
 				timeoutReached ? 0 : this.plbr.getPotentialLogicBombs().size(), timeoutReached ? -1 : TimeUnit.SECONDS.convert(this.mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS),
 						this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheck() ? 1 : 0, this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheckAfterControlDependency() ? 1 : 0,
 								this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheckAfterPostFilterStep() ? 1 : 0, this.dexSize, this.nbClasses,
-										this.sbpe.getIfCount(), this.sbpe.getMaxIfInMethods());
+										this.sbpe.getIfCount(), this.sbpe.getIfDepthInMethods(), this.sbpe.getCountOfObject());
 		String symbolicValues = null;
 		try {
 			writer = new PrintWriter(new FileOutputStream(new File(this.options.getOutput()), true));

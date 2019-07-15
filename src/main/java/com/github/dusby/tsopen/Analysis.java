@@ -41,6 +41,7 @@ public class Analysis {
 	private InfoflowCFG icfg;
 	private int dexSize;
 	private int nbClasses;
+	private String fileSha256;
 
 	private Logger logger = LoggerFactory.getLogger(Main.class);
 	private Profiler mainProfiler = new Profiler(Main.class.getName());
@@ -49,9 +50,21 @@ public class Analysis {
 		this.options = new CommandLineOptions(args);
 		this.fileName = this.options.getFile();
 		this.pkgName = this.getPackageName(this.fileName);
+		this.fileSha256  = this.getFileSha256(this.fileName);
 	}
 
 	public void run() {
+		try {
+			this.launchAnalysis();
+		} catch(OutOfMemoryError e) {
+			this.logger.error("No more memory available : %s", e.getMessage());
+			this.logger.error("Ending program...");
+			this.printResultsInFile(true);
+			System.exit(0);
+		}
+	}
+
+	private void launchAnalysis() {
 		StopWatch stopWatchCG = new StopWatch("cg"),
 				stopWatchSBPE = new StopWatch("sbpe"),
 				stopWatchPPR = new StopWatch("ppr"),
@@ -158,7 +171,7 @@ public class Analysis {
 
 
 		if(this.options.hasOutput()) {
-			this.printResultsInFile(this.plbr, this.icfg, this.options.getOutput(), false);
+			this.printResultsInFile(false);
 		}
 		if (!this.options.hasQuiet()){
 			this.printResults(this.plbr, this.icfg);
@@ -190,26 +203,27 @@ public class Analysis {
 	/**
 	 * Print analysis results in the given file
 	 * Format :
-	 * file sha256, package name, number of logic bombs, analysis time
+	 * [sha256], [pkg_name], [count_of_triggers], [elapsed_time], [hasSuspiciousTrigger],
+	 * [hasSuspiciousTriggerAfterControlDependency], [hasSuspiciousTriggerAfterPostFilters]
 	 * @param plbr
 	 * @param icfg
 	 * @param outputFile
 	 */
-	private void printResultsInFile(PotentialLogicBombsRecovery plbr, InfoflowCFG icfg, String outputFile, boolean timeoutReached) {
+	private void printResultsInFile(boolean timeoutReached) {
 		PrintWriter writer = null;
 		SootMethod ifMethod = null;
 		String ifStmt = null;
-		String fileSha256 = this.getFileSha256(this.fileName);
-		String result = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s\n", fileSha256, this.pkgName,
-				timeoutReached ? 0 : plbr.getPotentialLogicBombs().size(), timeoutReached ? -1 : TimeUnit.SECONDS.convert(this.mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS),
-						this.plbr.ContainsSuspiciousCheck() ? 1 : 0, this.plbr.ContainsSuspiciousCheckAfterControlDependency() ? 1 : 0, this.plbr.ContainsSuspiciousCheckAfterPostFilterStep() ? 1 : 0, this.dexSize, this.nbClasses);
+		String result = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s\n", this.fileSha256, this.pkgName,
+				timeoutReached ? 0 : this.plbr.getPotentialLogicBombs().size(), timeoutReached ? -1 : TimeUnit.SECONDS.convert(this.mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS),
+						this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheck() ? 1 : 0, this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheckAfterControlDependency() ? 1 : 0,
+								this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheckAfterPostFilterStep() ? 1 : 0, this.dexSize, this.nbClasses);
 		String symbolicValues = null;
 		try {
-			writer = new PrintWriter(new FileOutputStream(new File(outputFile), true));
+			writer = new PrintWriter(new FileOutputStream(new File(this.options.getOutput()), true));
 			writer.append(result);
-			for(Entry<IfStmt, List<SymbolicValue>> e : plbr.getPotentialLogicBombs().entrySet()) {
+			for(Entry<IfStmt, List<SymbolicValue>> e : this.plbr.getPotentialLogicBombs().entrySet()) {
 				symbolicValues = "";
-				ifMethod = icfg.getMethodOf(e.getKey());
+				ifMethod = this.icfg.getMethodOf(e.getKey());
 				ifStmt = String.format("if %s", e.getKey().getCondition());
 				symbolicValues += String.format("%s%s,%s,%s,", Constants.FILE_LOGIC_BOMBS_DELIMITER, ifStmt, ifMethod.getDeclaringClass(), ifMethod.getName());
 				for(SymbolicValue sv : e.getValue()) {
@@ -229,7 +243,7 @@ public class Analysis {
 	}
 
 	public void timeoutReachedPrintResults() {
-		this.printResultsInFile(this.plbr, this.icfg, this.options.getOutput(), true);
+		this.printResultsInFile(true);
 	}
 
 	private String getPackageName(String fileName) {

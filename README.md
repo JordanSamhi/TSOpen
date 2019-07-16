@@ -50,8 +50,18 @@ Indeed, one has to provide a file to analyze and the path to the android platfor
 Additional options : 
 
 * ```-e``` : Take exceptions into account during full path predicate recovery.
-* ```-t``` : Set a timeout for the tool (60 mins by default).
+* ```-t <timeout>``` : Set a timeout in minutes for the tool (60 mins by default).
 Indeed, the tool faces NP-complete problems, therefore for some apps it can run indefinitely, that is why a timeout is useful in some cases.
+* ```-q``` : Quiet mode, do not display information messages.
+* ```-o <file_name>``` : Set an input file for saving results.
+
+Results are in this form in the file for an APK :
+```sha256, pkg_name, count_of_triggers, elapsed_time, has_suspicious_trigger, has_suspicious_trigger_after_control_dependency, has_suspicious_trigger_after_post_filters, dex_size, count_of_classes, count_of_if, if_depth, count_of_objects```
+
+Theses features can be used to compute some data and statistics with a script.
+
+Triggers are represented in this form : 
+```%if_stmt, class, method, predicate_0;...;predicate_n```
 
 ## Built With
 

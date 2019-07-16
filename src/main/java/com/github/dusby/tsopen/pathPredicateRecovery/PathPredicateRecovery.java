@@ -1,6 +1,7 @@
 package com.github.dusby.tsopen.pathPredicateRecovery;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,7 +121,7 @@ public class PathPredicateRecovery extends ICFGBackwardTraversal {
 		if(this.guardedBlocks.containsKey(ifStmt)) {
 			return this.guardedBlocks.get(ifStmt);
 		}
-		return null;
+		return Collections.emptyList();
 	}
 
 	@Override

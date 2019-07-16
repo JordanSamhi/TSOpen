@@ -112,6 +112,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		List<SymbolicValue> values = contextualValues.getValue0();
 		Constant constant = contextualValues.getValue5();
 		boolean isNullCheck = contextualValues.getValue6();
+		boolean isSuspicious = false;
 
 		if(values != null) {
 			for(SymbolicValue sv : values) {
@@ -136,11 +137,13 @@ public class PotentialLogicBombsRecovery implements Runnable {
 					continue;
 				}else if(!sv.hasTag()) {
 					continue;
+				}else {
+					isSuspicious = true;
+					this.addPotentialLogicBomb(ifStmt, sv);
 				}
-				this.addPotentialLogicBomb(ifStmt, sv);
 			}
 		}
-		return true;
+		return isSuspicious;
 	}
 
 	private void addPotentialLogicBomb(IfStmt ifStmt, SymbolicValue sv) {

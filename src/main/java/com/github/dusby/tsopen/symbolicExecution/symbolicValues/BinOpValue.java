@@ -15,13 +15,17 @@ public class BinOpValue extends AbstractSymbolicValue {
 		this.op1 = op1;
 		this.op2 = op2;
 		this.symbol = symbol;
-		this.getSymbolicValues(this.op1);
-		this.getSymbolicValues(this.op2);
+		if(this.op1 != null) {
+			this.values.put(this.op1, this.getSymbolicValues(this.op1));
+		}
+		if(this.op2 != null) {
+			this.values.put(this.op2, this.getSymbolicValues(this.op2));
+		}
 	}
 
 	@Override
 	public String getValue() {
-		return String.format("%s%s%s", this.op1, this.symbol, this.op2);
+		return String.format("%s%s%s", this.computeValue(this.op1), this.symbol, this.computeValue(this.op2));
 	}
 
 	@Override

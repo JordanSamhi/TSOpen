@@ -18,7 +18,6 @@ import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ToStr
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ToUpperCaseRecognition;
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.strings.ValueOfRecognition;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ConstantValue;
-import com.github.dusby.tsopen.symbolicExecution.symbolicValues.FieldValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.MethodRepresentationValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
@@ -132,16 +131,9 @@ public class StringRecognition extends TypeRecognitionHandler{
 				}
 			}
 		}else if(rightOp instanceof InstanceFieldRef){
-			field = (InstanceFieldRef) rightOp;
-			base = field.getBase();
-			object = new FieldValue(base, field.getField().getName(), this.se);
-			Utils.propagateTags(rightOp, object, this.se);
-			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
+			this.checkAndProcessContextValues(rightOp, results, leftOp, defUnit);
 		}else if(leftOp instanceof InstanceFieldRef) {
-			field = (InstanceFieldRef) leftOp;
-			object = new FieldValue(base, field.getField().getName(), this.se);
-			Utils.propagateTags(rightOp, object, this.se);
-			results.add(new Pair<Value, SymbolicValue>(leftOp, object));
+			this.checkAndProcessContextValues(rightOp, results, leftOp, defUnit);
 		}
 		return results;
 	}

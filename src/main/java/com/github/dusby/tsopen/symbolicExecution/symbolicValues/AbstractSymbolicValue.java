@@ -67,11 +67,17 @@ public abstract class AbstractSymbolicValue implements SymbolicValue {
 	@Override
 	public String toString() {
 		String value = "";
+		List<String> usedStrings = new ArrayList<String>();
+		String tagValue = null;
 		if(!this.tags.isEmpty()) {
 			for(StringConstantValueTag tag : this.tags) {
-				value += tag.getStringValue();
-				if(tag != this.tags.get(this.tags.size() - 1)) {
-					value += " | ";
+				tagValue = tag.getStringValue();
+				if(!usedStrings.contains(tagValue)) {
+					usedStrings.add(tagValue);
+					value += tag.getStringValue();
+					if(tag != this.tags.get(this.tags.size() - 1)) {
+						value += " | ";
+					}
 				}
 			}
 			return value;

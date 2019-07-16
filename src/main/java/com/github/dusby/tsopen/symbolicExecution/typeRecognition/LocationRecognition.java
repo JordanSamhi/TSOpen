@@ -12,7 +12,6 @@ import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.location.GetL
 import com.github.dusby.tsopen.symbolicExecution.methodRecognizers.location.LocationMethodsRecognitionHandler;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.ObjectValue;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
-import com.github.dusby.tsopen.symbolicExecution.symbolicValues.UnknownValue;
 import com.github.dusby.tsopen.utils.Constants;
 
 import soot.SootClass;
@@ -85,7 +84,8 @@ public class LocationRecognition extends TypeRecognitionHandler {
 			if(method.getName().equals(Constants.ON_LOCATION_CHANGED)) {
 				for(SootClass sc : declaringClass.getInterfaces()) {
 					if(sc.getName().equals(Constants.ANDROID_LOCATION_LOCATION_LISTENER)) {
-						object = new UnknownValue(this.se);
+						type = method.retrieveActiveBody().getParameterLocal(0).getType();
+						object = new ObjectValue(type, null, this.se);
 						object.addTag(new StringConstantValueTag(Constants.HERE_TAG));
 					}
 				}

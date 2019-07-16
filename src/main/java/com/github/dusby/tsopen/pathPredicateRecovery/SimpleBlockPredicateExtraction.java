@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
@@ -36,6 +35,7 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 	private Map<SootMethod, Integer> countOfIfByMethod;
 	private List<SootMethod> visitedMethods;
 	private int countOfObject;
+	private int maxIf;
 
 	public SimpleBlockPredicateExtraction(InfoflowCFG icfg, SootMethod mainMethod) {
 		super(icfg, "Simple Block Predicate Extraction", mainMethod);
@@ -47,6 +47,7 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 		this.countOfIfByMethod = new HashMap<SootMethod, Integer>();
 		this.visitedMethods = new ArrayList<SootMethod>();
 		this.countOfObject = 0;
+		this.maxIf = 0;
 	}
 
 	/**
@@ -84,7 +85,11 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 					if(countOfIfByMethod == null) {
 						this.countOfIfByMethod.put(method, 1);
 					}else {
-						this.countOfIfByMethod.put(method, countOfIfByMethod + 1);
+						countOfIfByMethod += 1;
+						this.countOfIfByMethod.put(method, countOfIfByMethod);
+						if (countOfIfByMethod > this.maxIf) {
+							this.maxIf = countOfIfByMethod;
+						}
 					}
 				}
 			}
@@ -131,15 +136,7 @@ public class SimpleBlockPredicateExtraction extends ICFGForwardTraversal {
 	}
 
 	public int getIfDepthInMethods() {
-		int max = 0;
-		int countOfIf = 0;
-		for(Entry<SootMethod, Integer> e : this.countOfIfByMethod.entrySet()) {
-			countOfIf = e.getValue();
-			if (countOfIf > max) {
-				max = countOfIf;
-			}
-		}
-		return max;
+		return this.maxIf;
 	}
 
 	@Override

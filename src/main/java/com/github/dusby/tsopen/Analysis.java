@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
+import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
@@ -69,6 +70,7 @@ public class Analysis {
 	}
 
 	private void launchAnalysis() {
+		System.out.println(String.format("TSOpen v0.1 started on %s\n", new Date()));
 		StopWatch stopWatchCG = new StopWatch("cg"),
 				stopWatchSBPE = new StopWatch("sbpe"),
 				stopWatchPPR = new StopWatch("ppr"),

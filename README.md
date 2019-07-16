@@ -4,7 +4,7 @@ TSOpen is a tool to detect logic bombs in Android applicatons. This is an open i
 
 ## Getting Started
 
-TSOpen has been developped over the ([Soot framework](https://github.com/Sable/soot)) which is useful in analyzing statically Java programs thanks to its internal simplified representation of Java bytecode (Jimple).
+TSOpen has been developped over the [Soot framework](https://github.com/Sable/soot) which is useful in analyzing statically Java programs thanks to its internal simplified representation of Java bytecode (Jimple).
 Since TSOpen is made to analyze Android APKs and such applications have an atypical form (with communicating components), it is difficult to model correctly the flow of information. Therefore the modelling part rely on [Flowdroid](https://github.com/secure-software-engineering/FlowDroid) which is a tool to detect data leaks in Android APKs but can also bu used as a library.
 
 ### Downloading the tool

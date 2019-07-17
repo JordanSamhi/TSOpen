@@ -46,6 +46,7 @@ public class Analysis {
 	private int nbClasses;
 	private String fileSha256;
 	private SimpleBlockPredicateExtraction sbpe;
+	private PathPredicateRecovery ppr;
 
 	private Logger logger = LoggerFactory.getLogger(Main.class);
 	private Profiler mainProfiler = new Profiler(Main.class.getName());
@@ -58,13 +59,14 @@ public class Analysis {
 		this.sbpe = null;
 		this.plbr = null;
 		this.icfg = null;
+		this.ppr = null;
 	}
 
 	public void run() {
 		try {
 			this.launchAnalysis();
-		} catch(OutOfMemoryError e) {
-			this.logger.error("No more memory available : %s", e.getMessage());
+		} catch(Exception e) {
+			this.logger.error("Something went wrong : %s", e.getMessage());
 			this.logger.error("Ending program...");
 			this.printResultsInFile(true);
 			System.exit(0);
@@ -83,7 +85,6 @@ public class Analysis {
 		ifac.setIgnoreFlowsInSystemPackages(false);
 		SetupApplication sa = null;
 		SootMethod dummyMainMethod = null;
-		PathPredicateRecovery ppr = null;
 		SymbolicExecution se = null;
 		Thread sbpeThread = null,
 				pprThread = null,
@@ -115,12 +116,12 @@ public class Analysis {
 
 		dummyMainMethod = sa.getDummyMainMethod();
 		this.sbpe = new SimpleBlockPredicateExtraction(this.icfg, dummyMainMethod);
-		ppr = new PathPredicateRecovery(this.icfg, this.sbpe, dummyMainMethod, this.options.hasExceptions());
+		this.ppr = new PathPredicateRecovery(this.icfg, this.sbpe, dummyMainMethod, this.options.hasExceptions());
 		se = new SymbolicExecution(this.icfg, dummyMainMethod);
-		this.plbr = new PotentialLogicBombsRecovery(this.sbpe, se, ppr, this.icfg);
+		this.plbr = new PotentialLogicBombsRecovery(this.sbpe, se, this.ppr, this.icfg);
 
 		sbpeThread = new Thread(this.sbpe, "sbpe");
-		pprThread = new Thread(ppr, "pprr");
+		pprThread = new Thread(this.ppr, "pprr");
 		seThread = new Thread(se, "syex");
 		plbrThread = new Thread(this.plbr, "plbr");
 
@@ -191,17 +192,20 @@ public class Analysis {
 		SootMethod ifMethod = null;
 		SootClass ifClass = null;
 		String ifComponent = null;
+		IfStmt ifStmt = null;
 		if(plbr.hasPotentialLogicBombs()) {
 			System.out.println("\nPotential Logic Bombs found : ");
 			System.out.println("----------------------------------------------------------------");
 			for(Entry<IfStmt, Pair<List<SymbolicValue>, SootMethod>> e : plbr.getPotentialLogicBombs().entrySet()) {
-				ifMethod = icfg.getMethodOf(e.getKey());
+				ifStmt = e.getKey();
+				ifMethod = icfg.getMethodOf(ifStmt);
 				ifClass = ifMethod.getDeclaringClass();
 				ifComponent = Utils.getComponentType(ifClass);
-				System.out.println(String.format("- %-20s : if %s", "Statement", e.getKey().getCondition()));
+				System.out.println(String.format("- %-20s : if %s", "Statement", ifStmt.getCondition()));
 				System.out.println(String.format("- %-20s : %s", "Class", ifClass));
 				System.out.println(String.format("- %-20s : %s", "Method", ifMethod.getName()));
 				System.out.println(String.format("- %-20s : %s", "Component", ifComponent));
+				System.out.println(String.format("- %-20s : %s", "Size of formula", this.ppr.getSizeOfFullPath(ifStmt)));
 				System.out.println(String.format("- %-20s : %s", "Sensitive method", e.getValue().getValue1().getSignature()));
 				for(SymbolicValue sv : e.getValue().getValue0()) {
 					System.out.println(String.format("- %-20s : %s (%s)", "Predicate", sv.getValue(), sv));
@@ -227,9 +231,10 @@ public class Analysis {
 		PrintWriter writer = null;
 		SootMethod ifMethod = null;
 		SootClass ifClass = null;
-		String ifStmt = null,
+		String ifStmtStr = null,
 				ifComponent = null;
 		List<SymbolicValue> values = null;
+		IfStmt ifStmt = null;
 		String result = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", this.fileSha256, this.pkgName,
 				timeoutReached ? 0 : this.plbr.getPotentialLogicBombs().size(), timeoutReached ? -1 : TimeUnit.SECONDS.convert(this.mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS),
 						this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheck() ? 1 : 0, this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheckAfterControlDependency() ? 1 : 0,
@@ -240,12 +245,13 @@ public class Analysis {
 			writer = new PrintWriter(new FileOutputStream(new File(this.options.getOutput()), true));
 			writer.append(result);
 			for(Entry<IfStmt, Pair<List<SymbolicValue>, SootMethod>> e : this.plbr.getPotentialLogicBombs().entrySet()) {
+				ifStmt = e.getKey();
 				symbolicValues = "";
-				ifMethod = this.icfg.getMethodOf(e.getKey());
+				ifMethod = this.icfg.getMethodOf(ifStmt);
 				ifClass = ifMethod.getDeclaringClass();
-				ifStmt = String.format("if %s", e.getKey().getCondition());
+				ifStmtStr = String.format("if %s", ifStmt.getCondition());
 				ifComponent = Utils.getComponentType(ifMethod.getDeclaringClass());
-				symbolicValues += String.format("%s%s;%s;%s;%s;%s;", Constants.FILE_LOGIC_BOMBS_DELIMITER, ifStmt, ifClass, ifMethod.getName(), e.getValue().getValue1().getSignature(), ifComponent);
+				symbolicValues += String.format("%s%s;%s;%s;%s;%s;%s;", Constants.FILE_LOGIC_BOMBS_DELIMITER, ifStmtStr, ifClass, ifMethod.getName(), e.getValue().getValue1().getSignature(), ifComponent, this.ppr.getSizeOfFullPath(ifStmt));
 				values = e.getValue().getValue0();
 				for(SymbolicValue sv : values) {
 					symbolicValues += String.format("%s (%s)", sv.getValue(), sv);

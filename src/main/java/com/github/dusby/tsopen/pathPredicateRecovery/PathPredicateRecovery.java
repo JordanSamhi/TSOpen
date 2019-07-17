@@ -71,6 +71,14 @@ public class PathPredicateRecovery extends ICFGBackwardTraversal {
 		return null;
 	}
 
+	public int getSizeOfFullPath(Unit node) {
+		Formula formula = this.getNodeFullPath(node);
+		if(formula == null) {
+			return 1;
+		}
+		return formula.literals().size();
+	}
+
 	@Override
 	protected void processNeighbor(Unit node, Unit neighbour) {
 		if(this.handleExceptions || !Utils.isCaughtException(node)) {

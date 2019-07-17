@@ -84,6 +84,10 @@ public class Constants {
 	public static final String BOOLEAN = "boolean";
 	public static final String BYTE = "byte";
 	public static final String ANDROID_LOCATION_LOCATION_LISTENER = "android.location.LocationListener";
+	public static final String ANDROID_APP_ACTIVITY = "android.app.Activity";
+	public static final String ANDROID_CONTENT_BROADCASTRECEIVER = "android.content.BroadcastReceiver";
+	public static final String ANDROID_APP_SERVICE = "android.app.Service";
+	public static final String ANDROID_CONTENT_CONTENTPROVIDER = "android.content.ContentProvider";
 
 	/**
 	 * Files
@@ -98,13 +102,18 @@ public class Constants {
 	public static final String ADDITION = "+";
 	public static final String MULTIPLICATION = "x";
 	public static final String DIVISION = "/";
-	public static final String  MODULO = "%";
-	public static final String  WHITE = "white";
-	public static final String  GREY = "grey";
+	public static final String MODULO = "%";
+	public static final String WHITE = "white";
+	public static final String GREY = "grey";
 	public static final String UNKNOWN_VALUE = "{#}";
-	public static final String  BLACK = "black";
+	public static final String BLACK = "black";
 	public static final String UNKNOWN_STRING = "UNKNOWN_STRING";
 	public static final String EMPTY_STRING = "";
 	public static final String NULL = "null";
 	public static final String FILE_LOGIC_BOMBS_DELIMITER = "%";
+	public static final String BROADCAST_RECEIVER = "BroadcastReceiver";
+	public static final String ACTIVITY = "Activity";
+	public static final String CONTENT_PROVIDER = "ContentProvider";
+	public static final String SERVICE = "Service";
+	public static final String BASIC_CLASS = "BasicClass";
 }

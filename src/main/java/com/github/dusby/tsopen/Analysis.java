@@ -27,6 +27,7 @@ import com.github.dusby.tsopen.utils.TimeOut;
 import com.github.dusby.tsopen.utils.Utils;
 
 import soot.Scene;
+import soot.SootClass;
 import soot.SootMethod;
 import soot.jimple.IfStmt;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
@@ -188,17 +189,22 @@ public class Analysis {
 
 	private void printResults(PotentialLogicBombsRecovery plbr, InfoflowCFG icfg) {
 		SootMethod ifMethod = null;
+		SootClass ifClass = null;
+		String ifComponent = null;
 		if(plbr.hasPotentialLogicBombs()) {
 			System.out.println("\nPotential Logic Bombs found : ");
 			System.out.println("----------------------------------------------------------------");
 			for(Entry<IfStmt, Pair<List<SymbolicValue>, SootMethod>> e : plbr.getPotentialLogicBombs().entrySet()) {
 				ifMethod = icfg.getMethodOf(e.getKey());
-				System.out.println(String.format("- %-10s : if %s", "Statement", e.getKey().getCondition()));
-				System.out.println(String.format("- %-10s : %s", "Class", ifMethod.getDeclaringClass()));
-				System.out.println(String.format("- %-10s : %s", "Method", ifMethod.getName()));
-				System.out.println(String.format("- %-10s : %s", "Sensitive method", e.getValue().getValue1().getSignature()));
+				ifClass = ifMethod.getDeclaringClass();
+				ifComponent = Utils.getComponentType(ifClass);
+				System.out.println(String.format("- %-20s : if %s", "Statement", e.getKey().getCondition()));
+				System.out.println(String.format("- %-20s : %s", "Class", ifClass));
+				System.out.println(String.format("- %-20s : %s", "Method", ifMethod.getName()));
+				System.out.println(String.format("- %-20s : %s", "Component", ifComponent));
+				System.out.println(String.format("- %-20s : %s", "Sensitive method", e.getValue().getValue1().getSignature()));
 				for(SymbolicValue sv : e.getValue().getValue0()) {
-					System.out.println(String.format("- %-10s : %s (%s)", "Predicate", sv.getValue(), sv));
+					System.out.println(String.format("- %-20s : %s (%s)", "Predicate", sv.getValue(), sv));
 				}
 				System.out.println("----------------------------------------------------------------\n");
 			}
@@ -220,7 +226,9 @@ public class Analysis {
 	private void printResultsInFile(boolean timeoutReached) {
 		PrintWriter writer = null;
 		SootMethod ifMethod = null;
-		String ifStmt = null;
+		SootClass ifClass = null;
+		String ifStmt = null,
+				ifComponent = null;
 		List<SymbolicValue> values = null;
 		String result = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", this.fileSha256, this.pkgName,
 				timeoutReached ? 0 : this.plbr.getPotentialLogicBombs().size(), timeoutReached ? -1 : TimeUnit.SECONDS.convert(this.mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS),
@@ -234,13 +242,15 @@ public class Analysis {
 			for(Entry<IfStmt, Pair<List<SymbolicValue>, SootMethod>> e : this.plbr.getPotentialLogicBombs().entrySet()) {
 				symbolicValues = "";
 				ifMethod = this.icfg.getMethodOf(e.getKey());
+				ifClass = ifMethod.getDeclaringClass();
 				ifStmt = String.format("if %s", e.getKey().getCondition());
-				symbolicValues += String.format("%s%s,%s,%s,%s,", Constants.FILE_LOGIC_BOMBS_DELIMITER, ifStmt, ifMethod.getDeclaringClass(), ifMethod.getName(), e.getValue().getValue1().getSignature());
+				ifComponent = Utils.getComponentType(ifMethod.getDeclaringClass());
+				symbolicValues += String.format("%s%s;%s;%s;%s;%s;", Constants.FILE_LOGIC_BOMBS_DELIMITER, ifStmt, ifClass, ifMethod.getName(), e.getValue().getValue1().getSignature(), ifComponent);
 				values = e.getValue().getValue0();
 				for(SymbolicValue sv : values) {
 					symbolicValues += String.format("%s (%s)", sv.getValue(), sv);
 					if(sv != values.get(values.size() - 1)) {
-						symbolicValues += ";";
+						symbolicValues += ":";
 					}else {
 						symbolicValues += "\n";
 					}

@@ -176,4 +176,27 @@ public class Utils {
 	public static boolean isDummy(SootMethod m) {
 		return m.getName().startsWith("dummyMainMethod");
 	}
+
+	private static List<SootClass> getAllSuperClasses(SootClass sootClass) {
+		List<SootClass> classes = new ArrayList<SootClass>();
+		if (sootClass.hasSuperclass()) {
+			classes.add(sootClass.getSuperclass());
+			classes.addAll(getAllSuperClasses(sootClass.getSuperclass()));
+		}
+		return classes;
+	}
+
+	public static String getComponentType(SootClass sc) {
+		List<SootClass> classes = getAllSuperClasses(sc);
+		for(SootClass c : classes) {
+			switch (c.getName()) {
+			case Constants.ANDROID_APP_ACTIVITY : return Constants.ACTIVITY;
+			case Constants.ANDROID_CONTENT_BROADCASTRECEIVER : return Constants.BROADCAST_RECEIVER;
+			case Constants.ANDROID_CONTENT_CONTENTPROVIDER : return Constants.CONTENT_PROVIDER;
+			case Constants.ANDROID_APP_SERVICE : return Constants.SERVICE;
+			default : return Constants.BASIC_CLASS;
+			}
+		}
+		return Constants.BASIC_CLASS;
+	}
 }

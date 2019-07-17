@@ -30,6 +30,8 @@ public class EqualsRecognition extends BooleanMethodsRecognitionHandler {
 				}
 			}
 			if(Utils.containsTag(base, Constants.SMS_BODY_TAG, this.se) || Utils.containsTag(base, Constants.SMS_SENDER_TAG, this.se)) {
+				System.out.println(firstArg);
+				System.out.println(firstArg.getClass());
 				sv.addTag(new StringConstantValueTag(Constants.SUSPICIOUS));
 				return true;
 			}

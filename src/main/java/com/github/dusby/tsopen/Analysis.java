@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.profiler.Profiler;
@@ -190,12 +191,13 @@ public class Analysis {
 		if(plbr.hasPotentialLogicBombs()) {
 			System.out.println("\nPotential Logic Bombs found : ");
 			System.out.println("----------------------------------------------------------------");
-			for(Entry<IfStmt, List<SymbolicValue>> e : plbr.getPotentialLogicBombs().entrySet()) {
+			for(Entry<IfStmt, Pair<List<SymbolicValue>, SootMethod>> e : plbr.getPotentialLogicBombs().entrySet()) {
 				ifMethod = icfg.getMethodOf(e.getKey());
 				System.out.println(String.format("- %-10s : if %s", "Statement", e.getKey().getCondition()));
 				System.out.println(String.format("- %-10s : %s", "Class", ifMethod.getDeclaringClass()));
 				System.out.println(String.format("- %-10s : %s", "Method", ifMethod.getName()));
-				for(SymbolicValue sv : e.getValue()) {
+				System.out.println(String.format("- %-10s : %s", "Sensitive method", e.getValue().getValue1().getSignature()));
+				for(SymbolicValue sv : e.getValue().getValue0()) {
 					System.out.println(String.format("- %-10s : %s (%s)", "Predicate", sv.getValue(), sv));
 				}
 				System.out.println("----------------------------------------------------------------\n");
@@ -219,6 +221,7 @@ public class Analysis {
 		PrintWriter writer = null;
 		SootMethod ifMethod = null;
 		String ifStmt = null;
+		List<SymbolicValue> values = null;
 		String result = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", this.fileSha256, this.pkgName,
 				timeoutReached ? 0 : this.plbr.getPotentialLogicBombs().size(), timeoutReached ? -1 : TimeUnit.SECONDS.convert(this.mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS),
 						this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheck() ? 1 : 0, this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheckAfterControlDependency() ? 1 : 0,
@@ -228,14 +231,15 @@ public class Analysis {
 		try {
 			writer = new PrintWriter(new FileOutputStream(new File(this.options.getOutput()), true));
 			writer.append(result);
-			for(Entry<IfStmt, List<SymbolicValue>> e : this.plbr.getPotentialLogicBombs().entrySet()) {
+			for(Entry<IfStmt, Pair<List<SymbolicValue>, SootMethod>> e : this.plbr.getPotentialLogicBombs().entrySet()) {
 				symbolicValues = "";
 				ifMethod = this.icfg.getMethodOf(e.getKey());
 				ifStmt = String.format("if %s", e.getKey().getCondition());
-				symbolicValues += String.format("%s%s,%s,%s,", Constants.FILE_LOGIC_BOMBS_DELIMITER, ifStmt, ifMethod.getDeclaringClass(), ifMethod.getName());
-				for(SymbolicValue sv : e.getValue()) {
+				symbolicValues += String.format("%s%s,%s,%s,%s,", Constants.FILE_LOGIC_BOMBS_DELIMITER, ifStmt, ifMethod.getDeclaringClass(), ifMethod.getName(), e.getValue().getValue1().getSignature());
+				values = e.getValue().getValue0();
+				for(SymbolicValue sv : values) {
 					symbolicValues += String.format("%s (%s)", sv.getValue(), sv);
-					if(sv != e.getValue().get(e.getValue().size() - 1)) {
+					if(sv != values.get(values.size() - 1)) {
 						symbolicValues += ";";
 					}else {
 						symbolicValues += "\n";

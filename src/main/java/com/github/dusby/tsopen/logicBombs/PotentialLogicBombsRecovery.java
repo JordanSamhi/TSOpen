@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.javatuples.Pair;
 import org.javatuples.Septet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,13 +46,14 @@ public class PotentialLogicBombsRecovery implements Runnable {
 	private final SimpleBlockPredicateExtraction sbpe;
 	private final SymbolicExecution se;
 	private final PathPredicateRecovery ppr;
-	private Map<IfStmt, List<SymbolicValue>> potentialLogicBombs;
+	private Map<IfStmt, Pair<List<SymbolicValue>, SootMethod>> potentialLogicBombs;
 	private List<SootMethod> visitedMethods;
 	private List<IfStmt> visitedIfs;
 	private InfoflowCFG icfg;
 	private boolean containsSuspiciousCheck;
 	private boolean containsSuspiciousCheckAfterControlDependency;
 	private boolean containsSuspiciousCheckAfterPostFilterStep;
+	private SootMethod currentSensitiveMethod;
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -61,11 +63,12 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		this.ppr = ppr;
 		this.visitedMethods = new ArrayList<SootMethod>();
 		this.visitedIfs = new ArrayList<IfStmt>();
-		this.potentialLogicBombs = new HashMap<IfStmt, List<SymbolicValue>>();
+		this.potentialLogicBombs = new HashMap<IfStmt, Pair<List<SymbolicValue>, SootMethod>>();
 		this.icfg = icfg;
 		this.containsSuspiciousCheck = false;
 		this.containsSuspiciousCheckAfterControlDependency = false;
 		this.containsSuspiciousCheckAfterPostFilterStep = false;
+		this.currentSensitiveMethod = null;
 	}
 
 	@Override
@@ -147,11 +150,14 @@ public class PotentialLogicBombsRecovery implements Runnable {
 	}
 
 	private void addPotentialLogicBomb(IfStmt ifStmt, SymbolicValue sv) {
-		List<SymbolicValue> lbs = this.potentialLogicBombs.get(ifStmt);
-		if(lbs == null) {
+		List<SymbolicValue> lbs = null;
+		Pair<List<SymbolicValue>, SootMethod> pair = this.potentialLogicBombs.get(ifStmt);
+		if(pair == null) {
 			lbs = new ArrayList<SymbolicValue>();
-			this.potentialLogicBombs.put(ifStmt, lbs);
+			pair = new Pair<List<SymbolicValue>, SootMethod>(lbs, this.currentSensitiveMethod);
+			this.potentialLogicBombs.put(ifStmt, pair);
 		}
+		lbs = pair.getValue0();
 		lbs.add(sv);
 	}
 
@@ -239,6 +245,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 				if(!this.visitedMethods.contains(m)) {
 					this.visitedMethods.add(m);
 					if(this.isSensitiveMethod(m)) {
+						this.currentSensitiveMethod = m;
 						return true;
 					}
 					if(m.getDeclaringClass().isApplicationClass() && m.isConcrete()) {
@@ -459,7 +466,7 @@ public class PotentialLogicBombsRecovery implements Runnable {
 		return null;
 	}
 
-	public Map<IfStmt, List<SymbolicValue>> getPotentialLogicBombs(){
+	public Map<IfStmt, Pair<List<SymbolicValue>, SootMethod>> getPotentialLogicBombs(){
 		return this.potentialLogicBombs;
 	}
 

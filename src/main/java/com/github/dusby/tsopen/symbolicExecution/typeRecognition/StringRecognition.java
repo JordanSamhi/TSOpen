@@ -76,7 +76,6 @@ public class StringRecognition extends TypeRecognitionHandler{
 		InvokeStmt invStmtCaller = null;
 		AssignStmt assignCaller = null;
 		List<SymbolicValue> recognizedValues = null;
-		InstanceFieldRef field = null;
 		SymbolicValue object = null;
 
 		if(rightOp instanceof StringConstant) {

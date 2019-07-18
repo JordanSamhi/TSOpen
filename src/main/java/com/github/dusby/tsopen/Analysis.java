@@ -66,7 +66,7 @@ public class Analysis {
 		try {
 			this.launchAnalysis();
 		} catch(Exception e) {
-			this.logger.error("Something went wrong : %s", e.getMessage());
+			this.logger.error("Something went wrong : {}", e.getMessage());
 			this.logger.error("Ending program...");
 			this.printResultsInFile(true);
 			System.exit(0);

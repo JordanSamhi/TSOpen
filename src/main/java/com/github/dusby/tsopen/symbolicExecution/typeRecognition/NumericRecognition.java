@@ -55,7 +55,6 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 		SootMethod method = null;
 		List<Value> args = null;
 		SymbolicValue object = null;
-		InstanceFieldRef leftOpInstanceField = null;
 		BinopExpr BinOpRightOp = null;
 		Value callerRightOp = null;
 		InvokeExpr invExprCaller = null;
@@ -100,7 +99,7 @@ public abstract class NumericRecognition extends TypeRecognitionHandler {
 						invExprCaller = ((InvokeStmt)callerRightOp).getInvokeExpr();
 					}
 				}
-				this.checkAndProcessContextValues(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()), results, leftOpInstanceField, caller);
+				this.checkAndProcessContextValues(invExprCaller.getArg(((ParameterRef) rightOp).getIndex()), results, leftOp, caller);
 			}
 		}else if (rightOp instanceof NewArrayExpr){
 			object = new ObjectValue(leftOp.getType(), null, this.se);

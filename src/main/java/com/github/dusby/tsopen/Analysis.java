@@ -205,16 +205,17 @@ public class Analysis {
 				ifMethod = icfg.getMethodOf(ifStmt);
 				ifClass = ifMethod.getDeclaringClass();
 				ifComponent = Utils.getComponentType(ifClass);
-				System.out.println(String.format("- %-20s : if %s", "Statement", ifStmt.getCondition()));
-				System.out.println(String.format("- %-20s : %s", "Class", ifClass));
-				System.out.println(String.format("- %-20s : %s", "Method", ifMethod.getName()));
-				System.out.println(String.format("- %-20s : %s", "Starting Component", this.getStartingComponent(ifMethod)));
-				System.out.println(String.format("- %-20s : %s", "Ending Component", ifComponent));
-				System.out.println(String.format("- %-20s : %s", "Size of formula", this.ppr.getSizeOfFullPath(ifStmt)));
-				System.out.println(String.format("- %-20s : %s", "Sensitive method", e.getValue().getValue1().getSignature()));
-				System.out.println(String.format("- %-20s : %s", "Reachable", Utils.isInCallGraph(ifMethod) ? "Yes" : "No"));
+				System.out.println(String.format("- %-25s : if %s", "Statement", ifStmt.getCondition()));
+				System.out.println(String.format("- %-25s : %s", "Class", ifClass));
+				System.out.println(String.format("- %-25s : %s", "Method", ifMethod.getName()));
+				System.out.println(String.format("- %-25s : %s", "Starting Component", this.getStartingComponent(ifMethod)));
+				System.out.println(String.format("- %-25s : %s", "Ending Component", ifComponent));
+				System.out.println(String.format("- %-25s : %s", "Size of formula", this.ppr.getSizeOfFullPath(ifStmt)));
+				System.out.println(String.format("- %-25s : %s", "Sensitive method", e.getValue().getValue1().getSignature()));
+				System.out.println(String.format("- %-25s : %s", "Reachable", Utils.isInCallGraph(ifMethod) ? "Yes" : "No"));
+				System.out.println(String.format("- %-25s : %s", "Guarded Blocks Density", Utils.getGuardedBlocksDensity(this.ppr, ifStmt)));
 				for(SymbolicValue sv : e.getValue().getValue0()) {
-					System.out.println(String.format("- %-20s : %s (%s)", "Predicate", sv.getValue(), sv));
+					System.out.println(String.format("- %-25s : %s (%s)", "Predicate", sv.getValue(), sv));
 				}
 				System.out.println("----------------------------------------------------------------\n");
 			}
@@ -275,9 +276,10 @@ public class Analysis {
 				ifClass = ifMethod.getDeclaringClass();
 				ifStmtStr = String.format("if %s", ifStmt.getCondition());
 				ifComponent = Utils.getComponentType(ifMethod.getDeclaringClass());
-				symbolicValues += String.format("%s%s;%s;%s;%s;%s;%s;%s;%s", Constants.FILE_LOGIC_BOMBS_DELIMITER,
+				symbolicValues += String.format("%s%s;%s;%s;%s;%s;%s;%s;%s;%s;", Constants.FILE_LOGIC_BOMBS_DELIMITER,
 						ifStmtStr, ifClass, ifMethod.getName(), e.getValue().getValue1().getSignature(), ifComponent,
-						this.ppr.getSizeOfFullPath(ifStmt), Utils.isInCallGraph(ifMethod) ? 1 : 0, this.getStartingComponent(ifMethod));
+						this.ppr.getSizeOfFullPath(ifStmt), Utils.isInCallGraph(ifMethod) ? 1 : 0, this.getStartingComponent(ifMethod),
+								Utils.getGuardedBlocksDensity(this.ppr, ifStmt));
 				values = e.getValue().getValue0();
 				for(SymbolicValue sv : values) {
 					symbolicValues += String.format("%s (%s)", sv.getValue(), sv);

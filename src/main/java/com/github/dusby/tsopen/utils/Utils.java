@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecovery;
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
@@ -21,6 +22,7 @@ import soot.Value;
 import soot.ValueBox;
 import soot.jimple.CaughtExceptionRef;
 import soot.jimple.DefinitionStmt;
+import soot.jimple.IfStmt;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
@@ -217,5 +219,9 @@ public class Utils {
 			}
 		}
 		return false;
+	}
+
+	public static int getGuardedBlocksDensity(PathPredicateRecovery ppr, IfStmt ifStmt) {
+		return ppr.getGuardedBlocks(ifStmt).size();
 	}
 }

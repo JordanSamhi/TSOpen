@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +27,7 @@ import com.github.dusby.tsopen.utils.CommandLineOptions;
 import com.github.dusby.tsopen.utils.Constants;
 import com.github.dusby.tsopen.utils.TimeOut;
 import com.github.dusby.tsopen.utils.Utils;
+import com.google.common.collect.Lists;
 
 import soot.Scene;
 import soot.SootClass;
@@ -34,6 +37,7 @@ import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
+import soot.jimple.toolkits.callgraph.Edge;
 
 public class Analysis {
 
@@ -204,9 +208,11 @@ public class Analysis {
 				System.out.println(String.format("- %-20s : if %s", "Statement", ifStmt.getCondition()));
 				System.out.println(String.format("- %-20s : %s", "Class", ifClass));
 				System.out.println(String.format("- %-20s : %s", "Method", ifMethod.getName()));
-				System.out.println(String.format("- %-20s : %s", "Component", ifComponent));
+				System.out.println(String.format("- %-20s : %s", "Starting Component", this.getStartingComponent(ifMethod)));
+				System.out.println(String.format("- %-20s : %s", "Ending Component", ifComponent));
 				System.out.println(String.format("- %-20s : %s", "Size of formula", this.ppr.getSizeOfFullPath(ifStmt)));
 				System.out.println(String.format("- %-20s : %s", "Sensitive method", e.getValue().getValue1().getSignature()));
+				System.out.println(String.format("- %-20s : %s", "Reachable", Utils.isInCallGraph(ifMethod) ? "Yes" : "No"));
 				for(SymbolicValue sv : e.getValue().getValue0()) {
 					System.out.println(String.format("- %-20s : %s (%s)", "Predicate", sv.getValue(), sv));
 				}
@@ -215,6 +221,24 @@ public class Analysis {
 		}else {
 			System.out.println("\nNo Logic Bomb found\n");
 		}
+	}
+
+	private String getStartingComponent(SootMethod method) {
+		return Utils.getComponentType(Scene.v().getSootClass(Lists.reverse(this.getLogicBombCallStack(method)).get(1).getReturnType().toString()));
+	}
+
+	private List<SootMethod> getLogicBombCallStack(SootMethod m){
+		Iterator<Edge> it = Scene.v().getCallGraph().edgesInto(m);
+		Edge next = null;
+		List<SootMethod> methods = new LinkedList<SootMethod>();
+		methods.add(m);
+
+		while(it.hasNext()) {
+			next = it.next();
+			methods.addAll(this.getLogicBombCallStack(next.src()));
+			return methods;
+		}
+		return methods;
 	}
 
 	/**
@@ -251,7 +275,9 @@ public class Analysis {
 				ifClass = ifMethod.getDeclaringClass();
 				ifStmtStr = String.format("if %s", ifStmt.getCondition());
 				ifComponent = Utils.getComponentType(ifMethod.getDeclaringClass());
-				symbolicValues += String.format("%s%s;%s;%s;%s;%s;%s;", Constants.FILE_LOGIC_BOMBS_DELIMITER, ifStmtStr, ifClass, ifMethod.getName(), e.getValue().getValue1().getSignature(), ifComponent, this.ppr.getSizeOfFullPath(ifStmt));
+				symbolicValues += String.format("%s%s;%s;%s;%s;%s;%s;%s;%s", Constants.FILE_LOGIC_BOMBS_DELIMITER,
+						ifStmtStr, ifClass, ifMethod.getName(), e.getValue().getValue1().getSignature(), ifComponent,
+						this.ppr.getSizeOfFullPath(ifStmt), Utils.isInCallGraph(ifMethod) ? 1 : 0, this.getStartingComponent(ifMethod));
 				values = e.getValue().getValue0();
 				for(SymbolicValue sv : values) {
 					symbolicValues += String.format("%s (%s)", sv.getValue(), sv);

@@ -2,6 +2,7 @@ package com.github.dusby.tsopen.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
@@ -11,6 +12,7 @@ import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 
 import soot.FastHierarchy;
+import soot.MethodOrMethodContext;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
@@ -194,9 +196,26 @@ public class Utils {
 			case Constants.ANDROID_CONTENT_BROADCASTRECEIVER : return Constants.BROADCAST_RECEIVER;
 			case Constants.ANDROID_CONTENT_CONTENTPROVIDER : return Constants.CONTENT_PROVIDER;
 			case Constants.ANDROID_APP_SERVICE : return Constants.SERVICE;
-			default : return Constants.BASIC_CLASS;
 			}
 		}
 		return Constants.BASIC_CLASS;
+	}
+
+	public static boolean isInCallGraph(SootMethod m) {
+		MethodOrMethodContext next = null;
+		Iterator<MethodOrMethodContext> itMethod = Scene.v().getCallGraph().sourceMethods();
+		Iterator<soot.jimple.toolkits.callgraph.Edge> itEdge = null;
+		soot.jimple.toolkits.callgraph.Edge e = null;
+		while(itMethod.hasNext()){
+			next = itMethod.next();
+			itEdge = Scene.v().getCallGraph().edgesOutOf(next);
+			while(itEdge.hasNext()) {
+				e = itEdge.next();
+				if(e.tgt().equals(m)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }

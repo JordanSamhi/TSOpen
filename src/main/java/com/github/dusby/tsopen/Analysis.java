@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -258,7 +259,9 @@ public class Analysis {
 		SootClass ifClass = null;
 		String ifStmtStr = null,
 				ifComponent = null;
-		List<SymbolicValue> values = null;
+		List<SymbolicValue> values = null,
+				visitedValues = new ArrayList<SymbolicValue>();
+		SymbolicValue sv = null;
 		IfStmt ifStmt = null;
 		String result = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", this.fileSha256, this.pkgName,
 				timeoutReached ? 0 : this.plbr.getPotentialLogicBombs().size(), timeoutReached ? -1 : TimeUnit.SECONDS.convert(this.mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS),
@@ -281,14 +284,17 @@ public class Analysis {
 						this.ppr.getSizeOfFullPath(ifStmt), Utils.isInCallGraph(ifMethod) ? 1 : 0, this.getStartingComponent(ifMethod),
 								Utils.getGuardedBlocksDensity(this.ppr, ifStmt));
 				values = e.getValue().getValue0();
-				for(SymbolicValue sv : values) {
-					symbolicValues += String.format("%s (%s)", sv.getValue(), sv);
-					if(sv != values.get(values.size() - 1)) {
-						symbolicValues += ":";
-					}else {
-						symbolicValues += "\n";
+				for(int i = 0 ; i < values.size() ; i++) {
+					sv = values.get(i);
+					if(!visitedValues.contains(sv)) {
+						visitedValues.add(sv);
+						if(i != 0) {
+							symbolicValues += ":";
+						}
+						symbolicValues += String.format("%s (%s)", sv.getValue(), sv);
 					}
 				}
+				symbolicValues += "\n";
 				writer.append(symbolicValues);
 			}
 			writer.close();

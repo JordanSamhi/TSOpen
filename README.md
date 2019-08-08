@@ -57,11 +57,11 @@ Indeed, the tool faces NP-complete problems, therefore for some apps it can run 
 
 Results are in this form in the file for an APK :
 
-```sha256, pkg_name, count_of_triggers, elapsed_time, has_suspicious_trigger, has_suspicious_trigger_after_control_dependency, has_suspicious_trigger_after_post_filters, dex_size, count_of_classes, count_of_if, if_depth, count_of_objects```
+```sha256; pkg_name; count_of_triggers; elapsed_time; has_suspicious_trigger; has_suspicious_trigger_after_control_dependency; has_suspicious_trigger_after_post_filters; dex_size; count_of_classes; count_of_if; if_depth; count_of_objects```
 
 Triggers are represented in this form : 
 
-```%if_stmt, class, method, predicate_0;...;predicate_n```
+```%if_stmt, class, methodContainingLogicBomb, sensitiveMethod, componentContainingLogicBomb, sizeOfFullPathPredicate, isMethodContainingLogicBombReachable, guardedBlocksDensity, predicate_0:...:predicate_n```
 
 Theses features can be used to compute some data and statistics with a script.
 

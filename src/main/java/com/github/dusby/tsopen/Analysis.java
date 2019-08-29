@@ -284,6 +284,7 @@ public class Analysis {
 						this.ppr.getSizeOfFullPath(ifStmt), Utils.isInCallGraph(ifMethod) ? 1 : 0, this.getStartingComponent(ifMethod),
 								Utils.getGuardedBlocksDensity(this.ppr, ifStmt));
 				values = e.getValue().getValue0();
+				visitedValues.clear();
 				for(int i = 0 ; i < values.size() ; i++) {
 					sv = values.get(i);
 					if(!visitedValues.contains(sv)) {

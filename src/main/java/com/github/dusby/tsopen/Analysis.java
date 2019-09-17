@@ -79,7 +79,7 @@ public class Analysis {
 	}
 
 	private void launchAnalysis() {
-		System.out.println(String.format("TSOpen v0.1 started on %s\n", new Date()));
+		System.out.println(String.format("TSOpen v1.0 started on %s\n", new Date()));
 		StopWatch stopWatchCG = new StopWatch("cg"),
 				stopWatchSBPE = new StopWatch("sbpe"),
 				stopWatchPPR = new StopWatch("ppr"),

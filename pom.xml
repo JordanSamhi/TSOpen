@@ -6,7 +6,7 @@
 	<groupId>com.github.dusby</groupId>
 	<artifactId>TSOpen</artifactId>
 	<name>TSOpen</name>
-	<version>0.1</version>
+	<version>1.0</version>
 	<description>TSOpen is a tool to detect logic bombs in Android applicatons. This is an open implementation of TriggerScope made thanks to the details given in the 2016 Security and Privacy paper by Fratantonio &amp; al.</description>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>

@@ -71,7 +71,7 @@ Theses features can be used to compute some data and statistics with a script.
 
 ## Authors
 
-* **Jordan Samhi** - [Dusby](https://github.com/dusby)
+* **[Jordan Samhi](https://github.com/JordanSamhi)**
 
 ## Publication
 

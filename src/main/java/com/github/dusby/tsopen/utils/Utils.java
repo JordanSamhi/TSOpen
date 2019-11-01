@@ -3,6 +3,7 @@ package com.github.dusby.tsopen.utils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
@@ -11,6 +12,7 @@ import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecovery;
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
 import com.github.dusby.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
+import com.google.common.collect.Lists;
 
 import soot.FastHierarchy;
 import soot.MethodOrMethodContext;
@@ -28,6 +30,7 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 import soot.jimple.internal.IdentityRefBox;
+import soot.jimple.toolkits.callgraph.Edge;
 import soot.tagkit.StringConstantValueTag;
 
 public class Utils {
@@ -223,5 +226,65 @@ public class Utils {
 
 	public static int getGuardedBlocksDensity(PathPredicateRecovery ppr, IfStmt ifStmt) {
 		return ppr.getGuardedBlocks(ifStmt).size();
+	}
+
+	public static boolean guardedBlocksContainInvoke(PathPredicateRecovery ppr, IfStmt ifStmt) {
+		for(Unit u : ppr.getGuardedBlocks(ifStmt)) {
+			if(u instanceof InvokeStmt) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static <T> String join(String sep, List<T> list) {
+		String s = "(";
+		for(int i = 0 ; i < list.size() ; i++) {
+			s += list.get(i).toString();
+			if(i != list.size()-1) {
+				s += sep;
+			}
+		}
+		s += ")";
+		return s;
+	}
+
+	public static String getStartingComponent(SootMethod method) {
+		return Utils.getComponentType(Scene.v().getSootClass(Lists.reverse(getLogicBombCallStack(method)).get(1).getReturnType().toString()));
+	}
+
+	public static List<SootMethod> getLogicBombCallStack(SootMethod m){
+		Iterator<Edge> it = Scene.v().getCallGraph().edgesInto(m);
+		Edge next = null;
+		List<SootMethod> methods = new LinkedList<SootMethod>();
+		methods.add(m);
+
+		while(it.hasNext()) {
+			next = it.next();
+			methods.addAll(getLogicBombCallStack(next.src()));
+			return methods;
+		}
+		return methods;
+	}
+
+	public static List<Integer> getLengthLogicBombCallStack(SootMethod m, Integer c, List<Integer> l) {
+		Iterator<Edge> it = Scene.v().getCallGraph().edgesInto(m);
+		Edge next = null;
+
+		if(!it.hasNext()) {
+			l.add(c.intValue());
+		}
+
+		while(it.hasNext()) {
+			next = it.next();
+			c += 1;
+			getLengthLogicBombCallStack(next.src(), c, l);
+			c -= 1;
+		}
+		return l;
+	}
+
+	public static List<Integer> getLengthLogicBombCallStack(SootMethod m) {
+		return getLengthLogicBombCallStack(m, 0, new ArrayList<Integer>());
 	}
 }

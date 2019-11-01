@@ -7,8 +7,6 @@ import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.profiler.Profiler;
 import org.slf4j.profiler.StopWatch;
 
 import com.github.dusby.tsopen.logicBombs.PotentialLogicBombsRecovery;
@@ -28,7 +25,6 @@ import com.github.dusby.tsopen.utils.CommandLineOptions;
 import com.github.dusby.tsopen.utils.Constants;
 import com.github.dusby.tsopen.utils.TimeOut;
 import com.github.dusby.tsopen.utils.Utils;
-import com.google.common.collect.Lists;
 
 import soot.Scene;
 import soot.SootClass;
@@ -38,7 +34,6 @@ import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
-import soot.jimple.toolkits.callgraph.Edge;
 
 public class Analysis {
 
@@ -54,7 +49,13 @@ public class Analysis {
 	private PathPredicateRecovery ppr;
 
 	private Logger logger = LoggerFactory.getLogger(Main.class);
-	private Profiler mainProfiler = new Profiler(Main.class.getName());
+
+	StopWatch stopWatchCG = new StopWatch("cg"),
+			stopWatchSBPE = new StopWatch("sbpe"),
+			stopWatchPPR = new StopWatch("ppr"),
+			stopWatchSE = new StopWatch("se"),
+			stopWatchPLBR = new StopWatch("plbr"),
+			stopWatchAPP = new StopWatch("app");
 
 	public Analysis(String[] args) {
 		this.options = new CommandLineOptions(args);
@@ -79,13 +80,11 @@ public class Analysis {
 	}
 
 	private void launchAnalysis() {
-		System.out.println(String.format("TSOpen v1.0 started on %s\n", new Date()));
-		StopWatch stopWatchCG = new StopWatch("cg"),
-				stopWatchSBPE = new StopWatch("sbpe"),
-				stopWatchPPR = new StopWatch("ppr"),
-				stopWatchSE = new StopWatch("se"),
-				stopWatchPLBR = new StopWatch("plbr");
-		this.mainProfiler.start("overall");
+		this.stopWatchAPP.start("app");
+		if(!this.options.hasQuiet()) {
+			System.out.println(String.format("TSOpen v1.0 started on %s\n", new Date()));
+		}
+
 		InfoflowAndroidConfiguration ifac = new InfoflowAndroidConfiguration();
 		ifac.setIgnoreFlowsInSystemPackages(false);
 		SetupApplication sa = null;
@@ -104,19 +103,19 @@ public class Analysis {
 			this.logger.info(String.format("%-35s : %3s %s", "Timeout", timeout, timeout > 1 ? "mins" : "min"));
 		}
 
-		stopWatchCG.start("CallGraph");
+		this.stopWatchCG.start("CallGraph");
 		ifac.getAnalysisFileConfig().setAndroidPlatformDir(this.options.getPlatforms());
 		ifac.getAnalysisFileConfig().setTargetAPKFile(this.fileName);
 
 		sa = new SetupApplication(ifac);
 		sa.constructCallgraph();
 		this.icfg = new InfoflowCFG();
-		stopWatchCG.stop();
+		this.stopWatchCG.stop();
 
 		this.nbClasses = Scene.v().getApplicationClasses().size();
 
 		if(!this.options.hasQuiet()) {
-			this.logger.info(String.format("%-35s : %s", "CallGraph construction", Utils.getFormattedTime(stopWatchCG.elapsedTime())));
+			this.logger.info(String.format("%-35s : %s", "CallGraph construction", Utils.getFormattedTime(this.stopWatchCG.elapsedTime())));
 		}
 
 		dummyMainMethod = sa.getDummyMainMethod();
@@ -130,58 +129,57 @@ public class Analysis {
 		seThread = new Thread(se, "syex");
 		plbrThread = new Thread(this.plbr, "plbr");
 
-		stopWatchSBPE.start("sbpe");
+		this.stopWatchSBPE.start("sbpe");
 		sbpeThread.start();
-		stopWatchSE.start("se");
+		this.stopWatchSE.start("se");
 		seThread.start();
 
 		try {
 			sbpeThread.join();
-			stopWatchSBPE.stop();
+			this.stopWatchSBPE.stop();
 			if(!this.options.hasQuiet()) {
-				this.logger.info(String.format("%-35s : %s", "Simple Block Predicate Extraction", Utils.getFormattedTime(stopWatchSBPE.elapsedTime())));
+				this.logger.info(String.format("%-35s : %s", "Simple Block Predicate Extraction", Utils.getFormattedTime(this.stopWatchSBPE.elapsedTime())));
 			}
 		} catch (InterruptedException e) {
 			this.logger.error(e.getMessage());
 		}
 
-		stopWatchPPR.start("ppr");
+		this.stopWatchPPR.start("ppr");
 		pprThread.start();
 
 		try {
 			pprThread.join();
-			stopWatchPPR.stop();
+			this.stopWatchPPR.stop();
 			if(!this.options.hasQuiet()) {
-				this.logger.info(String.format("%-35s : %s", "Path Predicate Recovery", Utils.getFormattedTime(stopWatchPPR.elapsedTime())));
+				this.logger.info(String.format("%-35s : %s", "Path Predicate Recovery", Utils.getFormattedTime(this.stopWatchPPR.elapsedTime())));
 			}
 			seThread.join();
-			stopWatchSE.stop();
+			this.stopWatchSE.stop();
 			if(!this.options.hasQuiet()) {
-				this.logger.info(String.format("%-35s : %s", "Symbolic Execution", Utils.getFormattedTime(stopWatchSE.elapsedTime())));
+				this.logger.info(String.format("%-35s : %s", "Symbolic Execution", Utils.getFormattedTime(this.stopWatchSE.elapsedTime())));
 			}
 		} catch (InterruptedException e) {
 			this.logger.error(e.getMessage());
 		}
 
-		stopWatchPLBR.start("plbr");
+		this.stopWatchPLBR.start("plbr");
 		plbrThread.start();
 
 		try {
 			plbrThread.join();
-			stopWatchPLBR.stop();
+			this.stopWatchPLBR.stop();
 			if(!this.options.hasQuiet()) {
-				this.logger.info(String.format("%-35s : %s", "Potential Logic Bombs Recovery", Utils.getFormattedTime(stopWatchPLBR.elapsedTime())));
+				this.logger.info(String.format("%-35s : %s", "Potential Logic Bombs Recovery", Utils.getFormattedTime(this.stopWatchPLBR.elapsedTime())));
 			}
 		} catch (InterruptedException e) {
 			this.logger.error(e.getMessage());
 		}
 
-		this.mainProfiler.stop();
+		this.stopWatchAPP.stop();
 
 		if(!this.options.hasQuiet()) {
-			this.logger.info(String.format("%-35s : %s", "Application Execution Time", Utils.getFormattedTime(this.mainProfiler.elapsedTime())));
+			this.logger.info(String.format("%-35s : %s", "Application Execution Time", Utils.getFormattedTime(this.stopWatchAPP.elapsedTime())));
 		}
-
 
 		if(this.options.hasOutput()) {
 			this.printResultsInFile(false);
@@ -209,8 +207,9 @@ public class Analysis {
 				System.out.println(String.format("- %-25s : if %s", "Statement", ifStmt.getCondition()));
 				System.out.println(String.format("- %-25s : %s", "Class", ifClass));
 				System.out.println(String.format("- %-25s : %s", "Method", ifMethod.getName()));
-				System.out.println(String.format("- %-25s : %s", "Starting Component", this.getStartingComponent(ifMethod)));
+				System.out.println(String.format("- %-25s : %s", "Starting Component", Utils.getStartingComponent(ifMethod)));
 				System.out.println(String.format("- %-25s : %s", "Ending Component", ifComponent));
+				System.out.println(String.format("- %-25s : %s", "CallStack length", Utils.join(", ", Utils.getLengthLogicBombCallStack(ifMethod))));
 				System.out.println(String.format("- %-25s : %s", "Size of formula", this.ppr.getSizeOfFullPath(ifStmt)));
 				System.out.println(String.format("- %-25s : %s", "Sensitive method", e.getValue().getValue1().getSignature()));
 				System.out.println(String.format("- %-25s : %s", "Reachable", Utils.isInCallGraph(ifMethod) ? "Yes" : "No"));
@@ -223,24 +222,6 @@ public class Analysis {
 		}else {
 			System.out.println("\nNo Logic Bomb found\n");
 		}
-	}
-
-	private String getStartingComponent(SootMethod method) {
-		return Utils.getComponentType(Scene.v().getSootClass(Lists.reverse(this.getLogicBombCallStack(method)).get(1).getReturnType().toString()));
-	}
-
-	private List<SootMethod> getLogicBombCallStack(SootMethod m){
-		Iterator<Edge> it = Scene.v().getCallGraph().edgesInto(m);
-		Edge next = null;
-		List<SootMethod> methods = new LinkedList<SootMethod>();
-		methods.add(m);
-
-		while(it.hasNext()) {
-			next = it.next();
-			methods.addAll(this.getLogicBombCallStack(next.src()));
-			return methods;
-		}
-		return methods;
 	}
 
 	/**
@@ -263,11 +244,17 @@ public class Analysis {
 				visitedValues = new ArrayList<SymbolicValue>();
 		SymbolicValue sv = null;
 		IfStmt ifStmt = null;
-		String result = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", this.fileSha256, this.pkgName,
-				timeoutReached ? 0 : this.plbr.getPotentialLogicBombs().size(), timeoutReached ? -1 : TimeUnit.SECONDS.convert(this.mainProfiler.elapsedTime(), TimeUnit.NANOSECONDS),
+		String result = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%d,%d,%d,%d,%d\n", this.fileSha256, this.pkgName,
+				timeoutReached ? 0 : this.plbr.getPotentialLogicBombs().size(), timeoutReached ? -1 : TimeUnit.SECONDS.convert(this.stopWatchAPP.elapsedTime(), TimeUnit.NANOSECONDS),
 						this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheck() ? 1 : 0, this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheckAfterControlDependency() ? 1 : 0,
 								this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheckAfterPostFilterStep() ? 1 : 0, this.dexSize, this.nbClasses,
-										this.sbpe == null ? 0 : this.sbpe.getIfCount(), this.sbpe == null ? 0 : this.sbpe.getIfDepthInMethods(), this.sbpe == null ? 0 : this.sbpe.getCountOfObject());
+										this.sbpe == null ? 0 : this.sbpe.getIfCount(), this.sbpe == null ? 0 : this.sbpe.getIfDepthInMethods(), this.sbpe == null ? 0 : this.sbpe.getCountOfObject(),
+												TimeUnit.MILLISECONDS.convert(this.stopWatchCG.elapsedTime(), TimeUnit.NANOSECONDS),
+												TimeUnit.MILLISECONDS.convert(this.stopWatchPLBR.elapsedTime(), TimeUnit.NANOSECONDS),
+												TimeUnit.MILLISECONDS.convert(this.stopWatchPPR.elapsedTime(), TimeUnit.NANOSECONDS),
+												TimeUnit.MILLISECONDS.convert(this.stopWatchSBPE.elapsedTime(), TimeUnit.NANOSECONDS),
+												TimeUnit.MILLISECONDS.convert(this.stopWatchSE.elapsedTime(), TimeUnit.NANOSECONDS),
+												timeoutReached ? -1 : TimeUnit.MILLISECONDS.convert(this.stopWatchAPP.elapsedTime(), TimeUnit.NANOSECONDS));
 		String symbolicValues = null;
 		try {
 			writer = new PrintWriter(new FileOutputStream(new File(this.options.getOutput()), true));
@@ -279,10 +266,11 @@ public class Analysis {
 				ifClass = ifMethod.getDeclaringClass();
 				ifStmtStr = String.format("if %s", ifStmt.getCondition());
 				ifComponent = Utils.getComponentType(ifMethod.getDeclaringClass());
-				symbolicValues += String.format("%s%s;%s;%s;%s;%s;%s;%s;%s;%s;", Constants.FILE_LOGIC_BOMBS_DELIMITER,
+				symbolicValues += String.format("%s%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;", Constants.FILE_LOGIC_BOMBS_DELIMITER,
 						ifStmtStr, ifClass, ifMethod.getName(), e.getValue().getValue1().getSignature(), ifComponent,
-						this.ppr.getSizeOfFullPath(ifStmt), Utils.isInCallGraph(ifMethod) ? 1 : 0, this.getStartingComponent(ifMethod),
-								Utils.getGuardedBlocksDensity(this.ppr, ifStmt));
+						this.ppr.getSizeOfFullPath(ifStmt), Utils.isInCallGraph(ifMethod) ? 1 : 0, Utils.getStartingComponent(ifMethod),
+								Utils.getGuardedBlocksDensity(this.ppr, ifStmt), Utils.join(", ", Utils.getLengthLogicBombCallStack(ifMethod)),
+								Utils.guardedBlocksContainInvoke(this.ppr, ifStmt));
 				values = e.getValue().getValue0();
 				visitedValues.clear();
 				for(int i = 0 ; i < values.size() ; i++) {

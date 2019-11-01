@@ -12,7 +12,7 @@ Since TSOpen is made to analyze Android APKs and such applications have an atypi
 I do not provide any pre-built JAR as a release yet. Therefore one has to do the following to get the tool : 
 
 <pre>
-git clone https://github.com/dusby/TSOpen.git
+git clone https://github.com/JordanSamhi/TSOpen.git
 </pre>
 
 ### Installing the tool
@@ -71,7 +71,7 @@ Theses features can be used to compute some data and statistics with a script.
 
 ## Authors
 
-* **Jordan Samhi** - [Dusby](https://github.com/dusby)
+* **[Jordan Samhi](https://github.com/JordanSamhi)**
 
 ## Publication
 

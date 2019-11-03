@@ -1,5 +1,9 @@
 package com.github.dusby.tsopen.utils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -7,6 +11,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecovery;
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
@@ -34,6 +41,8 @@ import soot.jimple.toolkits.callgraph.Edge;
 import soot.tagkit.StringConstantValueTag;
 
 public class Utils {
+
+	protected static Logger logger = LoggerFactory.getLogger(Utils.class);
 
 	/**
 	 * Check whether the unit is catching
@@ -228,10 +237,14 @@ public class Utils {
 		return ppr.getGuardedBlocks(ifStmt).size();
 	}
 
-	public static boolean guardedBlocksContainInvoke(PathPredicateRecovery ppr, IfStmt ifStmt) {
+	public static boolean guardedBlocksContainApplicationInvoke(PathPredicateRecovery ppr, IfStmt ifStmt) {
+		SootMethod m = null;
 		for(Unit u : ppr.getGuardedBlocks(ifStmt)) {
 			if(u instanceof InvokeStmt) {
-				return true;
+				m = ((InvokeStmt) u).getInvokeExpr().getMethod();
+				if(m.getDeclaringClass().isApplicationClass()) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -286,5 +299,31 @@ public class Utils {
 
 	public static List<Integer> getLengthLogicBombCallStack(SootMethod m) {
 		return getLengthLogicBombCallStack(m, 0, new ArrayList<Integer>());
+	}
+
+	public static boolean isSensitiveMethod(SootMethod m) {
+		InputStream fis = null;
+		BufferedReader br = null;
+		String line = null;
+		try {
+			fis = Utils.class.getResourceAsStream(Constants.SENSITIVE_METHODS_FILE);
+			br = new BufferedReader(new InputStreamReader(fis));
+			while ((line = br.readLine()) != null)   {
+				if(m.getSignature().equals(line)) {
+					br.close();
+					fis.close();
+					return true;
+				}
+			}
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
+		try {
+			br.close();
+			fis.close();
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
+		return false;
 	}
 }

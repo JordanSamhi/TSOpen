@@ -270,7 +270,7 @@ public class Analysis {
 						ifStmtStr, ifClass, ifMethod.getName(), e.getValue().getValue1().getSignature(), ifComponent,
 						this.ppr.getSizeOfFullPath(ifStmt), Utils.isInCallGraph(ifMethod) ? 1 : 0, Utils.getStartingComponent(ifMethod),
 								Utils.getGuardedBlocksDensity(this.ppr, ifStmt), Utils.join(", ", Utils.getLengthLogicBombCallStack(ifMethod)),
-								Utils.guardedBlocksContainInvoke(this.ppr, ifStmt));
+								Utils.guardedBlocksContainApplicationInvoke(this.ppr, ifStmt) ? 1 : 0);
 				values = e.getValue().getValue0();
 				visitedValues.clear();
 				for(int i = 0 ; i < values.size() ; i++) {

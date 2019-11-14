@@ -9,12 +9,15 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.dusby.tsopen.logicBombs.PotentialLogicBombsRecovery;
 import com.github.dusby.tsopen.pathPredicateRecovery.PathPredicateRecovery;
 import com.github.dusby.tsopen.symbolicExecution.ContextualValues;
 import com.github.dusby.tsopen.symbolicExecution.SymbolicExecution;
@@ -39,6 +42,8 @@ import soot.jimple.infoflow.solver.cfg.InfoflowCFG;
 import soot.jimple.internal.IdentityRefBox;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.tagkit.StringConstantValueTag;
+import soot.toolkits.graph.DominatorTree;
+import soot.toolkits.graph.MHGDominatorsFinder;
 
 public class Utils {
 
@@ -280,25 +285,30 @@ public class Utils {
 		return methods;
 	}
 
-	public static List<Integer> getLengthLogicBombCallStack(SootMethod m, Integer c, List<Integer> l) {
+	public static List<Integer> getLengthLogicBombCallStack(SootMethod m, Integer c, List<Integer> l, List<SootMethod> visitedMethods) {
 		Iterator<Edge> it = Scene.v().getCallGraph().edgesInto(m);
 		Edge next = null;
 
+		visitedMethods.add(m);
 		if(!it.hasNext()) {
 			l.add(c.intValue());
 		}
 
 		while(it.hasNext()) {
 			next = it.next();
+			if(visitedMethods.contains(next.src())){
+				continue;
+			}
 			c += 1;
-			getLengthLogicBombCallStack(next.src(), c, l);
+			getLengthLogicBombCallStack(next.src(), c, l, visitedMethods);
+			visitedMethods.remove(m);
 			c -= 1;
 		}
 		return l;
 	}
 
 	public static List<Integer> getLengthLogicBombCallStack(SootMethod m) {
-		return getLengthLogicBombCallStack(m, 0, new ArrayList<Integer>());
+		return getLengthLogicBombCallStack(m, 0, new ArrayList<Integer>(), new ArrayList<SootMethod>());
 	}
 
 	public static boolean isSensitiveMethod(SootMethod m) {
@@ -323,6 +333,29 @@ public class Utils {
 			fis.close();
 		} catch (IOException e) {
 			logger.error(e.getMessage());
+		}
+		return false;
+	}
+
+	public static boolean isNested(IfStmt ifStmt, InfoflowCFG icfg, PotentialLogicBombsRecovery plbr, PathPredicateRecovery ppr) {
+		Map<IfStmt, Pair<List<SymbolicValue>, SootMethod>> plbs = plbr.getPotentialLogicBombs();
+		IfStmt currentIf = null;
+		SootMethod method1 = icfg.getMethodOf(ifStmt),
+				method2 = null;
+		MHGDominatorsFinder<Unit> df = new  MHGDominatorsFinder<Unit>(icfg.getOrCreateUnitGraph(method1));
+		DominatorTree<Unit> dt = new DominatorTree<Unit>(df);
+		for(Entry<IfStmt, Pair<List<SymbolicValue>, SootMethod>> e : plbs.entrySet()) {
+			currentIf = e.getKey();
+			method2 = icfg.getMethodOf(currentIf);
+			if(ifStmt != currentIf) {
+				if(method1 == method2) {
+					if(dt.isDominatorOf(dt.getDode(currentIf), dt.getDode(ifStmt))) {
+						if(ppr.getGuardedBlocks(currentIf).contains(ifStmt)) {
+							return true;
+						}
+					}
+				}
+			}
 		}
 		return false;
 	}

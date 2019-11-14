@@ -187,7 +187,6 @@ public class Analysis {
 		if (!this.options.hasQuiet()){
 			this.printResults(this.plbr, this.icfg);
 		}
-
 		timeOut.cancel();
 	}
 
@@ -214,6 +213,7 @@ public class Analysis {
 				System.out.println(String.format("- %-25s : %s", "Sensitive method", e.getValue().getValue1().getSignature()));
 				System.out.println(String.format("- %-25s : %s", "Reachable", Utils.isInCallGraph(ifMethod) ? "Yes" : "No"));
 				System.out.println(String.format("- %-25s : %s", "Guarded Blocks Density", Utils.getGuardedBlocksDensity(this.ppr, ifStmt)));
+				System.out.println(String.format("- %-25s : %s", "Nested", Utils.isNested(ifStmt, icfg, plbr, this.ppr) ? "Yes" : "No"));
 				for(SymbolicValue sv : e.getValue().getValue0()) {
 					System.out.println(String.format("- %-25s : %s (%s)", "Predicate", sv.getValue(), sv));
 				}
@@ -266,11 +266,12 @@ public class Analysis {
 				ifClass = ifMethod.getDeclaringClass();
 				ifStmtStr = String.format("if %s", ifStmt.getCondition());
 				ifComponent = Utils.getComponentType(ifMethod.getDeclaringClass());
-				symbolicValues += String.format("%s%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;", Constants.FILE_LOGIC_BOMBS_DELIMITER,
+				symbolicValues += String.format("%s%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;", Constants.FILE_LOGIC_BOMBS_DELIMITER,
 						ifStmtStr, ifClass, ifMethod.getName(), e.getValue().getValue1().getSignature(), ifComponent,
 						this.ppr.getSizeOfFullPath(ifStmt), Utils.isInCallGraph(ifMethod) ? 1 : 0, Utils.getStartingComponent(ifMethod),
 								Utils.getGuardedBlocksDensity(this.ppr, ifStmt), Utils.join(", ", Utils.getLengthLogicBombCallStack(ifMethod)),
-								Utils.guardedBlocksContainApplicationInvoke(this.ppr, ifStmt) ? 1 : 0);
+								Utils.guardedBlocksContainApplicationInvoke(this.ppr, ifStmt) ? 1 : 0,
+										Utils.isNested(ifStmt, this.icfg, this.plbr, this.ppr) ? 1 : 0);
 				values = e.getValue().getValue0();
 				visitedValues.clear();
 				for(int i = 0 ; i < values.size() ; i++) {

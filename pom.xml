@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.github.dusby</groupId>
+	<groupId>com.github.JordanSamhi</groupId>
 	<artifactId>TSOpen</artifactId>
 	<name>TSOpen</name>
 	<version>1.0</version>
@@ -23,7 +23,7 @@
 	<developers>
 		<developer>
 			<name>Jordan Samhi</name>
-			<email>jordan.samhi@ext.uni.lu</email>
+			<email>jordan.samhi@uni.lu</email>
 			<organization>SnT - Interdisciplinary Centre for Security, Reliability and Trust</organization>
 			<organizationUrl>https://wwwfr.uni.lu/snt</organizationUrl>
 		</developer>
@@ -53,7 +53,7 @@
 					<archive>
 						<manifest>
 							<mainClass>
-								com.github.dusby.tsopen.Main
+								com.github.JordanSamhi.tsopen.Main
 							</mainClass>
 						</manifest>
 					</archive>

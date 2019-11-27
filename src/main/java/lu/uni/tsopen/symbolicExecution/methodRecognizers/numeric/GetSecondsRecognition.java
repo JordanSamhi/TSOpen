@@ -1,0 +1,19 @@
+package lu.uni.tsopen.symbolicExecution.methodRecognizers.numeric;
+
+import lu.uni.tsopen.symbolicExecution.SymbolicExecution;
+import lu.uni.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
+import lu.uni.tsopen.utils.Constants;
+import soot.SootMethod;
+import soot.Value;
+
+public class GetSecondsRecognition extends NumericMethodsRecognitionHandler {
+
+	public GetSecondsRecognition(NumericMethodsRecognitionHandler next, SymbolicExecution se) {
+		super(next, se);
+	}
+
+	@Override
+	public boolean processNumericMethod(SootMethod method, Value base, SymbolicValue sv) {
+		return this.genericProcessNumericMethod(method, base, sv, Constants.JAVA_UTIL_DATE, Constants.GET_SECONDS, Constants.NOW_TAG, Constants.SECONDS_TAG);
+	}
+}

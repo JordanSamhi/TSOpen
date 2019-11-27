@@ -41,7 +41,7 @@
 			<param name="levelMax" value="error" />
         </filter>
     </appender>
-    <logger name="com.github.JordanSamhi" additivity="false">
+    <logger name="lu.uni.tsopen" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="STDOUT_DEBUG"/>
         <appender-ref ref="STDOUT_INFO"/>

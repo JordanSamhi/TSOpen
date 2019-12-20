@@ -79,4 +79,4 @@ If one wants to know more about the implementation details please check the [rel
 
 ## License
 
-This project is licensed under the LGPLv2.1 License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the LGPLv2.1 License - see the [LICENSE](LICENSE) file for details

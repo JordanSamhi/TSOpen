@@ -48,6 +48,7 @@ import lu.uni.tsopen.symbolicExecution.symbolicValues.ConstantValue;
 import lu.uni.tsopen.symbolicExecution.symbolicValues.SymbolicValue;
 import lu.uni.tsopen.utils.Constants;
 import lu.uni.tsopen.utils.Utils;
+import soot.SootClass;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
@@ -165,11 +166,21 @@ public class PotentialLogicBombsRecovery implements Runnable {
 					continue;
 				}else {
 					isSuspicious = true;
-					this.addPotentialLogicBomb(ifStmt, sv);
+					if(!this.isInFilteredLib(ifStmt)) {
+						this.addPotentialLogicBomb(ifStmt, sv);
+					}
 				}
 			}
 		}
 		return isSuspicious;
+	}
+
+	private boolean isInFilteredLib(IfStmt ifStmt) {
+		SootClass cl = this.icfg.getMethodOf(ifStmt).getDeclaringClass();
+		if(Utils.isFilteredLib(cl)) {
+			return true;
+		}
+		return false;
 	}
 
 	private void addPotentialLogicBomb(IfStmt ifStmt, SymbolicValue sv) {

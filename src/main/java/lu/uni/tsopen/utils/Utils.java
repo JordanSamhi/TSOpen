@@ -387,4 +387,30 @@ public class Utils {
 		}
 		return false;
 	}
+	
+	public static boolean isFilteredLib(SootClass sc) {
+		InputStream fis = null;
+		BufferedReader br = null;
+		String line = null;
+		try {
+			fis = Utils.class.getResourceAsStream(Constants.FILTERED_LIBS);
+			br = new BufferedReader(new InputStreamReader(fis));
+			while ((line = br.readLine()) != null)   {
+				if(sc.getName().startsWith(line)) {
+					br.close();
+					fis.close();
+					return true;
+				}
+			}
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
+		try {
+			br.close();
+			fis.close();
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
+		return false;
+	}
 }

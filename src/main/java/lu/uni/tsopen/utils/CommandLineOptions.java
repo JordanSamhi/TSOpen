@@ -58,6 +58,8 @@ public class CommandLineOptions {
 			new Triplet<String, String, String>("output", "o", "Output results in given file");
 	private static final Triplet<String, String, String> QUIET =
 			new Triplet<String, String, String>("quiet", "q", "Do not output results in console");
+	private static final Triplet<String, String, String> CALLGRAPH =
+			new Triplet<String, String, String>("callgraph", "c", "Define the call-graph algorithm to use (SPARK, CHA, RTA, VTA)");
 	private static final String TSOPEN = "TSOpen";
 
 	private Options options, firstOptions;
@@ -150,6 +152,14 @@ public class CommandLineOptions {
 				.argName(QUIET.getValue0())
 				.build();
 
+		final Option callgraph = Option.builder(CALLGRAPH.getValue1())
+				.longOpt(CALLGRAPH.getValue0())
+				.desc(CALLGRAPH.getValue2())
+				.argName(CALLGRAPH.getValue0())
+				.hasArg(true)
+				.build();
+		timeout.setOptionalArg(true);
+
 		this.firstOptions.addOption(help);
 
 		this.options.addOption(file);
@@ -158,6 +168,7 @@ public class CommandLineOptions {
 		this.options.addOption(timeout);
 		this.options.addOption(output);
 		this.options.addOption(quiet);
+		this.options.addOption(callgraph);
 		for(Option o : this.firstOptions.getOptions()) {
 			this.options.addOption(o);
 		}
@@ -198,5 +209,15 @@ public class CommandLineOptions {
 			}
 		} catch (Exception e) {}
 		return 0;
+	}
+
+	public String getCallGraph() {
+		String cg = this.cmdLine.getOptionValue(CALLGRAPH.getValue0());
+		if(cg != null) {
+			if(cg.equals("SPARK") || cg.equals("CHA") || cg.equals("RTA") || cg.equals("VTA")) {
+				return cg;
+			}
+        }
+		return null;
 	}
 }

@@ -57,6 +57,7 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.jimple.IfStmt;
+import soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
 import soot.jimple.infoflow.android.SetupApplication;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
@@ -133,6 +134,20 @@ public class Analysis {
 		this.stopWatchCG.start("CallGraph");
 		ifac.getAnalysisFileConfig().setAndroidPlatformDir(this.options.getPlatforms());
 		ifac.getAnalysisFileConfig().setTargetAPKFile(this.fileName);
+
+		String cg = this.options.getCallGraph();
+		if(cg != null) {
+			switch(cg) {
+				case "SPARK": ifac.setCallgraphAlgorithm(CallgraphAlgorithm.SPARK);
+				break;
+				case "CHA": ifac.setCallgraphAlgorithm(CallgraphAlgorithm.CHA);
+				break;
+				case "VTA": ifac.setCallgraphAlgorithm(CallgraphAlgorithm.VTA);
+				break;
+				case "RTA": ifac.setCallgraphAlgorithm(CallgraphAlgorithm.RTA);
+				break;
+			}
+		}
 
 		sa = new SetupApplication(ifac);
 		sa.constructCallgraph();

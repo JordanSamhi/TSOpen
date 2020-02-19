@@ -103,13 +103,16 @@ public class Analysis {
 			this.logger.error("Something went wrong : {}", e.getMessage());
 			this.logger.error("Ending program...");
 			this.printResultsInFile(true);
+			if (this.options.hasRaw()) {
+				this.printRawResults(true);
+			}
 			System.exit(0);
 		}
 	}
 
 	private void launchAnalysis() {
 		this.stopWatchAPP.start("app");
-		if(!this.options.hasQuiet()) {
+		if(!this.options.hasQuiet() && !this.options.hasRaw()) {
 			System.out.println(String.format("TSOpen v1.0 started on %s\n", new Date()));
 		}
 
@@ -126,7 +129,7 @@ public class Analysis {
 		int timeout = timeOut.getTimeout();
 		timeOut.trigger();
 
-		if(!this.options.hasQuiet()) {
+		if(!this.options.hasQuiet() && !this.options.hasRaw()) {
 			this.logger.info(String.format("%-35s : %s", "Package", this.getPackageName(this.fileName)));
 			this.logger.info(String.format("%-35s : %3s %s", "Timeout", timeout, timeout > 1 ? "mins" : "min"));
 		}
@@ -138,14 +141,14 @@ public class Analysis {
 		String cg = this.options.getCallGraph();
 		if(cg != null) {
 			switch(cg) {
-				case "SPARK": ifac.setCallgraphAlgorithm(CallgraphAlgorithm.SPARK);
-				break;
-				case "CHA": ifac.setCallgraphAlgorithm(CallgraphAlgorithm.CHA);
-				break;
-				case "VTA": ifac.setCallgraphAlgorithm(CallgraphAlgorithm.VTA);
-				break;
-				case "RTA": ifac.setCallgraphAlgorithm(CallgraphAlgorithm.RTA);
-				break;
+			case "SPARK": ifac.setCallgraphAlgorithm(CallgraphAlgorithm.SPARK);
+			break;
+			case "CHA": ifac.setCallgraphAlgorithm(CallgraphAlgorithm.CHA);
+			break;
+			case "VTA": ifac.setCallgraphAlgorithm(CallgraphAlgorithm.VTA);
+			break;
+			case "RTA": ifac.setCallgraphAlgorithm(CallgraphAlgorithm.RTA);
+			break;
 			}
 		}
 
@@ -156,7 +159,7 @@ public class Analysis {
 
 		this.nbClasses = Scene.v().getApplicationClasses().size();
 
-		if(!this.options.hasQuiet()) {
+		if(!this.options.hasQuiet() && !this.options.hasRaw()) {
 			this.logger.info(String.format("%-35s : %s", "CallGraph construction", Utils.getFormattedTime(this.stopWatchCG.elapsedTime())));
 		}
 
@@ -179,7 +182,7 @@ public class Analysis {
 		try {
 			sbpeThread.join();
 			this.stopWatchSBPE.stop();
-			if(!this.options.hasQuiet()) {
+			if(!this.options.hasQuiet() && !this.options.hasRaw()) {
 				this.logger.info(String.format("%-35s : %s", "Simple Block Predicate Extraction", Utils.getFormattedTime(this.stopWatchSBPE.elapsedTime())));
 			}
 		} catch (InterruptedException e) {
@@ -192,12 +195,12 @@ public class Analysis {
 		try {
 			pprThread.join();
 			this.stopWatchPPR.stop();
-			if(!this.options.hasQuiet()) {
+			if(!this.options.hasQuiet() && !this.options.hasRaw()) {
 				this.logger.info(String.format("%-35s : %s", "Path Predicate Recovery", Utils.getFormattedTime(this.stopWatchPPR.elapsedTime())));
 			}
 			seThread.join();
 			this.stopWatchSE.stop();
-			if(!this.options.hasQuiet()) {
+			if(!this.options.hasQuiet() && !this.options.hasRaw()) {
 				this.logger.info(String.format("%-35s : %s", "Symbolic Execution", Utils.getFormattedTime(this.stopWatchSE.elapsedTime())));
 			}
 		} catch (InterruptedException e) {
@@ -210,7 +213,7 @@ public class Analysis {
 		try {
 			plbrThread.join();
 			this.stopWatchPLBR.stop();
-			if(!this.options.hasQuiet()) {
+			if(!this.options.hasQuiet() && !this.options.hasRaw()) {
 				this.logger.info(String.format("%-35s : %s", "Potential Logic Bombs Recovery", Utils.getFormattedTime(this.stopWatchPLBR.elapsedTime())));
 			}
 		} catch (InterruptedException e) {
@@ -219,7 +222,7 @@ public class Analysis {
 
 		this.stopWatchAPP.stop();
 
-		if(!this.options.hasQuiet()) {
+		if(!this.options.hasQuiet() && !this.options.hasRaw()) {
 			this.logger.info(String.format("%-35s : %s", "Application Execution Time", Utils.getFormattedTime(this.stopWatchAPP.elapsedTime())));
 		}
 
@@ -227,22 +230,26 @@ public class Analysis {
 			this.printResultsInFile(false);
 		}
 		if (!this.options.hasQuiet()){
-			this.printResults(this.plbr, this.icfg);
+			if (this.options.hasRaw()) {
+				this.printRawResults(false);
+			}else {
+				this.printResults();
+			}
 		}
 		timeOut.cancel();
 	}
 
-	private void printResults(PotentialLogicBombsRecovery plbr, InfoflowCFG icfg) {
+	private void printResults() {
 		SootMethod ifMethod = null;
 		SootClass ifClass = null;
 		String ifComponent = null;
 		IfStmt ifStmt = null;
-		if(plbr.hasPotentialLogicBombs()) {
+		if(this.plbr.hasPotentialLogicBombs()) {
 			System.out.println("\nPotential Logic Bombs found : ");
 			System.out.println("----------------------------------------------------------------");
-			for(Entry<IfStmt, Pair<List<SymbolicValue>, SootMethod>> e : plbr.getPotentialLogicBombs().entrySet()) {
+			for(Entry<IfStmt, Pair<List<SymbolicValue>, SootMethod>> e : this.plbr.getPotentialLogicBombs().entrySet()) {
 				ifStmt = e.getKey();
-				ifMethod = icfg.getMethodOf(ifStmt);
+				ifMethod = this.icfg.getMethodOf(ifStmt);
 				ifClass = ifMethod.getDeclaringClass();
 				ifComponent = Utils.getComponentType(ifClass);
 				System.out.println(String.format("- %-25s : if %s", "Statement", ifStmt.getCondition()));
@@ -255,7 +262,7 @@ public class Analysis {
 				System.out.println(String.format("- %-25s : %s", "Sensitive method", e.getValue().getValue1().getSignature()));
 				System.out.println(String.format("- %-25s : %s", "Reachable", Utils.isInCallGraph(ifMethod) ? "Yes" : "No"));
 				System.out.println(String.format("- %-25s : %s", "Guarded Blocks Density", Utils.getGuardedBlocksDensity(this.ppr, ifStmt)));
-				System.out.println(String.format("- %-25s : %s", "Nested", Utils.isNested(ifStmt, icfg, plbr, this.ppr) ? "Yes" : "No"));
+				System.out.println(String.format("- %-25s : %s", "Nested", Utils.isNested(ifStmt, this.icfg, this.plbr, this.ppr) ? "Yes" : "No"));
 				for(SymbolicValue sv : e.getValue().getValue0()) {
 					System.out.println(String.format("- %-25s : %s (%s)", "Predicate", sv.getValue(), sv));
 				}
@@ -268,16 +275,31 @@ public class Analysis {
 
 	/**
 	 * Print analysis results in the given file
+	 */
+	private void printResultsInFile(boolean timeoutReached) {
+		PrintWriter writer = null;
+		try {
+			writer = new PrintWriter(new FileOutputStream(new File(this.options.getOutput()), true));
+			writer.append(this.getRawResults(timeoutReached));
+			writer.close();
+		} catch (Exception e) {
+			this.logger.error(e.getMessage());
+		}
+	}
+
+	private void printRawResults(boolean timeoutReached) {
+		System.out.println(this.getRawResults(timeoutReached));
+	}
+
+	/**
 	 * Format :
 	 * [sha256], [pkg_name], [count_of_triggers], [elapsed_time], [hasSuspiciousTrigger],
 	 * [hasSuspiciousTriggerAfterControlDependency], [hasSuspiciousTriggerAfterPostFilters],
 	 * [dex_size], [count_of_classes], [count_of_if], [if_depth], [count_of_objects]
-	 * @param plbr
-	 * @param icfg
-	 * @param outputFile
+	 * @param timeoutReached
+	 * @return
 	 */
-	private void printResultsInFile(boolean timeoutReached) {
-		PrintWriter writer = null;
+	private String getRawResults(boolean timeoutReached) {
 		SootMethod ifMethod = null;
 		SootClass ifClass = null;
 		String ifStmtStr = null,
@@ -286,7 +308,9 @@ public class Analysis {
 				visitedValues = new ArrayList<SymbolicValue>();
 		SymbolicValue sv = null;
 		IfStmt ifStmt = null;
-		String result = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%d,%d,%d,%d,%d\n", this.fileSha256, this.pkgName,
+		String symbolicValues = null;
+		StringBuilder result = new StringBuilder();
+		result.append(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%d,%d,%d,%d,%d\n", this.fileSha256, this.pkgName,
 				timeoutReached ? 0 : this.plbr.getPotentialLogicBombs().size(), timeoutReached ? -1 : TimeUnit.SECONDS.convert(this.stopWatchAPP.elapsedTime(), TimeUnit.NANOSECONDS),
 						this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheck() ? 1 : 0, this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheckAfterControlDependency() ? 1 : 0,
 								this.plbr == null ? 0 : this.plbr.ContainsSuspiciousCheckAfterPostFilterStep() ? 1 : 0, this.dexSize, this.nbClasses,
@@ -296,47 +320,43 @@ public class Analysis {
 												TimeUnit.MILLISECONDS.convert(this.stopWatchPPR.elapsedTime(), TimeUnit.NANOSECONDS),
 												TimeUnit.MILLISECONDS.convert(this.stopWatchSBPE.elapsedTime(), TimeUnit.NANOSECONDS),
 												TimeUnit.MILLISECONDS.convert(this.stopWatchSE.elapsedTime(), TimeUnit.NANOSECONDS),
-												timeoutReached ? -1 : TimeUnit.MILLISECONDS.convert(this.stopWatchAPP.elapsedTime(), TimeUnit.NANOSECONDS));
-		String symbolicValues = null;
-		try {
-			writer = new PrintWriter(new FileOutputStream(new File(this.options.getOutput()), true));
-			writer.append(result);
-			for(Entry<IfStmt, Pair<List<SymbolicValue>, SootMethod>> e : this.plbr.getPotentialLogicBombs().entrySet()) {
-				ifStmt = e.getKey();
-				symbolicValues = "";
-				ifMethod = this.icfg.getMethodOf(ifStmt);
-				ifClass = ifMethod.getDeclaringClass();
-				ifStmtStr = String.format("if %s", ifStmt.getCondition());
-				ifComponent = Utils.getComponentType(ifMethod.getDeclaringClass());
-				symbolicValues += String.format("%s%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;", Constants.FILE_LOGIC_BOMBS_DELIMITER,
-						ifStmtStr, ifClass, ifMethod.getName(), e.getValue().getValue1().getSignature(), ifComponent,
-						this.ppr.getSizeOfFullPath(ifStmt), Utils.isInCallGraph(ifMethod) ? 1 : 0, Utils.getStartingComponent(ifMethod),
-								Utils.getGuardedBlocksDensity(this.ppr, ifStmt), Utils.join(", ", Utils.getLengthLogicBombCallStack(ifMethod)),
-								Utils.guardedBlocksContainApplicationInvoke(this.ppr, ifStmt) ? 1 : 0,
-										Utils.isNested(ifStmt, this.icfg, this.plbr, this.ppr) ? 1 : 0);
-				values = e.getValue().getValue0();
-				visitedValues.clear();
-				for(int i = 0 ; i < values.size() ; i++) {
-					sv = values.get(i);
-					if(!visitedValues.contains(sv)) {
-						visitedValues.add(sv);
-						if(i != 0) {
-							symbolicValues += ":";
-						}
-						symbolicValues += String.format("%s (%s)", sv.getValue(), sv);
+												timeoutReached ? -1 : TimeUnit.MILLISECONDS.convert(this.stopWatchAPP.elapsedTime(), TimeUnit.NANOSECONDS)));
+		for(Entry<IfStmt, Pair<List<SymbolicValue>, SootMethod>> e : this.plbr.getPotentialLogicBombs().entrySet()) {
+			ifStmt = e.getKey();
+			symbolicValues = "";
+			ifMethod = this.icfg.getMethodOf(ifStmt);
+			ifClass = ifMethod.getDeclaringClass();
+			ifStmtStr = String.format("if %s", ifStmt.getCondition());
+			ifComponent = Utils.getComponentType(ifMethod.getDeclaringClass());
+			symbolicValues += String.format("%s%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;", Constants.FILE_LOGIC_BOMBS_DELIMITER,
+					ifStmtStr, ifClass, ifMethod.getName(), e.getValue().getValue1().getSignature(), ifComponent,
+					this.ppr.getSizeOfFullPath(ifStmt), Utils.isInCallGraph(ifMethod) ? 1 : 0, Utils.getStartingComponent(ifMethod),
+							Utils.getGuardedBlocksDensity(this.ppr, ifStmt), Utils.join(", ", Utils.getLengthLogicBombCallStack(ifMethod)),
+							Utils.guardedBlocksContainApplicationInvoke(this.ppr, ifStmt) ? 1 : 0,
+									Utils.isNested(ifStmt, this.icfg, this.plbr, this.ppr) ? 1 : 0);
+			values = e.getValue().getValue0();
+			visitedValues.clear();
+			for(int i = 0 ; i < values.size() ; i++) {
+				sv = values.get(i);
+				if(!visitedValues.contains(sv)) {
+					visitedValues.add(sv);
+					if(i != 0) {
+						symbolicValues += ":";
 					}
+					symbolicValues += String.format("%s (%s)", sv.getValue(), sv);
 				}
-				symbolicValues += "\n";
-				writer.append(symbolicValues);
 			}
-			writer.close();
-		} catch (Exception e) {
-			this.logger.error(e.getMessage());
+			symbolicValues += "\n";
+			result.append(symbolicValues);
 		}
+		return result.toString();
 	}
 
 	public void timeoutReachedPrintResults() {
 		this.printResultsInFile(true);
+		if(this.options.hasRaw()) {
+			this.printRawResults(true);
+		}
 	}
 
 	private String getPackageName(String fileName) {

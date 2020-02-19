@@ -60,6 +60,8 @@ public class CommandLineOptions {
 			new Triplet<String, String, String>("quiet", "q", "Do not output results in console");
 	private static final Triplet<String, String, String> CALLGRAPH =
 			new Triplet<String, String, String>("callgraph", "c", "Define the call-graph algorithm to use (SPARK, CHA, RTA, VTA)");
+	private static final Triplet<String, String, String> RAW =
+			new Triplet<String, String, String>("raw", "r", "write raw results in stdout");
 	private static final String TSOPEN = "TSOpen";
 
 	private Options options, firstOptions;
@@ -152,6 +154,12 @@ public class CommandLineOptions {
 				.argName(QUIET.getValue0())
 				.build();
 
+		final Option raw = Option.builder(RAW.getValue1())
+				.longOpt(RAW.getValue0())
+				.desc(RAW.getValue2())
+				.argName(RAW.getValue0())
+				.build();
+
 		final Option callgraph = Option.builder(CALLGRAPH.getValue1())
 				.longOpt(CALLGRAPH.getValue0())
 				.desc(CALLGRAPH.getValue2())
@@ -169,6 +177,8 @@ public class CommandLineOptions {
 		this.options.addOption(output);
 		this.options.addOption(quiet);
 		this.options.addOption(callgraph);
+		this.options.addOption(raw);
+
 		for(Option o : this.firstOptions.getOptions()) {
 			this.options.addOption(o);
 		}
@@ -196,6 +206,10 @@ public class CommandLineOptions {
 
 	public boolean hasQuiet() {
 		return this.cmdLine.hasOption(QUIET.getValue1());
+	}
+
+	public boolean hasRaw() {
+		return this.cmdLine.hasOption(RAW.getValue1());
 	}
 
 	public int getTimeout() {

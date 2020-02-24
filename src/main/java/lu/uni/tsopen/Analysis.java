@@ -321,33 +321,35 @@ public class Analysis {
 												TimeUnit.MILLISECONDS.convert(this.stopWatchSBPE.elapsedTime(), TimeUnit.NANOSECONDS),
 												TimeUnit.MILLISECONDS.convert(this.stopWatchSE.elapsedTime(), TimeUnit.NANOSECONDS),
 												timeoutReached ? -1 : TimeUnit.MILLISECONDS.convert(this.stopWatchAPP.elapsedTime(), TimeUnit.NANOSECONDS)));
-		for(Entry<IfStmt, Pair<List<SymbolicValue>, SootMethod>> e : this.plbr.getPotentialLogicBombs().entrySet()) {
-			ifStmt = e.getKey();
-			symbolicValues = "";
-			ifMethod = this.icfg.getMethodOf(ifStmt);
-			ifClass = ifMethod.getDeclaringClass();
-			ifStmtStr = String.format("if %s", ifStmt.getCondition());
-			ifComponent = Utils.getComponentType(ifMethod.getDeclaringClass());
-			symbolicValues += String.format("%s%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;", Constants.FILE_LOGIC_BOMBS_DELIMITER,
-					ifStmtStr, ifClass, ifMethod.getName(), e.getValue().getValue1().getSignature(), ifComponent,
-					this.ppr.getSizeOfFullPath(ifStmt), Utils.isInCallGraph(ifMethod) ? 1 : 0, Utils.getStartingComponent(ifMethod),
-							Utils.getGuardedBlocksDensity(this.ppr, ifStmt), Utils.join(", ", Utils.getLengthLogicBombCallStack(ifMethod)),
-							Utils.guardedBlocksContainApplicationInvoke(this.ppr, ifStmt) ? 1 : 0,
-									Utils.isNested(ifStmt, this.icfg, this.plbr, this.ppr) ? 1 : 0);
-			values = e.getValue().getValue0();
-			visitedValues.clear();
-			for(int i = 0 ; i < values.size() ; i++) {
-				sv = values.get(i);
-				if(!visitedValues.contains(sv)) {
-					visitedValues.add(sv);
-					if(i != 0) {
-						symbolicValues += ":";
+		if(this.plbr != null) {
+			for(Entry<IfStmt, Pair<List<SymbolicValue>, SootMethod>> e : this.plbr.getPotentialLogicBombs().entrySet()) {
+				ifStmt = e.getKey();
+				symbolicValues = "";
+				ifMethod = this.icfg.getMethodOf(ifStmt);
+				ifClass = ifMethod.getDeclaringClass();
+				ifStmtStr = String.format("if %s", ifStmt.getCondition());
+				ifComponent = Utils.getComponentType(ifMethod.getDeclaringClass());
+				symbolicValues += String.format("%s%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;", Constants.FILE_LOGIC_BOMBS_DELIMITER,
+						ifStmtStr, ifClass, ifMethod.getName(), e.getValue().getValue1().getSignature(), ifComponent,
+						this.ppr.getSizeOfFullPath(ifStmt), Utils.isInCallGraph(ifMethod) ? 1 : 0, Utils.getStartingComponent(ifMethod),
+								Utils.getGuardedBlocksDensity(this.ppr, ifStmt), Utils.join(", ", Utils.getLengthLogicBombCallStack(ifMethod)),
+								Utils.guardedBlocksContainApplicationInvoke(this.ppr, ifStmt) ? 1 : 0,
+										Utils.isNested(ifStmt, this.icfg, this.plbr, this.ppr) ? 1 : 0);
+				values = e.getValue().getValue0();
+				visitedValues.clear();
+				for(int i = 0 ; i < values.size() ; i++) {
+					sv = values.get(i);
+					if(!visitedValues.contains(sv)) {
+						visitedValues.add(sv);
+						if(i != 0) {
+							symbolicValues += ":";
+						}
+						symbolicValues += String.format("%s (%s)", sv.getValue(), sv);
 					}
-					symbolicValues += String.format("%s (%s)", sv.getValue(), sv);
 				}
+				symbolicValues += "\n";
+				result.append(symbolicValues);
 			}
-			symbolicValues += "\n";
-			result.append(symbolicValues);
 		}
 		return result.toString();
 	}

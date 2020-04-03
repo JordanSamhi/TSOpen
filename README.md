@@ -54,6 +54,8 @@ Additional options :
 Indeed, the tool faces NP-complete problems, therefore for some apps it can run indefinitely, that is why a timeout is useful in some cases.
 * ```-q``` : Quiet mode, do not display information messages.
 * ```-o <file_name>``` : Set an input file for saving results.
+* ```-c <call_graph_algorithm>``` : Set the call-graph construction algorithm used (SPARK, CHA, RTA, VTA)
+* ```-r``` : Display raw results in stdout
 
 Results are in this form in the file for an APK :
 

@@ -77,7 +77,7 @@ Theses features can be used to compute some data and statistics with a script.
 
 ## Publication
 
-If one wants to know more about the implementation details please check the [related research paper](https://seclab.ccs.neu.edu/static/publications/sp2016triggerscope.pdf).
+If one wants to know more about the implementation details please check the [related research paper](https://wkr.io/publication/oakland-2016-triggerscope.pdf).
 
 ## License
 

@@ -232,11 +232,53 @@ public class Analysis {
 		if (!this.options.hasQuiet()){
 			if (this.options.hasRaw()) {
 				this.printRawResults(false);
+			}else if(this.options.hasVerbose()) {
+				this.printVerboseResults();
 			}else {
 				this.printResults();
 			}
 		}
 		timeOut.cancel();
+	}
+
+	private void printVerboseResults() {
+		SootMethod ifMethod = null;
+		SootClass ifClass = null;
+		String ifComponent = null;
+		IfStmt ifStmt = null;
+		int LbCount = 0;
+		if(this.plbr.hasPotentialLogicBombs()) {
+			System.out.println(String.format("\n APK %s potentially contains the following logic bombs:", this.pkgName));
+			System.out.println("----------------------------------------------------------------");
+			for(Entry<IfStmt, Pair<List<SymbolicValue>, SootMethod>> e : this.plbr.getPotentialLogicBombs().entrySet()) {
+				LbCount += 1;
+				System.out.println(String.format("Potential logic bomb %d:", LbCount));
+				ifStmt = e.getKey();
+				ifMethod = this.icfg.getMethodOf(ifStmt);
+				ifClass = ifMethod.getDeclaringClass();
+				ifComponent = Utils.getComponentType(ifClass);
+				System.out.println(String.format("- It is located in class %s and in method %s", ifClass, ifMethod.getName()));
+				System.out.println(String.format("- The following \"if\" statement triggers the "
+						+ "potential logic bomb: \"if %s\" which contains the following possible predicates:", ifStmt.getCondition()));
+				for(SymbolicValue sv : e.getValue().getValue0()) {
+					System.out.println(String.format("    - %s %s", sv.getValue(), sv));
+				}
+				System.out.println(String.format("- The sequence of method calls to reach this potential logic"
+						+ " bomb starts in component of type %s and ends in component of type %s", Utils.getStartingComponent(ifMethod),
+						ifComponent));
+				System.out.println(String.format("- The sequence of method call to reach this potential logic bomb"
+						+ " (call stack) has a length of %s", Utils.join(", ", Utils.getLengthLogicBombCallStack(ifMethod))));
+				System.out.println(String.format("- The size of the logical formula to reach the potential logic bomb is %d", this.ppr.getSizeOfFullPath(ifStmt)));
+				System.out.println(String.format("- The following sensitive method was used to qualify the trigger as potentially a logic bomb: %s", e.getValue().getValue1().getSignature()));
+				System.out.println(Utils.isInCallGraph(ifMethod) ? "- The logic bomb is reachable from the program entry point" : "- The logic bomb is not "
+						+ "reachable from the program entry point");
+				System.out.println(String.format("- The potential logic bomb contains %d Jimple instructions", Utils.getGuardedBlocksDensity(this.ppr, ifStmt)));
+				System.out.println(Utils.isNested(ifStmt, this.icfg, this.plbr, this.ppr) ? "- The potential logic bomb is nested in another" : "- The potential logic bomb is not nested in another");
+				System.out.println("----------------------------------------------------------------\n");
+			}
+		}else {
+			System.out.println("\nNo Logic Bomb found\n");
+		}
 	}
 
 	private void printResults() {

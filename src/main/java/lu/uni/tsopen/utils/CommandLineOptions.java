@@ -62,6 +62,8 @@ public class CommandLineOptions {
 			new Triplet<String, String, String>("callgraph", "c", "Define the call-graph algorithm to use (SPARK, CHA, RTA, VTA)");
 	private static final Triplet<String, String, String> RAW =
 			new Triplet<String, String, String>("raw", "r", "write raw results in stdout");
+	private static final Triplet<String, String, String> VERBOSE =
+			new Triplet<String, String, String>("verbose", "v", "Output verbose results");
 	private static final String TSOPEN = "TSOpen";
 
 	private Options options, firstOptions;
@@ -159,6 +161,12 @@ public class CommandLineOptions {
 				.desc(RAW.getValue2())
 				.argName(RAW.getValue0())
 				.build();
+		
+		final Option verbose = Option.builder(VERBOSE.getValue1())
+				.longOpt(VERBOSE.getValue0())
+				.desc(VERBOSE.getValue2())
+				.argName(VERBOSE.getValue0())
+				.build();
 
 		final Option callgraph = Option.builder(CALLGRAPH.getValue1())
 				.longOpt(CALLGRAPH.getValue0())
@@ -178,6 +186,7 @@ public class CommandLineOptions {
 		this.options.addOption(quiet);
 		this.options.addOption(callgraph);
 		this.options.addOption(raw);
+		this.options.addOption(verbose);
 
 		for(Option o : this.firstOptions.getOptions()) {
 			this.options.addOption(o);
@@ -210,6 +219,10 @@ public class CommandLineOptions {
 
 	public boolean hasRaw() {
 		return this.cmdLine.hasOption(RAW.getValue1());
+	}
+	
+	public boolean hasVerbose() {
+		return this.cmdLine.hasOption(VERBOSE.getValue1());
 	}
 
 	public int getTimeout() {

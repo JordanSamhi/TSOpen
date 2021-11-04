@@ -3077,6 +3077,7 @@
 <android.telephony.TelephonyManager: android.telephony.CellLocation getCellLocation()>
 <android.telephony.TelephonyManager: java.lang.String getCompleteVoiceMailNumber()>
 <android.telephony.TelephonyManager: java.lang.String getDeviceId()>
+<android.telephony.TelephonyManager: java.lang.String getImei()>
 <android.telephony.TelephonyManager: java.lang.String getDeviceSoftwareVersion()>
 <android.telephony.TelephonyManager: java.lang.String getLine1AlphaTag()>
 <android.telephony.TelephonyManager: java.lang.String getLine1Number()>

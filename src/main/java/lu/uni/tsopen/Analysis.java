@@ -153,6 +153,7 @@ public class Analysis {
 		}
 
 		sa = new SetupApplication(ifac);
+		sa.getConfig().setMergeDexFiles(true);
 		sa.constructCallgraph();
 		this.icfg = new InfoflowCFG();
 		this.stopWatchCG.stop();
